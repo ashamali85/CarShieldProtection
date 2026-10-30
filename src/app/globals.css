@@ -48,6 +48,9 @@ body {
 h1, h2, h3 {
   letter-spacing: -0.015em;
 }
+:lang(en) body {
+  word-spacing: 0.05em;
+}
 :lang(ar) h1, :lang(ar) h2, :lang(ar) h3, :lang(ar) .eyebrow {
   letter-spacing: 0;
 }

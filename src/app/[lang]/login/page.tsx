@@ -34,7 +34,7 @@ export default async function LoginPage({ params }: PageProps<"/[lang]/login">) 
             width={880}
             height={1168}
             fetchPriority="high"
-            className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_72%] lg:inset-auto lg:bottom-0 lg:h-[68%] lg:object-[50%_80%] lg:[mask-image:linear-gradient(to_bottom,transparent,black_28%)]"
+            className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_72%] lg:inset-auto lg:bottom-0 lg:h-[60%] lg:object-[50%_82%] lg:[mask-image:linear-gradient(to_bottom,transparent,black_30%)]"
           />
           <div className="absolute inset-0 -z-10 bg-radial-[ellipse_at_30%_0%] from-white/90 to-transparent to-60%" />
           <div className="hidden p-10 lg:block xl:p-14">
