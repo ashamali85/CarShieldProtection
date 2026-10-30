@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, "Segoe UI", Tahoma, "Noto Sans Arabic", sans-serif;
+  /* Plus Jakarta Sans for Latin text, Readex Pro for Arabic — both self-hosted. */
+  --font-sans: "Plus Jakarta Sans Variable", "Readex Pro Variable", system-ui, "Segoe UI", Tahoma, sans-serif;
   /* Royal-blue enamel and brushed silver, sampled from the Bee Protection logo. */
   --color-brand-50: #eef3fb;
   --color-brand-100: #d9e4f7;
@@ -38,7 +39,17 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
+  font-feature-settings: "ss01", "cv11";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  letter-spacing: -0.015em;
+}
+:lang(ar) h1, :lang(ar) h2, :lang(ar) h3, :lang(ar) .eyebrow {
+  letter-spacing: 0;
 }
 
 :focus-visible {

@@ -24,7 +24,8 @@ export default async function LoginPage({ params }: PageProps<"/[lang]/login">) 
       <IntroSplash skipLabel={t.login.skipIntro} />
       <main className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
         {/* Brand panel: Higgsfield studio photo with the headline in its open upper area */}
-        <section className="relative isolate flex min-h-56 flex-col overflow-hidden bg-[#e9ebef] sm:min-h-72 lg:min-h-dvh">
+        <section className="relative isolate flex min-h-60 flex-col overflow-hidden bg-[#eceef2] sm:min-h-72 lg:min-h-dvh">
+          {/* The car sits in the lower part of the panel and fades into the studio backdrop above it. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={BRAND.hero}
@@ -33,15 +34,13 @@ export default async function LoginPage({ params }: PageProps<"/[lang]/login">) 
             width={880}
             height={1168}
             fetchPriority="high"
-            className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_72%] lg:object-bottom"
+            className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_72%] lg:inset-auto lg:bottom-0 lg:h-[68%] lg:object-[50%_80%] lg:[mask-image:linear-gradient(to_bottom,transparent,black_28%)]"
           />
-          <div className="absolute inset-0 -z-10 bg-linear-to-b from-white/85 via-white/30 via-40% to-transparent" />
+          <div className="absolute inset-0 -z-10 bg-radial-[ellipse_at_30%_0%] from-white/90 to-transparent to-60%" />
           <div className="hidden p-10 lg:block xl:p-14">
             <p className="eyebrow">{BRAND.name}</p>
-            <h2 className="mt-3 max-w-md text-4xl leading-tight font-semibold tracking-tight text-brand-950 xl:text-5xl">
-              {t.login.heroTitle}
-            </h2>
-            <p className="mt-4 max-w-sm text-base text-muted">{t.login.welcome}</p>
+            <h2 className="mt-4 max-w-lg text-4xl leading-[1.1] font-bold text-brand-950 xl:text-[3.25rem]">{t.login.heroTitle}</h2>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-muted xl:text-lg">{t.login.welcome}</p>
           </div>
         </section>
 
@@ -49,10 +48,8 @@ export default async function LoginPage({ params }: PageProps<"/[lang]/login">) 
         <section className="relative flex flex-col items-center justify-center px-4 pt-0 pb-10 lg:py-10">
           <div className="-mt-16 w-full max-w-sm lg:mt-0">
             <div className="mb-6 flex flex-col items-center text-center">
-              <span className="rounded-3xl bg-white p-3 shadow-(--shadow-lift) ring-1 ring-line lg:bg-transparent lg:p-0 lg:shadow-none lg:ring-0">
-                <BrandLogo priority className="h-28 w-auto sm:h-32 lg:h-44" />
-              </span>
-              <h1 className="mt-6 text-xl font-semibold tracking-tight">{t.login.title}</h1>
+              <BrandLogo priority className="h-32 w-auto sm:h-36 lg:h-48" />
+              <h1 className="mt-6 text-2xl font-bold">{t.login.title}</h1>
               <p className="mt-1 text-sm text-muted">{t.login.subtitle}</p>
             </div>
             <div className="card card-pad">

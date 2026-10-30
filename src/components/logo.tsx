@@ -3,10 +3,10 @@
 /** Brand assets, generated with Higgsfield and optimised for the web. */
 export const BRAND = {
   name: "Bee Protection",
-  /** Full 3D logo with the "BEE PROTECTION" wordmark (708×1200, WebP). */
-  logo: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/bddc3671-a8de-4d3e-9d7f-07b311b48208.webp",
-  /** Bee symbol only, square (256×256, PNG) — sidebar, invoices, browser tab. */
-  mark: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/920539d8-0c5f-42b7-b141-16e513ff346e.png",
+  /** Full 3D logo with the "BEE PROTECTION" wordmark, transparent background (640×1138, WebP). */
+  logo: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/7d18f972-5ac7-4e55-ab68-47b8af724119.webp",
+  /** Bee symbol only, transparent, square (256×256, PNG) — sidebar, invoices, browser tab. */
+  mark: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/17f09a42-a9d4-41f4-91de-0238c12d6431.png",
   /** 6-second logo animation (H.264, silent, 720×960). */
   intro: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/d732d889-683f-4cdf-9804-11866c5a35db.mp4",
   /** Last frame of the animation, shown while the video loads. */
@@ -53,7 +53,7 @@ export function BrandMark({ className = "size-8" }: { className?: string }) {
       src={BRAND.mark}
       alt=""
       aria-hidden="true"
-      className={`${className} shrink-0 rounded-lg bg-white object-contain p-0.5 shadow-sm ring-1 ring-black/5`}
+      className={`${className} shrink-0 object-contain drop-shadow-[0_2px_4px_rgb(6_22_58/0.35)]`}
       width={256}
       height={256}
       decoding="async"
@@ -67,9 +67,9 @@ export function BrandLogo({ className = "", alt = BRAND.name, priority = false }
     <img
       src={BRAND.logo}
       alt={alt}
-      width={708}
-      height={1200}
-      className={`object-contain ${className}`}
+      width={640}
+      height={1138}
+      className={`object-contain drop-shadow-[0_12px_24px_rgb(9_33_77/0.18)] ${className}`}
       fetchPriority={priority ? "high" : undefined}
       decoding="async"
     />
