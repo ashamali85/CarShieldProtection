@@ -25,18 +25,18 @@ export default async function LoginPage({ params }: PageProps<"/[lang]/login">) 
       <main className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
         {/* Brand panel: Higgsfield studio photo with the headline in its open upper area */}
         <section className="relative isolate flex min-h-60 flex-col overflow-hidden bg-[#eceef2] sm:min-h-72 lg:min-h-dvh">
-          {/* The car sits in the lower part of the panel and fades into the studio backdrop above it. */}
+          {/* Wide studio shot: open wall above the car leaves room for the headline. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={BRAND.hero}
             alt=""
             aria-hidden="true"
-            width={880}
-            height={1168}
+            width={1600}
+            height={1195}
             fetchPriority="high"
-            className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_72%] lg:inset-auto lg:bottom-0 lg:h-[60%] lg:object-[50%_82%] lg:[mask-image:linear-gradient(to_bottom,transparent,black_30%)]"
+            className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_62%] lg:object-[50%_75%]"
           />
-          <div className="absolute inset-0 -z-10 bg-radial-[ellipse_at_30%_0%] from-white/90 to-transparent to-60%" />
+          <div className="absolute inset-0 -z-10 bg-radial-[ellipse_at_20%_0%] from-white/80 to-transparent to-55%" />
           <div className="hidden p-10 lg:block xl:p-14">
             <p className="eyebrow">{BRAND.name}</p>
             <h2 className="mt-4 max-w-lg text-4xl leading-[1.1] font-bold text-brand-950 xl:text-[3.25rem]">{t.login.heroTitle}</h2>
@@ -45,8 +45,8 @@ export default async function LoginPage({ params }: PageProps<"/[lang]/login">) 
         </section>
 
         {/* Sign-in */}
-        <section className="relative flex flex-col items-center justify-center px-4 pt-0 pb-10 lg:py-10">
-          <div className="-mt-16 w-full max-w-sm lg:mt-0">
+        <section className="relative flex flex-col items-center justify-center px-4 pt-8 pb-10 lg:py-10">
+          <div className="w-full max-w-sm">
             <div className="mb-6 flex flex-col items-center text-center">
               <BrandLogo priority className="h-32 w-auto sm:h-36 lg:h-48" />
               <h1 className="mt-6 text-2xl font-bold">{t.login.title}</h1>

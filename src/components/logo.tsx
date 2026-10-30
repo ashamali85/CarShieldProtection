@@ -3,16 +3,19 @@
 /** Brand assets, generated with Higgsfield and optimised for the web. */
 export const BRAND = {
   name: "Bee Protection",
-  /** Full 3D logo with the "BEE PROTECTION" wordmark, transparent background (640×1138, WebP). */
-  logo: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/7d18f972-5ac7-4e55-ab68-47b8af724119.webp",
+  /**
+   * Full 3D logo with the "BEE PROTECTION" wordmark, transparent background (793×1138, WebP).
+   * Padded on the left so the wordmark — not the wing — sits on the image's centre line.
+   */
+  logo: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/bcec5984-f6d9-431f-88b2-f0b44db8553b.webp",
   /** Bee symbol only, transparent, square (256×256, PNG) — sidebar, invoices, browser tab. */
   mark: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/17f09a42-a9d4-41f4-91de-0238c12d6431.png",
   /** 6-second logo animation (H.264, silent, 720×960). */
   intro: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/d732d889-683f-4cdf-9804-11866c5a35db.mp4",
   /** Last frame of the animation, shown while the video loads. */
   introPoster: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/f643617b-f92a-4513-9a28-95b386e35f6f.jpg",
-  /** Studio photo of a ceramic-coated car (880×1168) — sign-in page. */
-  hero: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/276756e7-dea0-4053-8a80-dd9716dc0d38.webp",
+  /** Wide studio photo of a ceramic-coated car, outpainted with Higgsfield (1600×1195) — sign-in page. */
+  hero: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/46492caa-fdba-46ae-adae-bd1c61575ec5.webp",
   /** Wide photo of film being applied, subject on the right (1344×576) — dashboard. */
   banner: "https://d2ol7oe51mr4n9.cloudfront.net/user_3JCO3UXh1P2KlQ2FeJgOKnr7S2x/4d6d6fe8-5030-43fb-8de0-87c4b2742e82.webp",
 };
@@ -67,7 +70,7 @@ export function BrandLogo({ className = "", alt = BRAND.name, priority = false }
     <img
       src={BRAND.logo}
       alt={alt}
-      width={640}
+      width={793}
       height={1138}
       className={`object-contain drop-shadow-[0_12px_24px_rgb(9_33_77/0.18)] ${className}`}
       fetchPriority={priority ? "high" : undefined}
