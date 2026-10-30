@@ -1,0 +1,9431 @@
+{
+ "source": "Researched for the GCC market, model years 2000–2026 (Oct 2026). Admins can edit in Car catalog.",
+ "brands": [
+  {
+   "name": "Alfa Romeo",
+   "nameAr": "ألفا روميو",
+   "models": [
+    {
+     "name": "147",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2001,
+     "to": 2010
+    },
+    {
+     "name": "156",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "159",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2006,
+     "to": 2011
+    },
+    {
+     "name": "166",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2007
+    },
+    {
+     "name": "33 Stradale",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "4C",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2014,
+     "to": 2020
+    },
+    {
+     "name": "8C Competizione",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2008,
+     "to": 2010
+    },
+    {
+     "name": "Brera",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2006,
+     "to": 2010
+    },
+    {
+     "name": "Giulia",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "Giulietta",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2011,
+     "to": 2020
+    },
+    {
+     "name": "GT",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2004,
+     "to": 2010
+    },
+    {
+     "name": "GTV",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "Junior",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "MiTo",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": 2018
+    },
+    {
+     "name": "Spider",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2010
+    },
+    {
+     "name": "Stelvio",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "Tonale",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Aston Martin",
+   "nameAr": "أستون مارتن",
+   "models": [
+    {
+     "name": "DB11",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2017,
+     "to": 2023
+    },
+    {
+     "name": "DB12",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "DB7",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2004
+    },
+    {
+     "name": "DB9",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2004,
+     "to": 2016
+    },
+    {
+     "name": "DBS",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2008,
+     "to": 2012
+    },
+    {
+     "name": "DBS Superleggera",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2019,
+     "to": 2023
+    },
+    {
+     "name": "DBX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "DBX707",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Lagonda Taraf",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": 2016
+    },
+    {
+     "name": "One-77",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2010,
+     "to": 2012
+    },
+    {
+     "name": "Rapide",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2010,
+     "to": 2020
+    },
+    {
+     "name": "V12 Vantage",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2010,
+     "to": 2023
+    },
+    {
+     "name": "Valhalla",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Valkyrie",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2022,
+     "to": 2025
+    },
+    {
+     "name": "Vanquish",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2001,
+     "to": null
+    },
+    {
+     "name": "Vantage",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2006,
+     "to": null
+    },
+    {
+     "name": "Virage",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2012,
+     "to": 2012
+    }
+   ]
+  },
+  {
+   "name": "Audi",
+   "nameAr": "أودي",
+   "models": [
+    {
+     "name": "A1",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2011,
+     "to": 2019
+    },
+    {
+     "name": "A3",
+     "bodies": [
+      "sedan",
+      "hatchback",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "A4",
+     "bodies": [
+      "sedan",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2025
+    },
+    {
+     "name": "A5",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "A6",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "A6 e-tron",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "A7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2011,
+     "to": null
+    },
+    {
+     "name": "A8",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "e-tron",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": 2023
+    },
+    {
+     "name": "e-tron GT",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Q2",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "Q3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2012,
+     "to": null
+    },
+    {
+     "name": "Q3 Sportback",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "Q5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": null
+    },
+    {
+     "name": "Q5 Sportback",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Q6 e-tron",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Q7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "Q8",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Q8 e-tron",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": 2025
+    },
+    {
+     "name": "R8",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2007,
+     "to": 2024
+    },
+    {
+     "name": "RS 3",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "RS 4 Avant",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2013,
+     "to": 2025
+    },
+    {
+     "name": "RS 5",
+     "bodies": [
+      "sedan",
+      "coupe"
+     ],
+     "from": 2011,
+     "to": null
+    },
+    {
+     "name": "RS 6 Avant",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "RS 7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "RS e-tron GT",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "RS Q3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "RS Q8",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "S3",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "S4",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2025
+    },
+    {
+     "name": "S5",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "S6",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "S7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2013,
+     "to": null
+    },
+    {
+     "name": "S8",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "SQ5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "SQ6 e-tron",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "SQ7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "SQ8",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "TT",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2023
+    },
+    {
+     "name": "TT RS",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2010,
+     "to": 2023
+    },
+    {
+     "name": "TTS",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2009,
+     "to": 2023
+    }
+   ]
+  },
+  {
+   "name": "Bentley",
+   "nameAr": "بنتلي",
+   "models": [
+    {
+     "name": "Arnage",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2009
+    },
+    {
+     "name": "Azure",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2010
+    },
+    {
+     "name": "Bacalar",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2021,
+     "to": 2022
+    },
+    {
+     "name": "Batur",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Bentayga",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "Brooklands",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2008,
+     "to": 2010
+    },
+    {
+     "name": "Continental GT",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "Continental GTC",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "Continental R",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2003
+    },
+    {
+     "name": "Continental T",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2003
+    },
+    {
+     "name": "Flying Spur",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2006,
+     "to": null
+    },
+    {
+     "name": "Mulsanne",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2011,
+     "to": 2020
+    }
+   ]
+  },
+  {
+   "name": "Bestune",
+   "nameAr": "بستيون",
+   "models": [
+    {
+     "name": "B70",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "B70S",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "M9",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "T55",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "T77",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "T90",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "T99",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "BMW",
+   "nameAr": "بي إم دبليو",
+   "models": [
+    {
+     "name": "1 Series",
+     "bodies": [
+      "hatchback",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2005,
+     "to": null
+    },
+    {
+     "name": "1M Coupe",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2011,
+     "to": 2012
+    },
+    {
+     "name": "2 Series",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "2 Series Active Tourer",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "2 Series Gran Coupe",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "3 Series",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "3 Series Gran Turismo",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2014,
+     "to": 2019
+    },
+    {
+     "name": "4 Series",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "4 Series Gran Coupe",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "5 Series",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "5 Series Gran Turismo",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2010,
+     "to": 2017
+    },
+    {
+     "name": "6 Series",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2004,
+     "to": 2018
+    },
+    {
+     "name": "6 Series Gran Coupe",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2012,
+     "to": 2018
+    },
+    {
+     "name": "6 Series Gran Turismo",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2018,
+     "to": 2023
+    },
+    {
+     "name": "7 Series",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "8 Series",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2019,
+     "to": 2025
+    },
+    {
+     "name": "8 Series Gran Coupe",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2020,
+     "to": 2025
+    },
+    {
+     "name": "i3",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2014,
+     "to": 2022
+    },
+    {
+     "name": "i4",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "i5",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "i7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "i8",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2015,
+     "to": 2020
+    },
+    {
+     "name": "iX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "iX1",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "iX2",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "iX3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "M2",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "M3",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "M4",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "M5",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "M6",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2006,
+     "to": 2018
+    },
+    {
+     "name": "M8",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2020,
+     "to": 2025
+    },
+    {
+     "name": "X1",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "X2",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "X3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "X3 M",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": 2024
+    },
+    {
+     "name": "X4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": 2025
+    },
+    {
+     "name": "X4 M",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": 2025
+    },
+    {
+     "name": "X5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "X5 M",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "X6",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "X6 M",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "X7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "XM",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Z3",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2002
+    },
+    {
+     "name": "Z4",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2003,
+     "to": null
+    },
+    {
+     "name": "Z8",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2003
+    }
+   ]
+  },
+  {
+   "name": "Bugatti",
+   "nameAr": "بوغاتي",
+   "models": [
+    {
+     "name": "Centodieci",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2021,
+     "to": 2022
+    },
+    {
+     "name": "Chiron",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2017,
+     "to": 2024
+    },
+    {
+     "name": "Divo",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2019,
+     "to": 2021
+    },
+    {
+     "name": "Tourbillon",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Veyron",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2006,
+     "to": 2015
+    },
+    {
+     "name": "W16 Mistral",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2024,
+     "to": 2025
+    }
+   ]
+  },
+  {
+   "name": "BYD",
+   "nameAr": "بي واي دي",
+   "models": [
+    {
+     "name": "Atto 3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Han",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Qin Plus",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Seal",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Seal 6",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Sealion 5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Sealion 7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Shark 6",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Song Plus",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Cadillac",
+   "nameAr": "كاديلاك",
+   "models": [
+    {
+     "name": "ATS",
+     "bodies": [
+      "sedan",
+      "coupe"
+     ],
+     "from": 2013,
+     "to": 2019
+    },
+    {
+     "name": "Catera",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2001
+    },
+    {
+     "name": "CT4",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "CT5",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "CT6",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2016,
+     "to": 2020
+    },
+    {
+     "name": "CTS",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "wagon"
+     ],
+     "from": 2003,
+     "to": 2019
+    },
+    {
+     "name": "DeVille",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "DTS",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2006,
+     "to": 2011
+    },
+    {
+     "name": "Eldorado",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2002
+    },
+    {
+     "name": "Escalade",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Escalade EXT",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2002,
+     "to": 2013
+    },
+    {
+     "name": "Escalade IQ",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Lyriq",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Optiq",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Seville",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2004
+    },
+    {
+     "name": "SRX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2004,
+     "to": 2016
+    },
+    {
+     "name": "STS",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2005,
+     "to": 2011
+    },
+    {
+     "name": "Vistiq",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "XLR",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2004,
+     "to": 2009
+    },
+    {
+     "name": "XT4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": 2025
+    },
+    {
+     "name": "XT5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "XT6",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": 2025
+    }
+   ]
+  },
+  {
+   "name": "Changan",
+   "nameAr": "شانجان",
+   "models": [
+    {
+     "name": "Alsvin",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2013,
+     "to": null
+    },
+    {
+     "name": "CS15",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": 2021
+    },
+    {
+     "name": "CS35",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2013,
+     "to": 2021
+    },
+    {
+     "name": "CS35 Plus",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "CS55 Plus",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "CS75",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": 2021
+    },
+    {
+     "name": "CS75 Plus",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "CS85",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "CS95",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "Eado",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2013,
+     "to": 2021
+    },
+    {
+     "name": "Eado Plus",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Hunter",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Raeton",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": 2019
+    },
+    {
+     "name": "UNI-K",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "UNI-S",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "UNI-T",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "UNI-V",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Chery",
+   "nameAr": "شيري",
+   "models": [
+    {
+     "name": "A1",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": 2013
+    },
+    {
+     "name": "A3",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": 2013
+    },
+    {
+     "name": "A5",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2007,
+     "to": 2012
+    },
+    {
+     "name": "Arrizo 3",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": 2019
+    },
+    {
+     "name": "Arrizo 5",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "Arrizo 6",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": 2023
+    },
+    {
+     "name": "Arrizo 6 Pro",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": 2025
+    },
+    {
+     "name": "Arrizo 7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": 2020
+    },
+    {
+     "name": "Arrizo 8",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "E8",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2013,
+     "to": 2015
+    },
+    {
+     "name": "Eastar",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2006,
+     "to": 2012
+    },
+    {
+     "name": "QQ",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2006,
+     "to": 2013
+    },
+    {
+     "name": "Tiggo",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2006,
+     "to": 2014
+    },
+    {
+     "name": "Tiggo 2",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": 2021
+    },
+    {
+     "name": "Tiggo 2 Pro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": 2025
+    },
+    {
+     "name": "Tiggo 3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": 2019
+    },
+    {
+     "name": "Tiggo 4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Tiggo 4 Pro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": 2024
+    },
+    {
+     "name": "Tiggo 5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": 2018
+    },
+    {
+     "name": "Tiggo 7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "Tiggo 7 Pro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": 2024
+    },
+    {
+     "name": "Tiggo 7 Pro Max",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": 2025
+    },
+    {
+     "name": "Tiggo 8",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Tiggo 8 Pro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": 2024
+    },
+    {
+     "name": "Tiggo 8 Pro Max",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": 2025
+    },
+    {
+     "name": "Tiggo 9",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Tiggo X",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Tiggo XL",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Chevrolet",
+   "nameAr": "شفروليه",
+   "models": [
+    {
+     "name": "Avalanche",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2002,
+     "to": 2013
+    },
+    {
+     "name": "Aveo",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2004,
+     "to": 2017
+    },
+    {
+     "name": "Blazer",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2024
+    },
+    {
+     "name": "Bolt EV",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2020,
+     "to": 2023
+    },
+    {
+     "name": "Camaro",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2024
+    },
+    {
+     "name": "Caprice",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2017
+    },
+    {
+     "name": "Captiva",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "Captiva EV",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Cavalier",
+     "bodies": [
+      "sedan",
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "Colorado",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "Corvette",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Cruze",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": null
+    },
+    {
+     "name": "Epica",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2007,
+     "to": 2011
+    },
+    {
+     "name": "Equinox",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "Equinox EV",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Express",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": 2024
+    },
+    {
+     "name": "Groove",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "HHR",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2006,
+     "to": 2011
+    },
+    {
+     "name": "Impala",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2020
+    },
+    {
+     "name": "Lumina",
+     "bodies": [
+      "sedan",
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2011
+    },
+    {
+     "name": "Malibu",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2024
+    },
+    {
+     "name": "Optra",
+     "bodies": [
+      "sedan",
+      "hatchback",
+      "wagon"
+     ],
+     "from": 2004,
+     "to": 2008
+    },
+    {
+     "name": "Silverado",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Silverado HD",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Sonic",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2012,
+     "to": 2016
+    },
+    {
+     "name": "Spark",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2010,
+     "to": 2020
+    },
+    {
+     "name": "Spark EUV",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Suburban",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Tahoe",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Trailblazer",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2002,
+     "to": 2020
+    },
+    {
+     "name": "Traverse",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": null
+    },
+    {
+     "name": "Trax",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "Uplander",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2005,
+     "to": 2008
+    },
+    {
+     "name": "Venture",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": 2005
+    }
+   ]
+  },
+  {
+   "name": "Chrysler",
+   "nameAr": "كرايسلر",
+   "models": [
+    {
+     "name": "200",
+     "bodies": [
+      "sedan",
+      "convertible"
+     ],
+     "from": 2011,
+     "to": 2017
+    },
+    {
+     "name": "300",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2005,
+     "to": 2023
+    },
+    {
+     "name": "300M",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2004
+    },
+    {
+     "name": "Concorde",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2004
+    },
+    {
+     "name": "Crossfire",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2004,
+     "to": 2008
+    },
+    {
+     "name": "Pacifica",
+     "bodies": [
+      "suv",
+      "minivan"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "PT Cruiser",
+     "bodies": [
+      "hatchback",
+      "convertible"
+     ],
+     "from": 2001,
+     "to": 2010
+    },
+    {
+     "name": "Sebring",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2010
+    },
+    {
+     "name": "Town & Country",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": 2016
+    }
+   ]
+  },
+  {
+   "name": "Dodge",
+   "nameAr": "دودج",
+   "models": [
+    {
+     "name": "Avenger",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2008,
+     "to": 2014
+    },
+    {
+     "name": "Caliber",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2007,
+     "to": 2012
+    },
+    {
+     "name": "Challenger",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2008,
+     "to": 2023
+    },
+    {
+     "name": "Charger",
+     "bodies": [
+      "sedan",
+      "coupe"
+     ],
+     "from": 2006,
+     "to": null
+    },
+    {
+     "name": "Dakota",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": 2011
+    },
+    {
+     "name": "Durango",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Grand Caravan",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": 2020
+    },
+    {
+     "name": "Intrepid",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2004
+    },
+    {
+     "name": "Journey",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": 2020
+    },
+    {
+     "name": "Magnum",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2005,
+     "to": 2008
+    },
+    {
+     "name": "Neon",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2019
+    },
+    {
+     "name": "Nitro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": 2011
+    },
+    {
+     "name": "Ram",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": 2010
+    },
+    {
+     "name": "Stratus",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2006
+    },
+    {
+     "name": "Viper",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2017
+    }
+   ]
+  },
+  {
+   "name": "Dongfeng",
+   "nameAr": "دونغ فنغ",
+   "models": [
+    {
+     "name": "007",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "008",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "A30",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2016,
+     "to": 2019
+    },
+    {
+     "name": "A60",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2016,
+     "to": 2021
+    },
+    {
+     "name": "AX4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": 2021
+    },
+    {
+     "name": "AX7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "Forthing T5 EVO",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "H30 Cross",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2014,
+     "to": 2017
+    },
+    {
+     "name": "Huge",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Mage",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Rich 7",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "S30",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": 2017
+    },
+    {
+     "name": "Shine",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Shine Max",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Exeed",
+   "nameAr": "إكسيد",
+   "models": [
+    {
+     "name": "ES",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "ET",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "LX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "RX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "TXL",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": 2024
+    },
+    {
+     "name": "VX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Ferrari",
+   "nameAr": "فيراري",
+   "models": [
+    {
+     "name": "12Cilindri",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "296 GTB",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "296 GTS",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "296 Speciale",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "360 Challenge Stradale",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2004,
+     "to": 2004
+    },
+    {
+     "name": "360 Modena",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "360 Spider",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2001,
+     "to": 2005
+    },
+    {
+     "name": "430 Scuderia",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2008,
+     "to": 2009
+    },
+    {
+     "name": "456M GT",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2003
+    },
+    {
+     "name": "458 Italia",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2010,
+     "to": 2015
+    },
+    {
+     "name": "458 Speciale",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2014,
+     "to": 2015
+    },
+    {
+     "name": "458 Spider",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2012,
+     "to": 2015
+    },
+    {
+     "name": "488 GTB",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2016,
+     "to": 2019
+    },
+    {
+     "name": "488 Pista",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2019,
+     "to": 2020
+    },
+    {
+     "name": "488 Spider",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2016,
+     "to": 2019
+    },
+    {
+     "name": "550 Barchetta",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2001,
+     "to": 2001
+    },
+    {
+     "name": "550 Maranello",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2001
+    },
+    {
+     "name": "575M Maranello",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2002,
+     "to": 2006
+    },
+    {
+     "name": "599 GTB Fiorano",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2007,
+     "to": 2012
+    },
+    {
+     "name": "599 GTO",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2011,
+     "to": 2011
+    },
+    {
+     "name": "612 Scaglietti",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2004,
+     "to": 2011
+    },
+    {
+     "name": "812 Competizione",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2022,
+     "to": 2023
+    },
+    {
+     "name": "812 GTS",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2020,
+     "to": 2023
+    },
+    {
+     "name": "812 Superfast",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2018,
+     "to": 2023
+    },
+    {
+     "name": "849 Testarossa",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Amalfi",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "California",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2009,
+     "to": 2014
+    },
+    {
+     "name": "California T",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2015,
+     "to": 2017
+    },
+    {
+     "name": "Daytona SP3",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2022,
+     "to": 2025
+    },
+    {
+     "name": "Enzo",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2003,
+     "to": 2004
+    },
+    {
+     "name": "F12berlinetta",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2013,
+     "to": 2017
+    },
+    {
+     "name": "F12tdf",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2016,
+     "to": 2017
+    },
+    {
+     "name": "F430",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2005,
+     "to": 2009
+    },
+    {
+     "name": "F430 Spider",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2005,
+     "to": 2009
+    },
+    {
+     "name": "F8 Spider",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2020,
+     "to": 2023
+    },
+    {
+     "name": "F8 Tributo",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2020,
+     "to": 2023
+    },
+    {
+     "name": "F80",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "FF",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2012,
+     "to": 2016
+    },
+    {
+     "name": "GTC4Lusso",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2017,
+     "to": 2020
+    },
+    {
+     "name": "LaFerrari",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2014,
+     "to": 2017
+    },
+    {
+     "name": "Luce",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Monza SP1",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2019,
+     "to": 2021
+    },
+    {
+     "name": "Monza SP2",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2019,
+     "to": 2021
+    },
+    {
+     "name": "Portofino",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2018,
+     "to": 2020
+    },
+    {
+     "name": "Portofino M",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2021,
+     "to": 2023
+    },
+    {
+     "name": "Purosangue",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Roma",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2021,
+     "to": 2025
+    },
+    {
+     "name": "Roma Spider",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "SF90 Spider",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2021,
+     "to": 2025
+    },
+    {
+     "name": "SF90 Stradale",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2020,
+     "to": 2025
+    },
+    {
+     "name": "SF90 XX Stradale",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2024,
+     "to": 2025
+    }
+   ]
+  },
+  {
+   "name": "Ford",
+   "nameAr": "فورد",
+   "models": [
+    {
+     "name": "Bronco",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Crown Victoria",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2011
+    },
+    {
+     "name": "E-Series",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": 2014
+    },
+    {
+     "name": "EcoSport",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": 2022
+    },
+    {
+     "name": "Edge",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "Escape",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2001,
+     "to": null
+    },
+    {
+     "name": "Escort",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": 2019
+    },
+    {
+     "name": "Everest",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "Excursion",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "Expedition",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Explorer",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Explorer Sport Trac",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2001,
+     "to": 2010
+    },
+    {
+     "name": "F-150",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "F-150 Raptor",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "Fiesta",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": 2019
+    },
+    {
+     "name": "Figo",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2015,
+     "to": 2021
+    },
+    {
+     "name": "Five Hundred",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2005,
+     "to": 2007
+    },
+    {
+     "name": "Flex",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": 2019
+    },
+    {
+     "name": "Focus",
+     "bodies": [
+      "sedan",
+      "hatchback",
+      "wagon"
+     ],
+     "from": 2000,
+     "to": 2018
+    },
+    {
+     "name": "Freestar",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2004,
+     "to": 2007
+    },
+    {
+     "name": "Freestyle",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2005,
+     "to": 2007
+    },
+    {
+     "name": "Fusion",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2006,
+     "to": 2020
+    },
+    {
+     "name": "GT",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2005,
+     "to": 2022
+    },
+    {
+     "name": "Mondeo",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2007
+    },
+    {
+     "name": "Mustang",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Mustang Mach-E",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Ranger",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Ranger Raptor",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Super Duty",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Taurus",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Territory",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Thunderbird",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2002,
+     "to": 2005
+    },
+    {
+     "name": "Transit",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Windstar",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": 2003
+    }
+   ]
+  },
+  {
+   "name": "GAC",
+   "nameAr": "جي إيه سي",
+   "models": [
+    {
+     "name": "Emkoo",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Empow",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "GA4",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2018,
+     "to": 2022
+    },
+    {
+     "name": "GA6",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2018,
+     "to": 2023
+    },
+    {
+     "name": "GA8",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2018,
+     "to": 2023
+    },
+    {
+     "name": "GM8",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2019,
+     "to": 2021
+    },
+    {
+     "name": "GN6",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2020,
+     "to": 2022
+    },
+    {
+     "name": "GN8",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2020,
+     "to": 2023
+    },
+    {
+     "name": "GS3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": 2022
+    },
+    {
+     "name": "GS3 Emzoom",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "GS4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "GS5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": 2022
+    },
+    {
+     "name": "GS7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "GS8",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "M8",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2023,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Geely",
+   "nameAr": "جيلي",
+   "models": [
+    {
+     "name": "Azkarra",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": 2022
+    },
+    {
+     "name": "Binray",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2019,
+     "to": 2021
+    },
+    {
+     "name": "Cityray",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "CK",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2008,
+     "to": 2012
+    },
+    {
+     "name": "Coolray",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "Emgrand",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Emgrand 7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2017,
+     "to": 2021
+    },
+    {
+     "name": "Emgrand EC7",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2010,
+     "to": 2016
+    },
+    {
+     "name": "Emgrand EC8",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2011,
+     "to": 2015
+    },
+    {
+     "name": "Emgrand GS",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": 2021
+    },
+    {
+     "name": "Emgrand GT",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2016,
+     "to": 2019
+    },
+    {
+     "name": "Emgrand X7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2012,
+     "to": 2019
+    },
+    {
+     "name": "Emgrand X7 Sport",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": 2022
+    },
+    {
+     "name": "EX5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "GC6",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": 2018
+    },
+    {
+     "name": "GC7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": 2017
+    },
+    {
+     "name": "Geometry C",
+     "bodies": [
+      "hatchback",
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "GX2",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2012,
+     "to": 2016
+    },
+    {
+     "name": "GX3 Pro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "MK",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2009,
+     "to": 2013
+    },
+    {
+     "name": "Monjaro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Okavango",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Panda",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2010,
+     "to": 2015
+    },
+    {
+     "name": "Preface",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Starray",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Tugella",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Genesis",
+   "nameAr": "جينيسيس",
+   "models": [
+    {
+     "name": "Electrified GV70",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "G70",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "G80",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "G90",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "GV60",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "GV70",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "GV80",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "GV80 Coupe",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "GMC",
+   "nameAr": "جي إم سي",
+   "models": [
+    {
+     "name": "Acadia",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "Canyon",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "Envoy",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2002,
+     "to": 2009
+    },
+    {
+     "name": "Hummer EV",
+     "bodies": [
+      "suv",
+      "pickup"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Jimmy",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "Safari",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "Savana",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Sierra",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Sierra HD",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Terrain",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "Yukon",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Yukon XL",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "GWM",
+   "nameAr": "جريت وول",
+   "models": [
+    {
+     "name": "Florid",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": 2013
+    },
+    {
+     "name": "Hover H3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": 2013
+    },
+    {
+     "name": "Hover H5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2010,
+     "to": 2014
+    },
+    {
+     "name": "Poer",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Tank 300",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Tank 500",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Tank 700",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Voleex C30",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2011,
+     "to": 2015
+    },
+    {
+     "name": "Wingle 5",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2011,
+     "to": 2018
+    },
+    {
+     "name": "Wingle 7",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2019,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Haval",
+   "nameAr": "هافال",
+   "models": [
+    {
+     "name": "Dargo",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": 2024
+    },
+    {
+     "name": "H2",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": 2021
+    },
+    {
+     "name": "H6",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "H6 GT",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "H7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "H8",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": 2018
+    },
+    {
+     "name": "H9",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "Jolion",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Jolion Pro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "M4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2013,
+     "to": 2015
+    }
+   ]
+  },
+  {
+   "name": "Honda",
+   "nameAr": "هوندا",
+   "models": [
+    {
+     "name": "Accord",
+     "bodies": [
+      "sedan",
+      "coupe"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "City",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Civic",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Civic Type R",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "CR-V",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "HR-V",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "Jazz",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2002,
+     "to": 2020
+    },
+    {
+     "name": "Legend",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2012
+    },
+    {
+     "name": "MR-V",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": 2008
+    },
+    {
+     "name": "Odyssey",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Pilot",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": 2025
+    },
+    {
+     "name": "Prelude",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2001
+    },
+    {
+     "name": "S2000",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2009
+    },
+    {
+     "name": "ZR-V",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Hongqi",
+   "nameAr": "هونشي",
+   "models": [
+    {
+     "name": "E-HS9",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "H5",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "H7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "H9",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "HS3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "HS5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "HS7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Hyundai",
+   "nameAr": "هيونداي",
+   "models": [
+    {
+     "name": "Accent",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Atos",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": 2008
+    },
+    {
+     "name": "Azera",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2006,
+     "to": null
+    },
+    {
+     "name": "Centennial",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2009
+    },
+    {
+     "name": "Coupe",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2008
+    },
+    {
+     "name": "Creta",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "Creta Grand",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Elantra",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Elantra N",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Equus",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2010,
+     "to": 2016
+    },
+    {
+     "name": "Galloper",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2003
+    },
+    {
+     "name": "Genesis",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2009,
+     "to": 2016
+    },
+    {
+     "name": "Genesis Coupe",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2010,
+     "to": 2016
+    },
+    {
+     "name": "Getz",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2003,
+     "to": 2011
+    },
+    {
+     "name": "Grand i10",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "Grandeur",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "H-1",
+     "bodies": [
+      "van",
+      "minivan"
+     ],
+     "from": 2000,
+     "to": 2021
+    },
+    {
+     "name": "i10",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2008,
+     "to": 2013
+    },
+    {
+     "name": "i20",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": 2020
+    },
+    {
+     "name": "i30",
+     "bodies": [
+      "hatchback",
+      "wagon"
+     ],
+     "from": 2008,
+     "to": 2017
+    },
+    {
+     "name": "i40",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2012,
+     "to": 2019
+    },
+    {
+     "name": "Ioniq",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2017,
+     "to": 2022
+    },
+    {
+     "name": "Ioniq 5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Ioniq 5 N",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Ioniq 6",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Ioniq 9",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Kona",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "Matrix",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2001,
+     "to": 2010
+    },
+    {
+     "name": "Palisade",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "Santa Fe",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2001,
+     "to": null
+    },
+    {
+     "name": "Sonata",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Stargazer",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Staria",
+     "bodies": [
+      "van",
+      "minivan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Terracan",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2002,
+     "to": 2007
+    },
+    {
+     "name": "Trajet",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": 2008
+    },
+    {
+     "name": "Tucson",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2005,
+     "to": null
+    },
+    {
+     "name": "Veloster",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2012,
+     "to": 2020
+    },
+    {
+     "name": "Venue",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "Veracruz",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": 2012
+    }
+   ]
+  },
+  {
+   "name": "Infiniti",
+   "nameAr": "إنفينيتي",
+   "models": [
+    {
+     "name": "EX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2008,
+     "to": 2013
+    },
+    {
+     "name": "FX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": 2013
+    },
+    {
+     "name": "G",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2003,
+     "to": 2013
+    },
+    {
+     "name": "I35",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2004
+    },
+    {
+     "name": "JX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2013,
+     "to": 2013
+    },
+    {
+     "name": "M",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2003,
+     "to": 2013
+    },
+    {
+     "name": "Q30",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2016,
+     "to": 2019
+    },
+    {
+     "name": "Q45",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2006
+    },
+    {
+     "name": "Q50",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": 2024
+    },
+    {
+     "name": "Q60",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2014,
+     "to": 2022
+    },
+    {
+     "name": "Q70",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": 2019
+    },
+    {
+     "name": "QX30",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": 2019
+    },
+    {
+     "name": "QX4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2003
+    },
+    {
+     "name": "QX50",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": 2025
+    },
+    {
+     "name": "QX55",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": 2025
+    },
+    {
+     "name": "QX56",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2004,
+     "to": 2013
+    },
+    {
+     "name": "QX60",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "QX70",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": 2017
+    },
+    {
+     "name": "QX80",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Isuzu",
+   "nameAr": "إيسوزو",
+   "models": [
+    {
+     "name": "D-Max",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2003,
+     "to": null
+    },
+    {
+     "name": "MU-X",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "Trooper",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2002
+    }
+   ]
+  },
+  {
+   "name": "JAC",
+   "nameAr": "جاك",
+   "models": [
+    {
+     "name": "J4",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": 2017
+    },
+    {
+     "name": "J5",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2012,
+     "to": 2016
+    },
+    {
+     "name": "J6",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2012,
+     "to": 2016
+    },
+    {
+     "name": "J7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "JS3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "JS4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "JS6",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "M4",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "M5",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2014,
+     "to": 2019
+    },
+    {
+     "name": "S2",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": 2019
+    },
+    {
+     "name": "S3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": 2021
+    },
+    {
+     "name": "S7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": 2021
+    },
+    {
+     "name": "Sunray",
+     "bodies": [
+      "van",
+      "minivan"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "T6",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2016,
+     "to": 2021
+    },
+    {
+     "name": "T8",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2019,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Jaecoo",
+   "nameAr": "جايكو",
+   "models": [
+    {
+     "name": "J5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "J7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "J8",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Jaguar",
+   "nameAr": "جاكوار",
+   "models": [
+    {
+     "name": "E-Pace",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": 2024
+    },
+    {
+     "name": "F-Pace",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "F-Type",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2014,
+     "to": 2024
+    },
+    {
+     "name": "I-Pace",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": 2024
+    },
+    {
+     "name": "S-Type",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2008
+    },
+    {
+     "name": "X-Type",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2002,
+     "to": 2009
+    },
+    {
+     "name": "XE",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2016,
+     "to": 2024
+    },
+    {
+     "name": "XF",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2008,
+     "to": 2024
+    },
+    {
+     "name": "XJ",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2019
+    },
+    {
+     "name": "XK",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2007,
+     "to": 2015
+    },
+    {
+     "name": "XK8",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2006
+    }
+   ]
+  },
+  {
+   "name": "Jeep",
+   "nameAr": "جيب",
+   "models": [
+    {
+     "name": "Cherokee",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2023
+    },
+    {
+     "name": "Commander",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2006,
+     "to": null
+    },
+    {
+     "name": "Compass",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "Gladiator",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "Grand Cherokee",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Grand Cherokee L",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Grand Wagoneer",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Patriot",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": 2016
+    },
+    {
+     "name": "Renegade",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "Wagoneer",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": 2025
+    },
+    {
+     "name": "Wrangler",
+     "bodies": [
+      "convertible",
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Jetour",
+   "nameAr": "جيتور",
+   "models": [
+    {
+     "name": "Dashing",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "G700",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "T1",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "T2",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "X50",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "X70",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "X70 Plus",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "X70S",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": 2022
+    },
+    {
+     "name": "X90",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": 2022
+    },
+    {
+     "name": "X90 Plus",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": 2024
+    }
+   ]
+  },
+  {
+   "name": "Kaiyi",
+   "nameAr": "كايي",
+   "models": [
+    {
+     "name": "E5",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "X3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": 2024
+    },
+    {
+     "name": "X3 Pro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "X7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Kia",
+   "nameAr": "كيا",
+   "models": [
+    {
+     "name": "Cadenza",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2010,
+     "to": 2021
+    },
+    {
+     "name": "Carens",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Carnival",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Cerato",
+     "bodies": [
+      "sedan",
+      "hatchback",
+      "coupe"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "EV3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "EV5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "EV6",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "EV9",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "K4",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "K5",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "K8",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "K900",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": 2021
+    },
+    {
+     "name": "Mohave",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": null
+    },
+    {
+     "name": "Niro",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Opirus",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2004,
+     "to": 2010
+    },
+    {
+     "name": "Optima",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2001,
+     "to": 2020
+    },
+    {
+     "name": "Pegas",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Picanto",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "Rio",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Seltos",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "Sonet",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Sorento",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": null
+    },
+    {
+     "name": "Soul",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": null
+    },
+    {
+     "name": "Spectra",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2004
+    },
+    {
+     "name": "Sportage",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Stinger",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2018,
+     "to": 2023
+    },
+    {
+     "name": "Tasman",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Telluride",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Lamborghini",
+   "nameAr": "لامبورغيني",
+   "models": [
+    {
+     "name": "Aventador",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2012,
+     "to": 2022
+    },
+    {
+     "name": "Aventador S",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2017,
+     "to": 2022
+    },
+    {
+     "name": "Aventador SVJ",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2019,
+     "to": 2022
+    },
+    {
+     "name": "Countach LPI 800-4",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2022,
+     "to": 2022
+    },
+    {
+     "name": "Diablo",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2001
+    },
+    {
+     "name": "Gallardo",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2004,
+     "to": 2014
+    },
+    {
+     "name": "Huracán",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2015,
+     "to": 2019
+    },
+    {
+     "name": "Huracán EVO",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2020,
+     "to": 2024
+    },
+    {
+     "name": "Huracán Performante",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2018,
+     "to": 2019
+    },
+    {
+     "name": "Huracán Sterrato",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2023,
+     "to": 2024
+    },
+    {
+     "name": "Huracán STO",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2021,
+     "to": 2024
+    },
+    {
+     "name": "Huracán Tecnica",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2022,
+     "to": 2024
+    },
+    {
+     "name": "Murciélago",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2002,
+     "to": 2010
+    },
+    {
+     "name": "Murciélago LP 670-4 SV",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2009,
+     "to": 2010
+    },
+    {
+     "name": "Reventón",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2008,
+     "to": 2009
+    },
+    {
+     "name": "Revuelto",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Sián",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2021,
+     "to": 2022
+    },
+    {
+     "name": "Temerario",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Urus",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": 2024
+    },
+    {
+     "name": "Urus Performante",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": 2024
+    },
+    {
+     "name": "Urus S",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": 2024
+    },
+    {
+     "name": "Urus SE",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Land Rover",
+   "nameAr": "لاند روفر",
+   "models": [
+    {
+     "name": "Defender",
+     "bodies": [
+      "suv",
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Discovery",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Discovery Sport",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "Freelander",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2015
+    },
+    {
+     "name": "Range Rover",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Range Rover Evoque",
+     "bodies": [
+      "convertible",
+      "suv"
+     ],
+     "from": 2012,
+     "to": null
+    },
+    {
+     "name": "Range Rover Sport",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2005,
+     "to": null
+    },
+    {
+     "name": "Range Rover Velar",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Lexus",
+   "nameAr": "لكزس",
+   "models": [
+    {
+     "name": "CT",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2011,
+     "to": 2017
+    },
+    {
+     "name": "ES",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "GS",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2020
+    },
+    {
+     "name": "GS F",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2016,
+     "to": 2020
+    },
+    {
+     "name": "GX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": null
+    },
+    {
+     "name": "IS",
+     "bodies": [
+      "sedan",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "IS F",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2008,
+     "to": 2014
+    },
+    {
+     "name": "LBX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "LC",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "LFA",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2011,
+     "to": 2012
+    },
+    {
+     "name": "LM",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "LS",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "LX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "NX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "RC",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "RC F",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "RX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "RZ",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "SC",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2010
+    },
+    {
+     "name": "TX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "UX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Lincoln",
+   "nameAr": "لينكولن",
+   "models": [
+    {
+     "name": "Aviator",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": null
+    },
+    {
+     "name": "Continental",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2017,
+     "to": 2020
+    },
+    {
+     "name": "Corsair",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "LS",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2006
+    },
+    {
+     "name": "MKC",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": 2019
+    },
+    {
+     "name": "MKS",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2009,
+     "to": 2016
+    },
+    {
+     "name": "MKT",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2010,
+     "to": 2019
+    },
+    {
+     "name": "MKX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": 2018
+    },
+    {
+     "name": "MKZ",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2007,
+     "to": 2020
+    },
+    {
+     "name": "Nautilus",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Navigator",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Town Car",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2011
+    }
+   ]
+  },
+  {
+   "name": "Lotus",
+   "nameAr": "لوتس",
+   "models": [
+    {
+     "name": "Eletre",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Elise",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2021
+    },
+    {
+     "name": "Emeya",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Emira",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Europa S",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2006,
+     "to": 2010
+    },
+    {
+     "name": "Evija",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Evora",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2010,
+     "to": 2021
+    },
+    {
+     "name": "Exige",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2021
+    }
+   ]
+  },
+  {
+   "name": "Lynk & Co",
+   "nameAr": "لينك آند كو",
+   "models": [
+    {
+     "name": "01",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "03",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "05",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "06",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "09",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "900",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Maserati",
+   "nameAr": "مازيراتي",
+   "models": [
+    {
+     "name": "3200 GT",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2001
+    },
+    {
+     "name": "Coupé",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2002,
+     "to": 2007
+    },
+    {
+     "name": "Ghibli",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": 2024
+    },
+    {
+     "name": "GranCabrio",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "GranSport",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2005,
+     "to": 2007
+    },
+    {
+     "name": "GranTurismo",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "Grecale",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "GT2 Stradale",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Levante",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": 2024
+    },
+    {
+     "name": "MC12",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2004,
+     "to": 2005
+    },
+    {
+     "name": "MC20",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2021,
+     "to": 2025
+    },
+    {
+     "name": "MCPura",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Quattroporte",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2004,
+     "to": 2024
+    },
+    {
+     "name": "Spyder",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2002,
+     "to": 2007
+    }
+   ]
+  },
+  {
+   "name": "Maxus",
+   "nameAr": "ماكسوس",
+   "models": [
+    {
+     "name": "D60",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "D90",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "G10",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2015,
+     "to": 2021
+    },
+    {
+     "name": "G50",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "G90",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "T60",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "T70",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "T90",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "V80",
+     "bodies": [
+      "van",
+      "minivan"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "V90",
+     "bodies": [
+      "van",
+      "minivan"
+     ],
+     "from": 2021,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Mazda",
+   "nameAr": "مازدا",
+   "models": [
+    {
+     "name": "323",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": 2003
+    },
+    {
+     "name": "626",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2002
+    },
+    {
+     "name": "BT-50",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2007,
+     "to": 2015
+    },
+    {
+     "name": "CX-3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "CX-30",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "CX-5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2012,
+     "to": null
+    },
+    {
+     "name": "CX-60",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "CX-7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": 2012
+    },
+    {
+     "name": "CX-9",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": 2023
+    },
+    {
+     "name": "CX-90",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Mazda2",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2008,
+     "to": 2022
+    },
+    {
+     "name": "Mazda3",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "Mazda6",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2003,
+     "to": 2024
+    },
+    {
+     "name": "MPV",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": 2006
+    },
+    {
+     "name": "MX-5",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "RX-8",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2003,
+     "to": 2011
+    },
+    {
+     "name": "Tribute",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2001,
+     "to": 2007
+    }
+   ]
+  },
+  {
+   "name": "McLaren",
+   "nameAr": "مكلارين",
+   "models": [
+    {
+     "name": "12C",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2011,
+     "to": 2014
+    },
+    {
+     "name": "540C",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2016,
+     "to": 2019
+    },
+    {
+     "name": "570GT",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2016,
+     "to": 2021
+    },
+    {
+     "name": "570S",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2016,
+     "to": 2021
+    },
+    {
+     "name": "600LT",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2019,
+     "to": 2020
+    },
+    {
+     "name": "650S",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2014,
+     "to": 2017
+    },
+    {
+     "name": "675LT",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2016,
+     "to": 2017
+    },
+    {
+     "name": "720S",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2017,
+     "to": 2023
+    },
+    {
+     "name": "750S",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "765LT",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2021,
+     "to": 2022
+    },
+    {
+     "name": "Artura",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Elva",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2021,
+     "to": 2022
+    },
+    {
+     "name": "GT",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2020,
+     "to": 2024
+    },
+    {
+     "name": "GTS",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "P1",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2014,
+     "to": 2015
+    },
+    {
+     "name": "Senna",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2018,
+     "to": 2019
+    },
+    {
+     "name": "Speedtail",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2020,
+     "to": 2021
+    },
+    {
+     "name": "W1",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2025,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Mercedes-Benz",
+   "nameAr": "مرسيدس-بنز",
+   "models": [
+    {
+     "name": "A 45 AMG",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "A-Class",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2013,
+     "to": null
+    },
+    {
+     "name": "AMG GT",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "AMG GT 4-Door Coupe",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2019,
+     "to": 2025
+    },
+    {
+     "name": "B-Class",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2006,
+     "to": 2023
+    },
+    {
+     "name": "C 63 AMG",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "C-Class",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "CL-Class",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2014
+    },
+    {
+     "name": "CLA",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "CLA 45 AMG",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": 2025
+    },
+    {
+     "name": "CLE",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "CLK",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2010
+    },
+    {
+     "name": "CLS",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2005,
+     "to": 2024
+    },
+    {
+     "name": "CLS 63 AMG",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2007,
+     "to": 2018
+    },
+    {
+     "name": "E 63 AMG",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2007,
+     "to": 2023
+    },
+    {
+     "name": "E-Class",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "EQA",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "EQB",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "EQC",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": 2023
+    },
+    {
+     "name": "EQE",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "EQE SUV",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "EQS",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "EQS SUV",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "G 580 with EQ Technology",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "G 63 AMG",
+     "bodies": [
+      "convertible",
+      "suv"
+     ],
+     "from": 2013,
+     "to": null
+    },
+    {
+     "name": "G-Class",
+     "bodies": [
+      "convertible",
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "GL-Class",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": 2016
+    },
+    {
+     "name": "GLA",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "GLA 45 AMG",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "GLB",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "GLC",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "GLC 63 AMG",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "GLC Coupe",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "GLE",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "GLE 63 AMG",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "GLE Coupe",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "GLK",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": 2015
+    },
+    {
+     "name": "GLS",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "GLS 63 AMG",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "M-Class",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2015
+    },
+    {
+     "name": "Maybach EQS SUV",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Maybach GLS",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Maybach S-Class",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "Maybach SL",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "ML 63 AMG",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": 2015
+    },
+    {
+     "name": "R-Class",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2006,
+     "to": 2012
+    },
+    {
+     "name": "S 63 AMG",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "S 65 AMG",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2007,
+     "to": 2020
+    },
+    {
+     "name": "S-Class",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "SL",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "SL 63 AMG",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2009,
+     "to": null
+    },
+    {
+     "name": "SLC",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2017,
+     "to": 2020
+    },
+    {
+     "name": "SLK",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2016
+    },
+    {
+     "name": "SLR McLaren",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2004,
+     "to": 2009
+    },
+    {
+     "name": "SLS AMG",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2011,
+     "to": 2015
+    },
+    {
+     "name": "Sprinter",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "V-Class",
+     "bodies": [
+      "van"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "Viano",
+     "bodies": [
+      "van"
+     ],
+     "from": 2004,
+     "to": 2015
+    },
+    {
+     "name": "Vito",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "MG",
+   "nameAr": "إم جي",
+   "models": [
+    {
+     "name": "3",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2013,
+     "to": null
+    },
+    {
+     "name": "350",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2012,
+     "to": 2016
+    },
+    {
+     "name": "360",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2018,
+     "to": 2020
+    },
+    {
+     "name": "4",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "5",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "550",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2011,
+     "to": 2016
+    },
+    {
+     "name": "6",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2012,
+     "to": null
+    },
+    {
+     "name": "7",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "750",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2011,
+     "to": 2013
+    },
+    {
+     "name": "8",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Cyberster",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "ES5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "GS",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": 2020
+    },
+    {
+     "name": "GT",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "HS",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "One",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "RX5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "RX8",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "RX9",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "T60",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Whale",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "ZS",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "ZS EV",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "ZST",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": 2024
+    }
+   ]
+  },
+  {
+   "name": "MINI",
+   "nameAr": "ميني",
+   "models": [
+    {
+     "name": "3 Door",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2002,
+     "to": null
+    },
+    {
+     "name": "5 Door",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "Aceman",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Clubman",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2008,
+     "to": 2024
+    },
+    {
+     "name": "Convertible",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2005,
+     "to": null
+    },
+    {
+     "name": "Cooper Electric",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Countryman",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2011,
+     "to": null
+    },
+    {
+     "name": "Coupe",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2012,
+     "to": 2015
+    },
+    {
+     "name": "Paceman",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2013,
+     "to": 2016
+    },
+    {
+     "name": "Roadster",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2012,
+     "to": 2015
+    }
+   ]
+  },
+  {
+   "name": "Mitsubishi",
+   "nameAr": "ميتسوبيشي",
+   "models": [
+    {
+     "name": "ASX",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2011,
+     "to": null
+    },
+    {
+     "name": "Attrage",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "Colt",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2004,
+     "to": 2012
+    },
+    {
+     "name": "Destinator",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Eclipse",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2012
+    },
+    {
+     "name": "Eclipse Cross",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "Galant",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2012
+    },
+    {
+     "name": "Grandis",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2004,
+     "to": 2011
+    },
+    {
+     "name": "L200",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Lancer",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2017
+    },
+    {
+     "name": "Lancer Evolution",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2003,
+     "to": 2016
+    },
+    {
+     "name": "Mirage",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2013,
+     "to": null
+    },
+    {
+     "name": "Montero Sport",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": null
+    },
+    {
+     "name": "Nativa",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2008
+    },
+    {
+     "name": "Outlander",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": null
+    },
+    {
+     "name": "Pajero",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": 2024
+    },
+    {
+     "name": "Xpander",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Xpander Cross",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2021,
+     "to": 2024
+    }
+   ]
+  },
+  {
+   "name": "Nissan",
+   "nameAr": "نيسان",
+   "models": [
+    {
+     "name": "350Z",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2003,
+     "to": 2009
+    },
+    {
+     "name": "370Z",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2009,
+     "to": 2020
+    },
+    {
+     "name": "Altima",
+     "bodies": [
+      "sedan",
+      "coupe"
+     ],
+     "from": 2002,
+     "to": null
+    },
+    {
+     "name": "Armada",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2004,
+     "to": 2015
+    },
+    {
+     "name": "GT-R",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2009,
+     "to": 2025
+    },
+    {
+     "name": "Juke",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2011,
+     "to": 2019
+    },
+    {
+     "name": "Kicks",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "Magnite",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Maxima",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2023
+    },
+    {
+     "name": "Micra",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2011,
+     "to": 2020
+    },
+    {
+     "name": "Murano",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": 2020
+    },
+    {
+     "name": "Navara",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2005,
+     "to": null
+    },
+    {
+     "name": "Pathfinder",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Patrol",
+     "bodies": [
+      "suv",
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Patrol NISMO",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "Pickup",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": 2015
+    },
+    {
+     "name": "Qashqai",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2008,
+     "to": 2017
+    },
+    {
+     "name": "Sentra",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2013,
+     "to": 2023
+    },
+    {
+     "name": "Sunny",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Tiida",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2005,
+     "to": 2018
+    },
+    {
+     "name": "Urvan",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "X-Terra",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "X-Trail",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2001,
+     "to": null
+    },
+    {
+     "name": "Z",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2023,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Omoda",
+   "nameAr": "أومودا",
+   "models": [
+    {
+     "name": "C5",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "C7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Peugeot",
+   "nameAr": "بيجو",
+   "models": [
+    {
+     "name": "2008",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2014,
+     "to": null
+    },
+    {
+     "name": "206",
+     "bodies": [
+      "sedan",
+      "hatchback",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2010
+    },
+    {
+     "name": "207",
+     "bodies": [
+      "sedan",
+      "hatchback",
+      "convertible"
+     ],
+     "from": 2007,
+     "to": 2014
+    },
+    {
+     "name": "208",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2013,
+     "to": null
+    },
+    {
+     "name": "3008",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "301",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2013,
+     "to": 2023
+    },
+    {
+     "name": "306",
+     "bodies": [
+      "sedan",
+      "hatchback",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2002
+    },
+    {
+     "name": "307",
+     "bodies": [
+      "hatchback",
+      "convertible",
+      "wagon"
+     ],
+     "from": 2002,
+     "to": 2008
+    },
+    {
+     "name": "308",
+     "bodies": [
+      "hatchback",
+      "convertible",
+      "wagon"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "4007",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2008,
+     "to": 2012
+    },
+    {
+     "name": "406",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "wagon"
+     ],
+     "from": 2000,
+     "to": 2004
+    },
+    {
+     "name": "407",
+     "bodies": [
+      "sedan",
+      "coupe",
+      "wagon"
+     ],
+     "from": 2004,
+     "to": 2011
+    },
+    {
+     "name": "408",
+     "bodies": [
+      "hatchback",
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "5008",
+     "bodies": [
+      "suv",
+      "minivan"
+     ],
+     "from": 2011,
+     "to": null
+    },
+    {
+     "name": "508",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2011,
+     "to": 2024
+    },
+    {
+     "name": "607",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2010
+    },
+    {
+     "name": "Boxer",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Expert",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Landtrek",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Partner",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "RCZ",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2010,
+     "to": 2015
+    },
+    {
+     "name": "Rifter",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2019,
+     "to": 2023
+    },
+    {
+     "name": "Traveller",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2017,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Porsche",
+   "nameAr": "بورشه",
+   "models": [
+    {
+     "name": "911",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "911 GT3",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "911 GT3 RS",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "911 Turbo",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2001,
+     "to": null
+    },
+    {
+     "name": "918 Spyder",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2014,
+     "to": 2015
+    },
+    {
+     "name": "Boxster",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2025
+    },
+    {
+     "name": "Carrera GT",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2004,
+     "to": 2006
+    },
+    {
+     "name": "Cayenne",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": null
+    },
+    {
+     "name": "Cayenne Coupe",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "Cayenne Electric",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Cayman",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2006,
+     "to": 2025
+    },
+    {
+     "name": "Macan",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "Macan Electric",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "Panamera",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "Taycan",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2020,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Ram",
+   "nameAr": "رام",
+   "models": [
+    {
+     "name": "1200",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2018,
+     "to": 2021
+    },
+    {
+     "name": "1500",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2011,
+     "to": null
+    },
+    {
+     "name": "1500 TRX",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "2500",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2011,
+     "to": null
+    },
+    {
+     "name": "3500",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2011,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Renault",
+   "nameAr": "رينو",
+   "models": [
+    {
+     "name": "Arkana",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Captur",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2015,
+     "to": 2022
+    },
+    {
+     "name": "Clio",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": 2013
+    },
+    {
+     "name": "Dokker",
+     "bodies": [
+      "van"
+     ],
+     "from": 2013,
+     "to": 2020
+    },
+    {
+     "name": "Duster",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2012,
+     "to": null
+    },
+    {
+     "name": "Express",
+     "bodies": [
+      "van"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Fluence",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2010,
+     "to": 2016
+    },
+    {
+     "name": "Kangoo",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": 2020
+    },
+    {
+     "name": "Koleos",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "Laguna",
+     "bodies": [
+      "hatchback",
+      "wagon"
+     ],
+     "from": 2000,
+     "to": 2007
+    },
+    {
+     "name": "Latitude",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2011,
+     "to": 2016
+    },
+    {
+     "name": "Logan",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2005,
+     "to": 2014
+    },
+    {
+     "name": "Master",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Mégane",
+     "bodies": [
+      "sedan",
+      "hatchback",
+      "coupe",
+      "convertible",
+      "wagon"
+     ],
+     "from": 2000,
+     "to": 2023
+    },
+    {
+     "name": "Mégane R.S.",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2010,
+     "to": 2023
+    },
+    {
+     "name": "Safrane",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2009,
+     "to": 2013
+    },
+    {
+     "name": "Symbol",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2009,
+     "to": 2016
+    },
+    {
+     "name": "Taliant",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2021,
+     "to": 2024
+    },
+    {
+     "name": "Talisman",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2016,
+     "to": 2020
+    },
+    {
+     "name": "Trafic",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": 2020
+    }
+   ]
+  },
+  {
+   "name": "Rolls-Royce",
+   "nameAr": "رولز رويس",
+   "models": [
+    {
+     "name": "Corniche",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2002
+    },
+    {
+     "name": "Cullinan",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Dawn",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2016,
+     "to": 2023
+    },
+    {
+     "name": "Ghost",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2010,
+     "to": null
+    },
+    {
+     "name": "Park Ward",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2002
+    },
+    {
+     "name": "Phantom",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2003,
+     "to": null
+    },
+    {
+     "name": "Phantom Coupé",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2009,
+     "to": 2016
+    },
+    {
+     "name": "Phantom Drophead Coupé",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2008,
+     "to": 2016
+    },
+    {
+     "name": "Silver Seraph",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2002
+    },
+    {
+     "name": "Spectre",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "Wraith",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2014,
+     "to": 2023
+    }
+   ]
+  },
+  {
+   "name": "Soueast",
+   "nameAr": "ساوإيست",
+   "models": [
+    {
+     "name": "DX3",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": 2021
+    },
+    {
+     "name": "DX7",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": 2022
+    },
+    {
+     "name": "S06",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "S07",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "S09",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Subaru",
+   "nameAr": "سوبارو",
+   "models": [
+    {
+     "name": "BRZ",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2012,
+     "to": null
+    },
+    {
+     "name": "Crosstrek",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Forester",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Impreza",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": 2023
+    },
+    {
+     "name": "Legacy",
+     "bodies": [
+      "sedan",
+      "wagon"
+     ],
+     "from": 2000,
+     "to": 2019
+    },
+    {
+     "name": "Levorg",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2016,
+     "to": 2020
+    },
+    {
+     "name": "Outback",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Tribeca",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2006,
+     "to": 2014
+    },
+    {
+     "name": "WRX",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "WRX STI",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": 2021
+    },
+    {
+     "name": "XV",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2012,
+     "to": 2022
+    }
+   ]
+  },
+  {
+   "name": "Suzuki",
+   "nameAr": "سوزوكي",
+   "models": [
+    {
+     "name": "Alto",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": 2022
+    },
+    {
+     "name": "APV",
+     "bodies": [
+      "van"
+     ],
+     "from": 2005,
+     "to": 2021
+    },
+    {
+     "name": "Baleno",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2016,
+     "to": null
+    },
+    {
+     "name": "Celerio",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2015,
+     "to": 2022
+    },
+    {
+     "name": "Ciaz",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2015,
+     "to": null
+    },
+    {
+     "name": "Dzire",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "Eeco",
+     "bodies": [
+      "van"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "Ertiga",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2013,
+     "to": null
+    },
+    {
+     "name": "Fronx",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "Grand Vitara",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Jimny",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Kizashi",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2010,
+     "to": 2015
+    },
+    {
+     "name": "Liana",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2002,
+     "to": 2007
+    },
+    {
+     "name": "Swift",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2005,
+     "to": null
+    },
+    {
+     "name": "SX4",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2007,
+     "to": 2014
+    },
+    {
+     "name": "Vitara",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2016,
+     "to": 2022
+    }
+   ]
+  },
+  {
+   "name": "Tesla",
+   "nameAr": "تسلا",
+   "models": [
+    {
+     "name": "Cybertruck",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Model 3",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Model S",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "Model X",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "Model Y",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Toyota",
+   "nameAr": "تويوتا",
+   "models": [
+    {
+     "name": "86",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2012,
+     "to": 2021
+    },
+    {
+     "name": "Aurion",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2007,
+     "to": 2017
+    },
+    {
+     "name": "Avalon",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2022
+    },
+    {
+     "name": "Avanza",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2007,
+     "to": 2022
+    },
+    {
+     "name": "Belta",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2022,
+     "to": 2024
+    },
+    {
+     "name": "bZ4X",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "C-HR",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": 2022
+    },
+    {
+     "name": "Camry",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Celica",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2000,
+     "to": 2006
+    },
+    {
+     "name": "Corolla",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Corolla Cross",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "Crown",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Echo",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": 2005
+    },
+    {
+     "name": "FJ Cruiser",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2007,
+     "to": 2023
+    },
+    {
+     "name": "Fortuner",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2005,
+     "to": null
+    },
+    {
+     "name": "GR Corolla",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2023,
+     "to": null
+    },
+    {
+     "name": "GR Supra",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "GR Yaris",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2021,
+     "to": null
+    },
+    {
+     "name": "GR86",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Granvia",
+     "bodies": [
+      "van"
+     ],
+     "from": 2020,
+     "to": null
+    },
+    {
+     "name": "Hiace",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Highlander",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2001,
+     "to": null
+    },
+    {
+     "name": "Hilux",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Innova",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2005,
+     "to": null
+    },
+    {
+     "name": "Land Cruiser",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Land Cruiser 70",
+     "bodies": [
+      "suv",
+      "pickup"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Land Cruiser FJ",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Land Cruiser Prado",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "LiteAce",
+     "bodies": [
+      "pickup",
+      "van"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Previa",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2000,
+     "to": 2019
+    },
+    {
+     "name": "Prius",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2010,
+     "to": 2023
+    },
+    {
+     "name": "Raize",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "RAV4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Rush",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": 2024
+    },
+    {
+     "name": "Sequoia",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "Sienna",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2011,
+     "to": 2020
+    },
+    {
+     "name": "Tundra",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2007,
+     "to": null
+    },
+    {
+     "name": "Urban Cruiser",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": null
+    },
+    {
+     "name": "Veloz",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Yaris",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2006,
+     "to": null
+    },
+    {
+     "name": "Zelas",
+     "bodies": [
+      "coupe"
+     ],
+     "from": 2011,
+     "to": 2015
+    }
+   ]
+  },
+  {
+   "name": "Volkswagen",
+   "nameAr": "فولكس فاجن",
+   "models": [
+    {
+     "name": "Amarok",
+     "bodies": [
+      "pickup"
+     ],
+     "from": 2011,
+     "to": null
+    },
+    {
+     "name": "Arteon",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2018,
+     "to": 2024
+    },
+    {
+     "name": "Beetle",
+     "bodies": [
+      "hatchback",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2019
+    },
+    {
+     "name": "Caddy",
+     "bodies": [
+      "van"
+     ],
+     "from": 2005,
+     "to": null
+    },
+    {
+     "name": "CC",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2009,
+     "to": 2017
+    },
+    {
+     "name": "Crafter",
+     "bodies": [
+      "van"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "Eos",
+     "bodies": [
+      "convertible"
+     ],
+     "from": 2007,
+     "to": 2015
+    },
+    {
+     "name": "Golf",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Golf GTI",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Golf R",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2011,
+     "to": null
+    },
+    {
+     "name": "ID.4",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": null
+    },
+    {
+     "name": "Jetta",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Multivan",
+     "bodies": [
+      "van"
+     ],
+     "from": 2004,
+     "to": null
+    },
+    {
+     "name": "Passat",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": null
+    },
+    {
+     "name": "Phaeton",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2004,
+     "to": 2016
+    },
+    {
+     "name": "Polo",
+     "bodies": [
+      "sedan",
+      "hatchback"
+     ],
+     "from": 2000,
+     "to": 2020
+    },
+    {
+     "name": "Scirocco",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2009,
+     "to": 2017
+    },
+    {
+     "name": "T-Roc",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2019,
+     "to": null
+    },
+    {
+     "name": "Teramont",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "Tiguan",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2008,
+     "to": null
+    },
+    {
+     "name": "Touareg",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": null
+    },
+    {
+     "name": "Transporter",
+     "bodies": [
+      "van"
+     ],
+     "from": 2000,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Volvo",
+   "nameAr": "فولفو",
+   "models": [
+    {
+     "name": "C30",
+     "bodies": [
+      "hatchback"
+     ],
+     "from": 2007,
+     "to": 2013
+    },
+    {
+     "name": "C40 Recharge",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2022,
+     "to": 2025
+    },
+    {
+     "name": "C70",
+     "bodies": [
+      "coupe",
+      "convertible"
+     ],
+     "from": 2000,
+     "to": 2013
+    },
+    {
+     "name": "ES90",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "EX30",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2024,
+     "to": null
+    },
+    {
+     "name": "EX90",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "S40",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2012
+    },
+    {
+     "name": "S60",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2024
+    },
+    {
+     "name": "S70",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2000
+    },
+    {
+     "name": "S80",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2000,
+     "to": 2016
+    },
+    {
+     "name": "S90",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2017,
+     "to": null
+    },
+    {
+     "name": "V40",
+     "bodies": [
+      "hatchback",
+      "wagon"
+     ],
+     "from": 2000,
+     "to": 2019
+    },
+    {
+     "name": "V70",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2000,
+     "to": 2007
+    },
+    {
+     "name": "V90 Cross Country",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2017,
+     "to": 2020
+    },
+    {
+     "name": "XC40",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2018,
+     "to": null
+    },
+    {
+     "name": "XC60",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2009,
+     "to": null
+    },
+    {
+     "name": "XC70",
+     "bodies": [
+      "wagon"
+     ],
+     "from": 2000,
+     "to": 2016
+    },
+    {
+     "name": "XC90",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2003,
+     "to": null
+    }
+   ]
+  },
+  {
+   "name": "Zeekr",
+   "nameAr": "زيكر",
+   "models": [
+    {
+     "name": "001",
+     "bodies": [
+      "hatchback",
+      "wagon"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "007",
+     "bodies": [
+      "sedan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "009",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "7X",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "9X",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2026,
+     "to": null
+    },
+    {
+     "name": "Mix",
+     "bodies": [
+      "minivan"
+     ],
+     "from": 2025,
+     "to": null
+    },
+    {
+     "name": "X",
+     "bodies": [
+      "suv"
+     ],
+     "from": 2025,
+     "to": null
+    }
+   ]
+  }
+ ]
+}

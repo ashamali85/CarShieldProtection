@@ -5,7 +5,8 @@ Bilingual (Arabic / English) management system for a car protection shop: paint 
 ## Features
 
 - **Dashboard** — jobs in progress, today's appointments, money collected this month, outstanding balance, warranties expiring in 30 days.
-- **Customers & vehicles** — search by name, phone or plate; full job history per customer.
+- **Customers & vehicles** — search by name, phone or plate; full job history per customer. Every new customer is created with their car.
+- **Car catalog & picker** — interconnected Brand → Body type → Model → Year dropdowns backed by a researched GCC catalog (65 brands, 1,100+ models, 2000–2026, in `data/car-catalog.json`). Years are limited to each model's production range; an "Other" option allows typing an unlisted brand or model. Admins add, hide or update brands and models under **Car catalog**.
 - **Services catalog** — prices in KWD (3 decimals) and warranty length per service, with Arabic and English names.
 - **Jobs (work orders)** — Scheduled → In progress → Quality check → Ready for pickup → Delivered (or Cancelled), with technician assignment, appointment time, discount and notes. Service names and prices are snapshotted on the job.
 - **Invoices & payments** — one invoice per job, printable; partial payments by cash, KNET, card or transfer; overpayment is blocked.
@@ -56,6 +57,7 @@ With `DATABASE_URL=pglite://./.pglite` no database server is needed; data is sto
 | `npm run db:generate` | Create a migration after editing `src/db/schema.ts` |
 | `npm run db:migrate` | Apply migrations |
 | `npm run db:seed` | First admin user and starter services (safe to re-run) |
+| `npm run db:catalog` | Load or refresh the car catalog from `data/car-catalog.json` (safe to re-run) |
 
 ## Project layout
 
