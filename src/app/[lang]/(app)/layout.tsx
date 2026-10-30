@@ -20,6 +20,7 @@ function navItems(lang: Locale, isAdmin: boolean): NavItem[] {
     { href: `${base}/services`, label: t.services, icon: "services" },
     { href: `${base}/inventory`, label: t.inventory, icon: "inventory" },
   ];
+  if (isAdmin) items.push({ href: `${base}/catalog`, label: t.catalog, icon: "catalog" });
   if (isAdmin) items.push({ href: `${base}/users`, label: t.users, icon: "users" });
   return items;
 }

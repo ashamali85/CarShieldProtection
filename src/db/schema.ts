@@ -75,6 +75,47 @@ export const customers = pgTable(
   (t) => [index("customers_phone_idx").on(t.phone)],
 );
 
+export const bodyType = pgEnum("body_type", [
+  "sedan",
+  "hatchback",
+  "coupe",
+  "convertible",
+  "suv",
+  "pickup",
+  "van",
+  "minivan",
+  "wagon",
+]);
+
+/** Car catalog used by the vehicle picker: brand → body type → model → year. */
+export const carMakes = pgTable("car_makes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  nameAr: text("name_ar").notNull(),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const carModels = pgTable(
+  "car_models",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    makeId: uuid("make_id")
+      .notNull()
+      .references(() => carMakes.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    bodyType: bodyType("body_type").notNull(),
+    yearFrom: integer("year_from").notNull(),
+    /** Null while the model is still on sale. */
+    yearTo: integer("year_to"),
+    active: boolean("active").notNull().default(true),
+  },
+  (t) => [
+    uniqueIndex("car_models_make_name_body_uq").on(t.makeId, t.name, t.bodyType),
+    index("car_models_make_idx").on(t.makeId),
+  ],
+);
+
 export const vehicles = pgTable(
   "vehicles",
   {
@@ -84,6 +125,9 @@ export const vehicles = pgTable(
       .references(() => customers.id, { onDelete: "cascade" }),
     make: text("make").notNull(),
     model: text("model").notNull(),
+    /** Set when the car was picked from the catalog; make/model text stays as a snapshot. */
+    modelId: uuid("model_id").references(() => carModels.id, { onDelete: "set null" }),
+    bodyType: bodyType("body_type"),
     year: integer("year"),
     color: text("color"),
     plateNumber: text("plate_number").notNull(),
@@ -277,6 +321,9 @@ export type MovementReason = (typeof movementReason.enumValues)[number];
 export type User = typeof users.$inferSelect;
 export type Customer = typeof customers.$inferSelect;
 export type Vehicle = typeof vehicles.$inferSelect;
+export type CarMake = typeof carMakes.$inferSelect;
+export type CarModel = typeof carModels.$inferSelect;
+export type BodyType = (typeof bodyType.enumValues)[number];
 export type Service = typeof services.$inferSelect;
 export type Job = typeof jobs.$inferSelect;
 export type JobItem = typeof jobItems.$inferSelect;

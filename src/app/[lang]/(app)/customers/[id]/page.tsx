@@ -9,6 +9,7 @@ import { UUID_RE } from "@/lib/actions/helpers";
 import { deleteVehicle } from "@/lib/actions/customers";
 import { DefinitionList, EmptyState, JobStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
 import { VehicleForm } from "@/components/vehicle-form";
+import { getPickerMakes, pickerLabels } from "@/lib/catalog";
 
 export default function CustomerPage(props: PageProps<"/[lang]/customers/[id]">) {
   return (
@@ -108,6 +109,7 @@ async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
                     <tr key={v.id}>
                       <td className="auto-dir" dir="auto">
                         {v.make} {v.model} {v.year && <span className="num text-muted">({v.year})</span>}
+                        {v.bodyType && <span className="block text-xs text-muted">{t.vehicles.bodyTypes[v.bodyType]}</span>}
                       </td>
                       <td className="num" dir="ltr">
                         <span className="block text-start">{v.plateNumber}</span>
@@ -136,7 +138,7 @@ async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
           )}
           <div className="border-t border-line px-4 py-4 sm:px-6">
             <h3 className="mb-3 text-sm font-semibold">{t.customers.addVehicle}</h3>
-            <VehicleForm lang={lang} t={t} customerId={id} />
+            <VehicleForm lang={lang} t={t} customerId={id} makes={await getPickerMakes()} labels={pickerLabels(t)} />
           </div>
         </section>
 
