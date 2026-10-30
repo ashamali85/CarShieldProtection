@@ -3,7 +3,7 @@ import Link from "next/link";
 import { lang as langParam } from "next/root-params";
 import { notFound } from "next/navigation";
 import { getDictionary, isLocale, type Locale } from "@/i18n";
-import { ShieldMark } from "@/components/logo";
+import { BrandMark } from "@/components/logo";
 import { ActiveNav, LanguageSwitch, NavLinks, type NavItem } from "@/components/nav";
 import { getCurrentUser } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
@@ -63,7 +63,7 @@ export default async function AppLayout({ children }: LayoutProps<"/[lang]">) {
   const sidebar = (
     <div className="flex h-full flex-col gap-6 p-4">
       <Link href={`/${lang}`} className="flex items-center gap-2.5 px-1">
-        <ShieldMark />
+        <BrandMark />
         <span className="leading-tight">
           <span className="block text-sm font-semibold">{t.app.short}</span>
           <span className="block text-xs text-muted">{t.app.tagline}</span>
@@ -92,7 +92,7 @@ export default async function AppLayout({ children }: LayoutProps<"/[lang]">) {
         <details className="no-print group border-b border-line bg-white lg:hidden">
           <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between px-4 [&::-webkit-details-marker]:hidden">
             <span className="flex items-center gap-2">
-              <ShieldMark className="size-7" />
+              <BrandMark className="size-7" />
               <span className="text-sm font-semibold">{t.app.short}</span>
             </span>
             <span className="grid size-10 place-items-center rounded-lg text-muted group-open:bg-canvas" aria-hidden="true">

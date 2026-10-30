@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { lang as langParam } from "next/root-params";
 import { dir, getDictionary, isLocale, locales } from "@/i18n";
+import { BRAND } from "@/components/logo";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -16,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: t.app.name, template: `%s · ${t.app.short}` },
     description: t.app.tagline,
     robots: { index: false, follow: false },
+    icons: { icon: { url: BRAND.mark, type: "image/png" }, apple: BRAND.mark },
   };
 }
 

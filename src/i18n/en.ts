@@ -42,6 +42,8 @@ const en = {
     required: "Fill in the required fields.",
   },
   login: {
+    skipIntro: "Skip",
+    welcome: "Paint protection film, ceramic coating and window film — managed in one place.",
     title: "Sign in",
     subtitle: "Staff access to the shop management system",
     email: "Email",

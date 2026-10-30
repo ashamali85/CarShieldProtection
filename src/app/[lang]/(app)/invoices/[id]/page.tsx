@@ -9,7 +9,7 @@ import { UUID_RE } from "@/lib/actions/helpers";
 import { recordPayment } from "@/lib/actions/invoices";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { InvoiceStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
-import { ShieldMark } from "@/components/logo";
+import { BrandMark } from "@/components/logo";
 import { PrintButton } from "@/components/print-button";
 
 export default function InvoicePage(props: PageProps<"/[lang]/invoices/[id]">) {
@@ -70,7 +70,7 @@ async function InvoiceDetail({ params }: PageProps<"/[lang]/invoices/[id]">) {
         <article className="card card-pad lg:col-span-2">
           <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <ShieldMark className="size-10" />
+              <BrandMark className="size-10" />
               <div>
                 <p className="font-semibold">{t.app.name}</p>
                 <p className="text-xs text-muted">{t.app.tagline}</p>
