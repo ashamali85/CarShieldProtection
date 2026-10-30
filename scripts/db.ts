@@ -4,6 +4,7 @@
  */
 import "dotenv/config";
 import bcrypt from "bcryptjs";
+import { eq, sql } from "drizzle-orm";
 import * as schema from "../src/db/schema";
 
 const url = process.env.DATABASE_URL;
@@ -48,6 +49,36 @@ const SERVICES: (typeof schema.services.$inferInsert)[] = [
   { nameEn: "Paint correction & polish", nameAr: "تصحيح وتلميع الطلاء", category: "detailing", priceFils: 60_000, warrantyMonths: 0 },
 ];
 
+type CatalogFile = {
+  brands: { name: string; nameAr: string; models: { name: string; bodies: schema.BodyType[]; from: number; to: number | null }[] }[];
+};
+
+/** Loads data/car-catalog.json. Safe to re-run: existing rows get updated year ranges. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function loadCatalog(db: any) {
+  const { readFileSync } = await import("node:fs");
+  const data: CatalogFile = JSON.parse(readFileSync("data/car-catalog.json", "utf8"));
+  let models = 0;
+  for (const brand of data.brands) {
+    await db.insert(schema.carMakes).values({ name: brand.name, nameAr: brand.nameAr }).onConflictDoNothing();
+    const [make] = await db.select().from(schema.carMakes).where(eq(schema.carMakes.name, brand.name)).limit(1);
+    const rows = brand.models.flatMap((m) =>
+      m.bodies.map((bodyType) => ({ makeId: make.id, name: m.name, bodyType, yearFrom: m.from, yearTo: m.to })),
+    );
+    for (let i = 0; i < rows.length; i += 200) {
+      await db
+        .insert(schema.carModels)
+        .values(rows.slice(i, i + 200))
+        .onConflictDoUpdate({
+          target: [schema.carModels.makeId, schema.carModels.name, schema.carModels.bodyType],
+          set: { yearFrom: sql`excluded.year_from`, yearTo: sql`excluded.year_to` },
+        });
+    }
+    models += rows.length;
+  }
+  console.log(`Catalog loaded: ${data.brands.length} brands, ${models} model/body rows.`);
+}
+
 async function main() {
   const cmd = process.argv[2];
   const conn = await connect();
@@ -77,8 +108,10 @@ async function main() {
       } else {
         console.log("Services already exist; skipped.");
       }
+    } else if (cmd === "catalog") {
+      await loadCatalog(conn.db);
     } else {
-      console.error("Usage: tsx scripts/db.ts <migrate|seed>");
+      console.error("Usage: tsx scripts/db.ts <migrate|seed|catalog>");
       process.exitCode = 1;
     }
   } finally {

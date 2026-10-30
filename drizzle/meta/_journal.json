@@ -15,6 +15,13 @@
       "when": 1793387901923,
       "tag": "0001_inventory",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793389332317,
+      "tag": "0002_car_catalog",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,7 @@ import { createJob } from "@/lib/actions/jobs";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { VehicleForm } from "@/components/vehicle-form";
+import { getPickerMakes, pickerLabels } from "@/lib/catalog";
 
 export default function NewJobPage(props: PageProps<"/[lang]/jobs/new">) {
   return (
@@ -100,7 +101,7 @@ async function NewJob({ params, searchParams }: PageProps<"/[lang]/jobs/new">) {
         <PageHeader title={t.jobs.new} subtitle={customer.name} back={back} />
         <div className="card card-pad max-w-3xl">
           <p className="mb-4 text-sm text-muted">{t.jobs.noVehicleForCustomer}</p>
-          <VehicleForm lang={lang} t={t} customerId={customerId} next="job" />
+          <VehicleForm lang={lang} t={t} customerId={customerId} next="job" makes={await getPickerMakes()} labels={pickerLabels(t)} />
         </div>
       </>
     );
