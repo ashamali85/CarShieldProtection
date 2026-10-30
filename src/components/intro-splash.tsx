@@ -47,11 +47,19 @@ export function IntroSplash({ skipLabel }: { skipLabel: string }) {
       }`}
       onTransitionEnd={() => state === "leaving" && setState("done")}
     >
+      {/* Soft blurred backdrop so the vertical video fills wide screens seamlessly */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={BRAND.introPoster}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full scale-125 object-cover opacity-80 blur-3xl"
+      />
       <video
         ref={videoRef}
         src={BRAND.intro}
         poster={BRAND.introPoster}
-        className="h-full max-h-[min(100dvh,960px)] w-full max-w-[720px] object-contain"
+        className="relative h-full max-h-[min(100dvh,960px)] w-full max-w-[720px] object-contain [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]"
         aria-hidden="true"
         muted
         playsInline
