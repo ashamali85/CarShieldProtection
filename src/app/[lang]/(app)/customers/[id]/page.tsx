@@ -31,7 +31,7 @@ async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
     db
       .select({
         vehicle: schema.vehicles,
-        jobCount: sql<number>`(select count(*)::int from ${schema.jobs} where ${schema.jobs.vehicleId} = ${schema.vehicles.id})`,
+        jobCount: sql<number>`(select count(*)::int from "jobs" j where j."vehicle_id" = "vehicles"."id")`,
       })
       .from(schema.vehicles)
       .where(eq(schema.vehicles.customerId, id))

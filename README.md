@@ -9,6 +9,7 @@ Bilingual (Arabic / English) management system for a car protection shop: paint 
 - **Services catalog** — prices in KWD (3 decimals) and warranty length per service, with Arabic and English names.
 - **Jobs (work orders)** — Scheduled → In progress → Quality check → Ready for pickup → Delivered (or Cancelled), with technician assignment, appointment time, discount and notes. Service names and prices are snapshotted on the job.
 - **Invoices & payments** — one invoice per job, printable; partial payments by cash, KNET, card or transfer; overpayment is blocked.
+- **Inventory** — materials with units (piece, roll, meter, m², ml, liter…), stock on hand, low-stock alert level and unit cost. Each service lists the materials it consumes; stock is deducted when a job starts, adjusted if services are added or removed mid-job, and returned if a started job is cancelled. Every change (job use, receipt, count correction) is logged per item.
 - **Warranties** — issued automatically when a car is delivered, one per covered service (e.g. `CSP-2026-00012-1`); search by code, plate or phone.
 - **Staff** — admin, front desk and technician roles; only admins manage staff and services.
 - **Arabic + English** — locale in the URL (`/ar/...`, `/en/...`), full RTL layout, Latin digits in both languages so plates, phones and amounts read the same.

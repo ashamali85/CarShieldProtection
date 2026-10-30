@@ -36,7 +36,6 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
         model: schema.vehicles.model,
         plate: schema.vehicles.plateNumber,
         technician: schema.users.name,
-        totalFils: sql<number>`coalesce((select sum(${schema.jobItems.priceFils} * ${schema.jobItems.quantity}) from ${schema.jobItems} where ${schema.jobItems.jobId} = ${schema.jobs.id}), 0)::int`,
       })
       .from(schema.jobs)
       .innerJoin(schema.customers, eq(schema.jobs.customerId, schema.customers.id))

@@ -16,6 +16,11 @@ export function optStr(formData: FormData, name: string): string | null {
   return v === "" ? null : v;
 }
 
+/** Parses an inventory quantity like "1.5" into thousandths. Returns null when invalid. */
+export function qtyToMilli(input: string): number | null {
+  return input === "" ? null : kwdToFils(input);
+}
+
 /** Parses a KWD amount like "12.5" into integer fils. Returns null when invalid. */
 export function kwdToFils(input: string): number | null {
   if (input === "") return 0;

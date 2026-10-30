@@ -7,6 +7,8 @@ import { formatDate, formatDateTime, formatMoney } from "@/i18n";
 import type { JobStatus } from "@/db/schema";
 import { pageContext } from "@/lib/page";
 import { todayKuwait, toLocalInput } from "@/lib/dates";
+import { jobMaterials } from "@/lib/inventory";
+import { formatQty } from "@/i18n";
 import { UUID_RE } from "@/lib/actions/helpers";
 import { addJobItem, removeJobItem, setJobStatus, updateJobDetails } from "@/lib/actions/jobs";
 import { createInvoice } from "@/lib/actions/invoices";
@@ -81,6 +83,8 @@ async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
   const closed = job.status === "cancelled" || job.status === "delivered";
   const today = todayKuwait();
   const name = (i: { nameEn: string; nameAr: string }) => (lang === "ar" ? i.nameAr : i.nameEn);
+  const started = !!job.startedAt && job.status !== "cancelled";
+  const materials = job.status === "cancelled" ? [] : await jobMaterials(job.id, started);
 
   return (
     <>
@@ -226,6 +230,37 @@ async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
               )}
             </section>
           ) : null}
+
+          {materials.length > 0 && (
+            <section className="card">
+              <div className="border-b border-line px-4 py-3 sm:px-6">
+                <h2 className="section-title">{started ? t.inventory.jobMaterialsUsed : t.inventory.jobMaterialsPlanned}</h2>
+                {!started && <p className="mt-0.5 text-sm text-muted">{t.inventory.jobMaterialsNote}</p>}
+              </div>
+              <ul>
+                {materials.map((m) => {
+                  const short = !started && m.onHandMilli < m.quantityMilli;
+                  return (
+                    <li key={m.itemId} className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3 text-sm last:border-b-0 sm:px-6">
+                      <Link href={`/${lang}/inventory/${m.itemId}`} className="hover:underline">
+                        {name(m)}
+                      </Link>
+                      <span className="flex items-center gap-2">
+                        {short && (
+                          <span className="badge bg-red-100 text-red-700">
+                            {t.inventory.short} · <span className="num ms-1">{formatQty(m.onHandMilli, lang)}</span>&nbsp;{t.inventory.available}
+                          </span>
+                        )}
+                        <span className="num font-medium">
+                          {formatQty(m.quantityMilli, lang)} {t.inventory.units[m.unit]}
+                        </span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
 
           <section className="card">
             <h2 className="section-title border-b border-line px-4 py-3 sm:px-6">{t.jobs.warranties}</h2>

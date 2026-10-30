@@ -22,7 +22,7 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]">) {
   const today = todayKuwait();
   const [dayStart, dayEnd] = kuwaitDayRange(today);
 
-  const [[active], [scheduledToday], [collected], [invoiced], [paidAll], [expiring], recent, upcoming] = await Promise.all([
+  const [[active], [scheduledToday], [collected], [invoiced], [paidAll], [expiring], recent, upcoming, [lowStock]] = await Promise.all([
     db.select({ n: count() }).from(schema.jobs).where(inArray(schema.jobs.status, ["in_progress", "quality_check"])),
     db
       .select({ n: count() })
@@ -44,6 +44,10 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]">) {
       .where(and(eq(schema.jobs.status, "scheduled"), gte(schema.jobs.scheduledAt, dayStart)))
       .orderBy(schema.jobs.scheduledAt)
       .limit(6),
+    db
+      .select({ n: count() })
+      .from(schema.inventoryItems)
+      .where(and(eq(schema.inventoryItems.active, true), lte(schema.inventoryItems.onHandMilli, schema.inventoryItems.reorderLevelMilli))),
   ]);
 
   const outstanding = Number(invoiced.v ?? 0) - Number(paidAll.v ?? 0);
@@ -70,6 +74,15 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]">) {
         <Stat label={t.dashboard.monthRevenue} value={formatMoney(Number(collected.v ?? 0), lang)} href={`/${lang}/invoices`} />
         <Stat label={t.dashboard.outstanding} value={formatMoney(outstanding, lang)} href={`/${lang}/invoices?status=open`} />
       </div>
+      {lowStock.n > 0 && (
+        <Link
+          href={`/${lang}/inventory?filter=low`}
+          className="mt-3 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 hover:bg-red-100"
+        >
+          <span>{t.inventory.lowStockBanner}</span>
+          <span className="num font-semibold">{formatNumber(lowStock.n, lang)}</span>
+        </Link>
+      )}
       {expiring.n > 0 && (
         <Link
           href={`/${lang}/warranties?state=expiring`}

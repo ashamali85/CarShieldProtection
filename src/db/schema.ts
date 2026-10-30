@@ -9,6 +9,7 @@ import {
   date,
   serial,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -212,6 +213,66 @@ export const warranties = pgTable(
   },
   (t) => [index("warranties_ends_idx").on(t.endsOn)],
 );
+
+/**
+ * Inventory quantities are stored as integer thousandths of a unit ("milli")
+ * so 1.5 m of film is 1500 and arithmetic stays exact.
+ */
+export const inventoryUnit = pgEnum("inventory_unit", ["piece", "roll", "meter", "sqm", "ml", "liter", "box", "pack"]);
+
+export const movementReason = pgEnum("movement_reason", ["job", "job_reversal", "restock", "adjustment"]);
+
+export const inventoryItems = pgTable("inventory_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  nameEn: text("name_en").notNull(),
+  nameAr: text("name_ar").notNull(),
+  sku: text("sku"),
+  unit: inventoryUnit("unit").notNull().default("piece"),
+  onHandMilli: integer("on_hand_milli").notNull().default(0),
+  reorderLevelMilli: integer("reorder_level_milli").notNull().default(0),
+  unitCostFils: integer("unit_cost_fils"),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** How much of each inventory item one unit of a service consumes. */
+export const serviceMaterials = pgTable(
+  "service_materials",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceId: uuid("service_id")
+      .notNull()
+      .references(() => services.id, { onDelete: "cascade" }),
+    itemId: uuid("item_id")
+      .notNull()
+      .references(() => inventoryItems.id, { onDelete: "cascade" }),
+    quantityMilli: integer("quantity_milli").notNull(),
+  },
+  (t) => [uniqueIndex("service_materials_service_item_uq").on(t.serviceId, t.itemId)],
+);
+
+/** Every stock change. Job consumption is recorded per job item so it can be reversed exactly. */
+export const inventoryMovements = pgTable(
+  "inventory_movements",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    itemId: uuid("item_id")
+      .notNull()
+      .references(() => inventoryItems.id, { onDelete: "cascade" }),
+    deltaMilli: integer("delta_milli").notNull(),
+    reason: movementReason("reason").notNull(),
+    jobId: uuid("job_id").references(() => jobs.id, { onDelete: "set null" }),
+    jobItemId: uuid("job_item_id").references(() => jobItems.id, { onDelete: "set null" }),
+    note: text("note"),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("inventory_movements_item_idx").on(t.itemId), index("inventory_movements_job_idx").on(t.jobId)],
+);
+
+export type InventoryItem = typeof inventoryItems.$inferSelect;
+export type InventoryUnit = (typeof inventoryUnit.enumValues)[number];
+export type MovementReason = (typeof movementReason.enumValues)[number];
 
 export type User = typeof users.$inferSelect;
 export type Customer = typeof customers.$inferSelect;

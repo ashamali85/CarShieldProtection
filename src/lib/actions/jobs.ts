@@ -8,6 +8,7 @@ import { requireUser } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import type { JobStatus } from "@/db/schema";
 import { todayKuwait } from "@/lib/dates";
+import { consumeJobItems, restoreJobStock } from "@/lib/inventory";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
 
 /** Kuwait has no DST, so a fixed +03:00 offset is exact. */
@@ -115,7 +116,7 @@ function addMonths(isoDate: string, months: number): string {
 
 export async function setJobStatus(formData: FormData) {
   const lang = langFrom(formData);
-  await requireUser(lang);
+  const user = await requireUser(lang);
   const id = str(formData, "id");
   const to = str(formData, "to") as JobStatus;
   if (!UUID_RE.test(id)) return;
@@ -130,15 +131,27 @@ export async function setJobStatus(formData: FormData) {
   }
 
   const now = new Date();
-  await db
+  const firstStart = to === "in_progress" && !job.startedAt;
+  // The status guard makes a double-click (or two people) apply the change only once.
+  const updated = await db
     .update(schema.jobs)
     .set({
       status: to,
-      ...(to === "in_progress" && !job.startedAt ? { startedAt: now } : {}),
+      ...(firstStart ? { startedAt: now } : {}),
       ...(to === "completed" ? { completedAt: now } : {}),
       ...(to === "delivered" ? { deliveredAt: now } : {}),
     })
-    .where(eq(schema.jobs.id, id));
+    .where(and(eq(schema.jobs.id, id), eq(schema.jobs.status, job.status)))
+    .returning({ id: schema.jobs.id });
+  if (updated.length === 0) return refresh();
+
+  if (firstStart) {
+    const items = await db.select().from(schema.jobItems).where(eq(schema.jobItems.jobId, id));
+    await consumeJobItems(db, id, items, user.id);
+  }
+  if (to === "cancelled" && job.startedAt) {
+    await restoreJobStock(db, id, user.id);
+  }
 
   if (to === "delivered") {
     const items = await db.select().from(schema.jobItems).where(eq(schema.jobItems.jobId, id));
@@ -166,40 +179,51 @@ export async function setJobStatus(formData: FormData) {
   refresh();
 }
 
-async function jobIsEditable(jobId: string) {
+/** Returns the job when its services can still be changed (not invoiced, delivered or cancelled). */
+async function editableJob(jobId: string) {
   const db = await getDb();
-  const [job] = await db.select({ status: schema.jobs.status }).from(schema.jobs).where(eq(schema.jobs.id, jobId)).limit(1);
+  const [job] = await db.select().from(schema.jobs).where(eq(schema.jobs.id, jobId)).limit(1);
   const [invoice] = await db.select({ id: schema.invoices.id }).from(schema.invoices).where(eq(schema.invoices.jobId, jobId)).limit(1);
-  return !!job && !invoice && job.status !== "cancelled" && job.status !== "delivered";
+  return job && !invoice && job.status !== "cancelled" && job.status !== "delivered" ? job : null;
 }
 
 export async function addJobItem(formData: FormData) {
   const lang = langFrom(formData);
-  await requireUser(lang);
+  const user = await requireUser(lang);
   const jobId = str(formData, "jobId");
   const serviceId = str(formData, "serviceId");
-  if (!UUID_RE.test(jobId) || !UUID_RE.test(serviceId) || !(await jobIsEditable(jobId))) return;
+  if (!UUID_RE.test(jobId) || !UUID_RE.test(serviceId)) return;
+  const job = await editableJob(jobId);
+  if (!job) return;
   const db = await getDb();
   const [s] = await db.select().from(schema.services).where(eq(schema.services.id, serviceId)).limit(1);
   if (!s) return;
-  await db.insert(schema.jobItems).values({
-    jobId,
-    serviceId: s.id,
-    nameEn: s.nameEn,
-    nameAr: s.nameAr,
-    priceFils: s.priceFils,
-    warrantyMonths: s.warrantyMonths,
-  });
+  const [item] = await db
+    .insert(schema.jobItems)
+    .values({
+      jobId,
+      serviceId: s.id,
+      nameEn: s.nameEn,
+      nameAr: s.nameAr,
+      priceFils: s.priceFils,
+      warrantyMonths: s.warrantyMonths,
+    })
+    .returning();
+  // Work already started: take the new service's materials now.
+  if (job.startedAt) await consumeJobItems(db, jobId, [item], user.id);
   refresh();
 }
 
 export async function removeJobItem(formData: FormData) {
   const lang = langFrom(formData);
-  await requireUser(lang);
+  const user = await requireUser(lang);
   const jobId = str(formData, "jobId");
   const itemId = str(formData, "itemId");
-  if (!UUID_RE.test(jobId) || !UUID_RE.test(itemId) || !(await jobIsEditable(jobId))) return;
+  if (!UUID_RE.test(jobId) || !UUID_RE.test(itemId)) return;
+  const job = await editableJob(jobId);
+  if (!job) return;
   const db = await getDb();
+  if (job.startedAt) await restoreJobStock(db, jobId, user.id, itemId);
   await db.delete(schema.jobItems).where(and(eq(schema.jobItems.id, itemId), eq(schema.jobItems.jobId, jobId)));
   refresh();
 }

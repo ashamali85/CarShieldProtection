@@ -18,6 +18,7 @@ function navItems(lang: Locale, isAdmin: boolean): NavItem[] {
     { href: `${base}/invoices`, label: t.invoices, icon: "invoices" },
     { href: `${base}/warranties`, label: t.warranties, icon: "warranties" },
     { href: `${base}/services`, label: t.services, icon: "services" },
+    { href: `${base}/inventory`, label: t.inventory, icon: "inventory" },
   ];
   if (isAdmin) items.push({ href: `${base}/users`, label: t.users, icon: "users" });
   return items;

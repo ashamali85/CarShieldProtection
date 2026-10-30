@@ -28,7 +28,7 @@ async function Invoices({ params, searchParams }: PageProps<"/[lang]/invoices">)
       issuedAt: schema.invoices.issuedAt,
       customer: schema.customers.name,
       jobNumber: schema.jobs.number,
-      paid: sql<number>`coalesce((select sum(${schema.payments.amountFils}) from ${schema.payments} where ${schema.payments.invoiceId} = ${schema.invoices.id}), 0)::int`,
+      paid: sql<number>`coalesce((select sum(p."amount_fils") from "payments" p where p."invoice_id" = "invoices"."id"), 0)::int`,
     })
     .from(schema.invoices)
     .innerJoin(schema.jobs, eq(schema.invoices.jobId, schema.jobs.id))

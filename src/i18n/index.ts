@@ -57,6 +57,11 @@ export function formatDateTime(value: Date | null | undefined, locale: Locale): 
   }).format(value);
 }
 
+/** Formats an inventory quantity stored in thousandths, e.g. 1500 → "1.5". */
+export function formatQty(milli: number, locale: Locale): string {
+  return new Intl.NumberFormat(intlTag(locale), { maximumFractionDigits: 3 }).format(milli / 1000);
+}
+
 export function formatNumber(n: number, locale: Locale): string {
   return new Intl.NumberFormat(intlTag(locale)).format(n);
 }
