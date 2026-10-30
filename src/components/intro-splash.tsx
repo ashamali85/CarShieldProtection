@@ -53,13 +53,13 @@ export function IntroSplash({ skipLabel }: { skipLabel: string }) {
         src={BRAND.introPoster}
         alt=""
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full scale-125 object-cover opacity-80 blur-3xl"
+        className="absolute inset-0 h-full w-full scale-150 object-cover opacity-70 blur-[80px] saturate-50"
       />
       <video
         ref={videoRef}
         src={BRAND.intro}
         poster={BRAND.introPoster}
-        className="relative h-full max-h-[min(100dvh,960px)] w-full max-w-[720px] object-contain [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]"
+        className="relative aspect-[3/4] h-full max-h-[min(100dvh,960px)] w-auto max-w-full object-cover [mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]"
         aria-hidden="true"
         muted
         playsInline
