@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, "Segoe UI", Tahoma, "Noto Sans Arabic", sans-serif;
+  --color-brand-50: #eef5fb;
+  --color-brand-100: #d6e7f5;
+  --color-brand-500: #1f6fb2;
+  --color-brand-600: #185d97;
+  --color-brand-700: #134b7a;
+  --color-brand-900: #0b2a45;
+  --color-ink: #16202b;
+  --color-muted: #5b6876;
+  --color-line: #e3e8ee;
+  --color-canvas: #f5f7fa;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+@utility btn {
+  @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap
+    transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility btn-primary {
+  @apply btn bg-brand-600 text-white hover:bg-brand-700;
+}
+@utility btn-secondary {
+  @apply btn border border-line bg-white text-ink hover:bg-canvas;
+}
+@utility btn-danger {
+  @apply btn border border-red-200 bg-white text-red-700 hover:bg-red-50;
+}
+@utility btn-ghost {
+  @apply btn text-muted hover:bg-canvas hover:text-ink;
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-line bg-white;
+  }
+  .card-pad {
+    @apply p-4 sm:p-6;
+  }
+  .page-title {
+    @apply text-xl font-semibold tracking-tight sm:text-2xl;
+  }
+  .section-title {
+    @apply text-base font-semibold;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+  .hint {
+    @apply mt-1 text-xs text-muted;
+  }
+  .input {
+    @apply block w-full rounded-lg border border-line bg-white px-3 py-2 text-[15px] text-ink placeholder:text-muted/70
+      focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none disabled:bg-canvas;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap;
+  }
+  .table-wrap {
+    @apply overflow-x-auto;
+  }
+  .table {
+    @apply w-full text-sm;
+  }
+  .table th {
+    @apply border-b border-line px-4 py-2.5 text-start text-xs font-medium tracking-wide text-muted uppercase;
+  }
+  .table td {
+    @apply border-b border-line px-4 py-3 align-middle;
+  }
+  .table tr:last-child td {
+    @apply border-b-0;
+  }
+  .link {
+    @apply font-medium text-brand-600 hover:text-brand-700 hover:underline;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+    unicode-bidi: isolate;
+    white-space: nowrap;
+  }
+  /* Wide tables scroll inside their card on small screens instead of crushing columns. */
+  @media (max-width: 767px) {
+    .table-wrap > .table {
+      min-width: 40rem;
+    }
+  }
+  /* User-entered names (often English inside Arabic pages) get their own direction. */
+  .auto-dir {
+    unicode-bidi: plaintext;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .card {
+    border: none;
+  }
+}
