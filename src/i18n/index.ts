@@ -67,3 +67,8 @@ export function formatNumber(n: number, locale: Locale): string {
 }
 
 export type { Dictionary };
+
+/** "Saturday, 31 October" in the shop's time zone. */
+export function formatLongDate(value: Date, locale: Locale): string {
+  return new Intl.DateTimeFormat(intlTag(locale), { weekday: "long", day: "numeric", month: "long", timeZone: TZ }).format(value);
+}

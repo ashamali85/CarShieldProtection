@@ -2,16 +2,28 @@
 
 @theme {
   --font-sans: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, "Segoe UI", Tahoma, "Noto Sans Arabic", sans-serif;
-  --color-brand-50: #eef5fb;
-  --color-brand-100: #d6e7f5;
-  --color-brand-500: #1f6fb2;
-  --color-brand-600: #185d97;
-  --color-brand-700: #134b7a;
-  --color-brand-900: #0b2a45;
-  --color-ink: #16202b;
-  --color-muted: #5b6876;
-  --color-line: #e3e8ee;
-  --color-canvas: #f5f7fa;
+  /* Royal-blue enamel and brushed silver, sampled from the Bee Protection logo. */
+  --color-brand-50: #eef3fb;
+  --color-brand-100: #d9e4f7;
+  --color-brand-200: #b3c8ee;
+  --color-brand-300: #84a5e1;
+  --color-brand-400: #4f7dd2;
+  --color-brand-500: #1f5cc6;
+  --color-brand-600: #134aa6;
+  --color-brand-700: #0f3c88;
+  --color-brand-800: #0c2f6b;
+  --color-brand-900: #09214d;
+  --color-brand-950: #06163a;
+  --color-silver-100: #f0f2f6;
+  --color-silver-200: #e1e5ec;
+  --color-silver-300: #c5ccd8;
+  --color-silver-400: #9aa5b6;
+  --color-ink: #0f1b2e;
+  --color-muted: #5a6679;
+  --color-line: #e2e6ee;
+  --color-canvas: #f4f6fa;
+  --shadow-card: 0 1px 2px rgb(9 33 77 / 0.04), 0 6px 20px -10px rgb(9 33 77 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(9 33 77 / 0.05), 0 14px 32px -12px rgb(9 33 77 / 0.22);
 }
 
 html {
@@ -19,7 +31,10 @@ html {
 }
 
 body {
-  background: var(--color-canvas);
+  background:
+    radial-gradient(1200px 420px at 100% -10%, rgb(31 92 198 / 0.07), transparent 70%),
+    var(--color-canvas);
+  background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 15px;
@@ -33,13 +48,16 @@ body {
 
 @utility btn {
   @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap
-    transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+    transition-[background-color,box-shadow,color,filter] duration-150 disabled:cursor-not-allowed disabled:opacity-60;
 }
+/* Glossy enamel button, echoing the logo. */
 @utility btn-primary {
-  @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  @apply btn bg-linear-to-b from-brand-500 to-brand-700 text-white
+    shadow-[inset_0_1px_0_rgb(255_255_255/0.22),0_1px_2px_rgb(9_33_77/0.25),0_4px_12px_-4px_rgb(19_74_166/0.5)]
+    hover:brightness-110 active:brightness-95;
 }
 @utility btn-secondary {
-  @apply btn border border-line bg-white text-ink hover:bg-canvas;
+  @apply btn border border-silver-200 bg-white text-ink shadow-[0_1px_2px_rgb(9_33_77/0.05)] hover:border-silver-300 hover:bg-silver-100;
 }
 @utility btn-danger {
   @apply btn border border-red-200 bg-white text-red-700 hover:bg-red-50;
@@ -50,13 +68,16 @@ body {
 
 @layer components {
   .card {
-    @apply rounded-xl border border-line bg-white;
+    @apply rounded-2xl border border-line bg-white shadow-(--shadow-card);
   }
   .card-pad {
     @apply p-4 sm:p-6;
   }
   .page-title {
-    @apply text-xl font-semibold tracking-tight sm:text-2xl;
+    @apply text-xl font-semibold tracking-tight text-ink sm:text-[1.65rem];
+  }
+  .eyebrow {
+    @apply text-xs font-semibold tracking-[0.12em] text-brand-600 uppercase;
   }
   .section-title {
     @apply text-base font-semibold;
@@ -68,11 +89,12 @@ body {
     @apply mt-1 text-xs text-muted;
   }
   .input {
-    @apply block w-full rounded-lg border border-line bg-white px-3 py-2 text-[15px] text-ink placeholder:text-muted/70
-      focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none disabled:bg-canvas;
+    @apply block min-h-10 w-full rounded-lg border border-silver-300/80 bg-white px-3 py-2 text-[15px] text-ink shadow-[inset_0_1px_2px_rgb(9_33_77/0.04)]
+      transition-[border-color,box-shadow] placeholder:text-muted/70
+      focus:border-brand-500 focus:ring-4 focus:ring-brand-100 focus:outline-none disabled:bg-canvas;
   }
   .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap;
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-current/15 ring-inset;
   }
   .table-wrap {
     @apply overflow-x-auto;
@@ -81,7 +103,10 @@ body {
     @apply w-full text-sm;
   }
   .table th {
-    @apply border-b border-line px-4 py-2.5 text-start text-xs font-medium tracking-wide text-muted uppercase;
+    @apply border-b border-line bg-silver-100/70 px-4 py-2.5 text-start text-xs font-semibold tracking-wide text-muted uppercase;
+  }
+  .table tbody tr {
+    @apply transition-colors hover:bg-brand-50/50;
   }
   .table td {
     @apply border-b border-line px-4 py-3 align-middle;
@@ -118,5 +143,6 @@ body {
   }
   .card {
     border: none;
+    box-shadow: none;
   }
 }

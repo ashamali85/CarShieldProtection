@@ -36,17 +36,17 @@ async function UserMenu({ lang }: { lang: Locale }) {
   const t = getDictionary(lang);
   if (!user) return null;
   return (
-    <div className="flex items-center gap-3 border-t border-line pt-4">
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-50 text-sm font-semibold text-brand-700">
+    <div className="flex items-center gap-3 rounded-xl bg-white/[0.05] p-2.5 ring-1 ring-white/10">
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-linear-to-br from-silver-200 to-silver-400 text-sm font-semibold text-brand-900">
         {user.name.slice(0, 1).toUpperCase()}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium" dir="auto">{user.name}</p>
-        <p className="truncate text-xs text-muted">{t.users.roles[user.role]}</p>
+        <p className="truncate text-sm font-medium text-white" dir="auto">{user.name}</p>
+        <p className="truncate text-xs text-silver-400">{t.users.roles[user.role]}</p>
       </div>
       <form action={logout}>
         <input type="hidden" name="lang" value={lang} />
-        <button type="submit" className="btn-ghost px-2 text-xs">
+        <button type="submit" className="btn min-h-9 px-2 text-xs text-silver-300 hover:bg-white/10 hover:text-white">
           {t.nav.signOut}
         </button>
       </form>
@@ -62,13 +62,14 @@ export default async function AppLayout({ children }: LayoutProps<"/[lang]">) {
 
   const sidebar = (
     <div className="flex h-full flex-col gap-6 p-4">
-      <Link href={`/${lang}`} className="flex items-center gap-2.5 px-1">
-        <BrandMark />
+      <Link href={`/${lang}`} className="sidebar-brand flex items-center gap-3 px-1">
+        <BrandMark className="size-10" />
         <span className="leading-tight">
-          <span className="block text-sm font-semibold">{t.app.short}</span>
-          <span className="block text-xs text-muted">{t.app.tagline}</span>
+          <span className="block text-[15px] font-semibold tracking-tight text-white">{t.app.short}</span>
+          <span className="block text-xs text-silver-400">{t.app.tagline}</span>
         </span>
       </Link>
+      <div className="sidebar-brand h-px bg-linear-to-r from-transparent via-white/15 to-transparent" />
       <nav aria-label={t.app.name} className="flex-1">
         <Suspense fallback={fallbackNav}>
           <UserNav lang={lang} />
@@ -83,25 +84,25 @@ export default async function AppLayout({ children }: LayoutProps<"/[lang]">) {
   return (
     <div className="min-h-screen lg:flex">
       {/* Desktop sidebar */}
-      <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 border-e border-line bg-white lg:block">
+      <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 bg-brand-950 bg-[radial-gradient(120%_60%_at_0%_0%,rgb(31_92_198/0.35),transparent_60%),linear-gradient(to_bottom,var(--color-brand-900),var(--color-brand-950))] lg:block">
         {sidebar}
       </aside>
 
       <div className="min-w-0 flex-1">
         {/* Mobile top bar with a disclosure menu */}
-        <details className="no-print group border-b border-line bg-white lg:hidden">
+        <details className="no-print group bg-linear-to-b from-brand-900 to-brand-950 text-white lg:hidden">
           <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between px-4 [&::-webkit-details-marker]:hidden">
             <span className="flex items-center gap-2">
               <BrandMark className="size-7" />
               <span className="text-sm font-semibold">{t.app.short}</span>
             </span>
-            <span className="grid size-10 place-items-center rounded-lg text-muted group-open:bg-canvas" aria-hidden="true">
+            <span className="grid size-10 place-items-center rounded-lg text-silver-300 group-open:bg-white/10" aria-hidden="true">
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <path d="M4 7h16M4 12h16M4 17h16" />
               </svg>
             </span>
           </summary>
-          <div className="border-t border-line">{sidebar}</div>
+          <div className="border-t border-white/10 [&_.sidebar-brand]:hidden">{sidebar}</div>
         </details>
 
         <header className="no-print flex items-center justify-end px-4 pt-3 sm:px-8">

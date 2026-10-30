@@ -46,6 +46,7 @@ const ar: Dictionary = {
   login: {
     skipIntro: "تخطي",
     welcome: "أفلام حماية الطلاء والسيراميك وتظليل الزجاج — في نظام واحد.",
+    heroTitle: "حماية تدوم ولمعان يبهر.",
     title: "تسجيل الدخول",
     subtitle: "دخول الموظفين إلى نظام إدارة المركز",
     email: "البريد الإلكتروني",
@@ -65,6 +66,9 @@ const ar: Dictionary = {
     noJobs: "لا توجد أوامر عمل بعد.",
     noUpcoming: "لا توجد مواعيد قادمة.",
     newJob: "أمر عمل جديد",
+    greetingSep: "، ",
+    greeting: { morning: "صباح الخير", afternoon: "مساء الخير", evening: "مساء الخير" },
+    heroLine: "إليك ملخص أداء المركز اليوم.",
   },
   customers: {
     title: "العملاء",

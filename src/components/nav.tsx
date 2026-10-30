@@ -35,11 +35,13 @@ export function NavLinks({ items, activeHref }: { items: NavItem[]; activeHref?:
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors ${
-                active ? "bg-brand-50 text-brand-700" : "text-muted hover:bg-canvas hover:text-ink"
+              className={`relative flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors ${
+                active
+                  ? "bg-linear-to-r from-brand-500/90 to-brand-600/70 text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.15),0_6px_16px_-8px_rgb(31_92_198/0.9)] rtl:bg-linear-to-l"
+                  : "text-silver-300 hover:bg-white/[0.06] hover:text-white"
               }`}
             >
-              <Icon name={item.icon} />
+              <Icon name={item.icon} className={`size-5 ${active ? "text-white" : "text-silver-400"}`} />
               {item.label}
             </Link>
           </li>

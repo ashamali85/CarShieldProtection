@@ -24,3 +24,8 @@ export function toLocalInput(d: Date | null): string {
   if (!d) return "";
   return new Date(d.getTime() + 3 * 3_600_000).toISOString().slice(0, 16);
 }
+
+/** Current hour (0–23) in Kuwait. Call only after request data has been read. */
+export function kuwaitHour(): number {
+  return Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Kuwait" }).format(new Date()));
+}

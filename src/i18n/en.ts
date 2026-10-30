@@ -44,6 +44,7 @@ const en = {
   login: {
     skipIntro: "Skip",
     welcome: "Paint protection film, ceramic coating and window film — managed in one place.",
+    heroTitle: "Protection that shines.",
     title: "Sign in",
     subtitle: "Staff access to the shop management system",
     email: "Email",
@@ -63,6 +64,9 @@ const en = {
     noJobs: "No jobs yet.",
     noUpcoming: "Nothing scheduled.",
     newJob: "New job",
+    greetingSep: ", ",
+    greeting: { morning: "Good morning", afternoon: "Good afternoon", evening: "Good evening" },
+    heroLine: "Here's how the shop is doing today.",
   },
   customers: {
     title: "Customers",

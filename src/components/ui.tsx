@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { Dictionary } from "@/i18n";
 import type { InvoiceStatus, JobStatus } from "@/db/schema";
 import { addDays } from "@/lib/dates";
+import { BrandIcon, type BrandIconName } from "@/components/logo";
 
 export function PageHeader({
   title,
@@ -77,9 +78,14 @@ export function WarrantyBadge({ state, t }: { state: WarrantyState; t: Dictionar
   return <span className={`badge ${WARRANTY_TONES[state]}`}>{t.warranties.state[state]}</span>;
 }
 
-export function EmptyState({ message, action }: { message: string; action?: ReactNode }) {
+export function EmptyState({ message, action, icon = "car" }: { message: string; action?: ReactNode; icon?: BrandIconName | null }) {
   return (
     <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+      {icon && (
+        <span className="grid size-24 place-items-center rounded-full bg-radial from-white from-40% to-brand-50">
+          <BrandIcon name={icon} className="size-16 opacity-90" />
+        </span>
+      )}
       <p className="max-w-sm text-sm text-muted">{message}</p>
       {action}
     </div>
@@ -95,19 +101,27 @@ export function PageSkeleton() {
   );
 }
 
-export function Stat({ label, value, href }: { label: string; value: ReactNode; href?: string }) {
+export function Stat({ label, value, href, icon }: { label: string; value: ReactNode; href?: string; icon?: BrandIconName }) {
   const body = (
     <>
-      <p className="text-sm text-muted">{label}</p>
-      <p className="num mt-1 text-2xl font-semibold tracking-tight">{value}</p>
+      <div className="min-w-0">
+        <p className="text-sm text-muted">{label}</p>
+        <p className="num mt-1 text-2xl font-semibold tracking-tight text-ink">{value}</p>
+      </div>
+      {icon && (
+        <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-linear-to-br from-white to-silver-100 ring-1 ring-line">
+          <BrandIcon name={icon} className="size-12 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3" />
+        </span>
+      )}
     </>
   );
+  const cls = "card group flex items-center justify-between gap-3 p-4 sm:p-5";
   return href ? (
-    <Link href={href} className="card card-pad block transition-colors hover:border-brand-100 hover:bg-brand-50/40">
+    <Link href={href} className={`${cls} transition-[box-shadow,border-color,transform] hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-(--shadow-lift)`}>
       {body}
     </Link>
   ) : (
-    <div className="card card-pad">{body}</div>
+    <div className={cls}>{body}</div>
   );
 }
 
