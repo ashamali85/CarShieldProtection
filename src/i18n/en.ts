@@ -1,5 +1,5 @@
 const en = {
-  app: { name: "Car Shield Protection", short: "Car Shield", tagline: "Shop management" },
+  app: { name: "Bee Protection", short: "Bee Protection", tagline: "Shop management" },
   nav: {
     dashboard: "Dashboard",
     jobs: "Jobs",
@@ -213,7 +213,7 @@ const en = {
     overpay: "The amount is more than the remaining balance.",
     status: { unpaid: "Unpaid", partial: "Partly paid", paid: "Paid", void: "Void" },
     methods: { cash: "Cash", knet: "KNET", card: "Credit card", transfer: "Bank transfer" },
-    thanks: "Thank you for choosing Car Shield Protection.",
+    thanks: "Thank you for choosing Bee Protection.",
   },
   warranties: {
     title: "Warranties",

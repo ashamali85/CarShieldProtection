@@ -1,7 +1,7 @@
 import type { Dictionary } from "./en";
 
 const ar: Dictionary = {
-  app: { name: "كار شيلد للحماية", short: "كار شيلد", tagline: "إدارة المركز" },
+  app: { name: "بي بروتكشن", short: "بي بروتكشن", tagline: "إدارة المركز" },
   nav: {
     dashboard: "لوحة التحكم",
     jobs: "أوامر العمل",
@@ -215,7 +215,7 @@ const ar: Dictionary = {
     overpay: "المبلغ أكبر من الرصيد المتبقي.",
     status: { unpaid: "غير مدفوعة", partial: "مدفوعة جزئيًا", paid: "مدفوعة", void: "ملغاة" },
     methods: { cash: "نقدًا", knet: "كي نت", card: "بطاقة ائتمان", transfer: "تحويل بنكي" },
-    thanks: "شكرًا لاختياركم كار شيلد للحماية.",
+    thanks: "شكرًا لاختياركم بي بروتكشن.",
   },
   warranties: {
     title: "الضمانات",

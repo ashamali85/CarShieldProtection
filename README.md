@@ -1,4 +1,4 @@
-# Car Shield Protection — Shop Management
+# Bee Protection — Shop Management
 
 Bilingual (Arabic / English) management system for a car protection shop: paint protection film, ceramic coating, window film and detailing.
 
