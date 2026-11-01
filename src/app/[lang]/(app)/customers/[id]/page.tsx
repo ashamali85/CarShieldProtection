@@ -10,6 +10,8 @@ import { deleteVehicle } from "@/lib/actions/customers";
 import { DefinitionList, EmptyState, JobStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
 import { VehicleForm } from "@/components/vehicle-form";
 import { getPickerMakes, pickerLabels } from "@/lib/catalog";
+import { CarBrandBadge } from "@/components/logo";
+import { brandLogoSrc } from "@/lib/brand-logos";
 
 export default function CustomerPage(props: PageProps<"/[lang]/customers/[id]">) {
   return (
@@ -107,9 +109,14 @@ async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
                 <tbody>
                   {vehicles.map(({ vehicle: v, jobCount }) => (
                     <tr key={v.id}>
-                      <td className="auto-dir" dir="auto">
-                        {v.make} {v.model} {v.year && <span className="num text-muted">({v.year})</span>}
-                        {v.bodyType && <span className="block text-xs text-muted">{t.vehicles.bodyTypes[v.bodyType]}</span>}
+                      <td>
+                        <span className="flex items-center gap-3">
+                          <CarBrandBadge src={brandLogoSrc(v.make)} name={v.make} className="size-9 rounded-lg p-1" />
+                          <span className="auto-dir min-w-0" dir="auto">
+                            {v.make} {v.model} {v.year && <span className="num text-muted">({v.year})</span>}
+                            {v.bodyType && <span className="block text-xs text-muted">{t.vehicles.bodyTypes[v.bodyType]}</span>}
+                          </span>
+                        </span>
                       </td>
                       <td className="num" dir="ltr">
                         <span className="block text-start">{v.plateNumber}</span>

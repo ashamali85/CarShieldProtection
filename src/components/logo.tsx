@@ -78,3 +78,18 @@ export function BrandLogo({ className = "", alt = BRAND.name, priority = false }
     />
   );
 }
+
+/** A car brand's logo on a white tile, or its initial when no logo is available. */
+export function CarBrandBadge({ src, name, className = "size-11" }: { src: string | null; name: string; className?: string }) {
+  return (
+    <span className={`${className} grid shrink-0 place-items-center overflow-hidden rounded-xl bg-white p-1.5 ring-1 ring-line`}>
+      {src ? (
+        <img src={src} alt="" aria-hidden="true" loading="lazy" decoding="async" className="max-h-full max-w-full object-contain" />
+      ) : (
+        <span aria-hidden="true" className="text-base font-bold text-brand-700">
+          {name.trim().slice(0, 1).toUpperCase()}
+        </span>
+      )}
+    </span>
+  );
+}

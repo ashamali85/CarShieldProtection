@@ -7,6 +7,8 @@ import { first, pageContext } from "@/lib/page";
 import { addMake } from "@/lib/actions/catalog";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
+import { CarBrandBadge } from "@/components/logo";
+import { brandLogoSrc } from "@/lib/brand-logos";
 
 export default function CatalogPage(props: PageProps<"/[lang]/catalog">) {
   return (
@@ -27,6 +29,7 @@ async function Catalog({ params, searchParams }: PageProps<"/[lang]/catalog">) {
       id: schema.carMakes.id,
       name: schema.carMakes.name,
       nameAr: schema.carMakes.nameAr,
+      logoUrl: schema.carMakes.logoUrl,
       active: schema.carMakes.active,
       models: count(schema.carModels.id),
     })
@@ -45,7 +48,7 @@ async function Catalog({ params, searchParams }: PageProps<"/[lang]/catalog">) {
         subtitle={`${t.catalog.subtitle} · ${formatNumber(makes.length, lang)} ${t.catalog.brands} · ${formatNumber(totalModels, lang)} ${t.catalog.models}`}
       />
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <form className="mb-4 flex gap-2" role="search">
             <label htmlFor="q" className="sr-only">
               {t.catalog.search}
@@ -60,14 +63,15 @@ async function Catalog({ params, searchParams }: PageProps<"/[lang]/catalog">) {
               <EmptyState message={t.common.none} />
             </div>
           ) : (
-            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 2xl:grid-cols-3">
               {makes.map((m) => (
                 <li key={m.id}>
                   <Link
                     href={`/${lang}/catalog/${m.id}`}
-                    className={`card flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:border-brand-100 hover:bg-brand-50/40 ${m.active ? "" : "opacity-60"}`}
+                    className={`card flex items-center gap-3 px-3 py-3 transition-[border-color,box-shadow] hover:border-brand-200 hover:shadow-(--shadow-lift) ${m.active ? "" : "opacity-60"}`}
                   >
-                    <span className="min-w-0">
+                    <CarBrandBadge src={brandLogoSrc(m.name, m.logoUrl)} name={m.name} />
+                    <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium">{lang === "ar" ? m.nameAr : m.name}</span>
                       <span className="block truncate text-xs text-muted" lang={lang === "ar" ? "en" : "ar"}>
                         {lang === "ar" ? m.name : m.nameAr}

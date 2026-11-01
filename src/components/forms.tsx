@@ -36,11 +36,16 @@ export function ActionForm({
   children,
   className,
   hidden,
+  onSuccess,
+  resetOnSuccess = true,
 }: {
   action: FormAction;
   children: ReactNode;
   className?: string;
   hidden?: Record<string, string>;
+  /** Called after the action finishes without an error. */
+  onSuccess?: () => void;
+  resetOnSuccess?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const formRef = useRef<HTMLFormElement>(null);
@@ -49,9 +54,12 @@ export function ActionForm({
   useEffect(() => {
     if (!pending && submitted.current) {
       submitted.current = false;
-      if (!state?.error) formRef.current?.reset();
+      if (!state?.error) {
+        if (resetOnSuccess) formRef.current?.reset();
+        onSuccess?.();
+      }
     }
-  }, [pending, state]);
+  }, [pending, state, onSuccess, resetOnSuccess]);
 
   return (
     <PendingContext value={pending}>
@@ -71,7 +79,7 @@ export function ActionForm({
             <input key={name} type="hidden" name={name} value={value} />
           ))}
         {state?.error && (
-          <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+          <p role="alert" className="col-span-full mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
             {state.error}
           </p>
         )}

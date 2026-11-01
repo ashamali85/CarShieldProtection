@@ -92,6 +92,8 @@ export const carMakes = pgTable("car_makes", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   nameAr: text("name_ar").notNull(),
+  /** Custom logo uploaded by an admin (a small data: URL). Null means use the bundled logo for the brand, if any. */
+  logoUrl: text("logo_url"),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
