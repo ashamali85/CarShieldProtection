@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { desc, eq, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { formatDateTime } from "@/i18n";
+import { formatDate, formatTime, type Locale } from "@/i18n";
 import type { JobStatus } from "@/db/schema";
 import { first, pageContext } from "@/lib/page";
 import { EmptyState, JobStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
@@ -30,6 +30,8 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
         number: schema.jobs.number,
         status: schema.jobs.status,
         scheduledAt: schema.jobs.scheduledAt,
+        startedAt: schema.jobs.startedAt,
+        deliveredAt: schema.jobs.deliveredAt,
         createdAt: schema.jobs.createdAt,
         customer: schema.customers.name,
         make: schema.vehicles.make,
@@ -91,13 +93,15 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
           />
         ) : (
           <div className="table-wrap">
-            <table className="table">
+            <table className="table min-w-[56rem]">
               <thead>
                 <tr>
                   <th>{t.jobs.number}</th>
                   <th>{t.jobs.customer}</th>
                   <th>{t.jobs.vehicle}</th>
                   <th>{t.jobs.scheduledAt}</th>
+                  <th>{t.jobs.started}</th>
+                  <th>{t.jobs.delivered}</th>
                   <th>{t.jobs.technician}</th>
                   <th>{t.common.status}</th>
                 </tr>
@@ -117,7 +121,9 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
                         <span dir="ltr" className="num">{j.plate}</span>
                       </span>
                     </td>
-                    <td className="whitespace-nowrap text-muted">{formatDateTime(j.scheduledAt, lang)}</td>
+                    <DateCell value={j.scheduledAt} lang={lang} />
+                    <DateCell value={j.startedAt} lang={lang} />
+                    <DateCell value={j.deliveredAt} lang={lang} />
                     <td className="text-muted">{j.technician ?? t.jobs.unassigned}</td>
                     <td>
                       <JobStatusBadge status={j.status} t={t} />
@@ -130,5 +136,18 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
         )}
       </div>
     </>
+  );
+}
+
+/** Date on top, time underneath — keeps the three date columns narrow. */
+function DateCell({ value, lang }: { value: Date | null; lang: Locale }) {
+  if (!value) return <td className="text-muted">—</td>;
+  return (
+    <td className="whitespace-nowrap">
+      <time dateTime={value.toISOString()} className="num">
+        <span className="block">{formatDate(value, lang)}</span>
+        <span className="block text-xs text-muted">{formatTime(value, lang)}</span>
+      </time>
+    </td>
   );
 }

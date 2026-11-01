@@ -72,3 +72,8 @@ export type { Dictionary };
 export function formatLongDate(value: Date, locale: Locale): string {
   return new Intl.DateTimeFormat(intlTag(locale), { weekday: "long", day: "numeric", month: "long", timeZone: TZ }).format(value);
 }
+
+/** "9:41 PM" in the shop's time zone. */
+export function formatTime(value: Date, locale: Locale): string {
+  return new Intl.DateTimeFormat(intlTag(locale), { hour: "numeric", minute: "2-digit", timeZone: TZ }).format(value);
+}
