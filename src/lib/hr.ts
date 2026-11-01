@@ -36,20 +36,41 @@ export function addDaysIso(iso: string, n: number): string {
   return fromUtc(toUtc(iso) + n * DAY);
 }
 
-/** Whole months of service from hire date to asOf (a month counts once the same day-of-month is reached). */
+/**
+ * Whole months of service from hire date to asOf. A month counts once the same day-of-month is
+ * reached; if that day doesn't exist in asOf's month (hired on the 31st, or 29 Feb), the month's
+ * last day counts.
+ */
 export function completeMonths(hire: string, asOf: string): number {
   if (asOf < hire) return 0;
   const [hy, hm, hd] = [+hire.slice(0, 4), +hire.slice(5, 7), +hire.slice(8, 10)];
   const [ay, am, ad] = [+asOf.slice(0, 4), +asOf.slice(5, 7), +asOf.slice(8, 10)];
   let months = (ay - hy) * 12 + (am - hm);
-  if (ad < hd) months -= 1;
+  if (ad < hd && ad < daysInMonth(ay, am)) months -= 1;
   return Math.max(0, months);
 }
 
-/** Service in years, including the fraction of the current year (by days). */
-export function serviceYears(hire: string, asOf: string): number {
-  if (asOf < hire) return 0;
-  return (toUtc(asOf) - toUtc(hire) + DAY) / (365.25 * DAY);
+/** The same calendar date `years` later (29 Feb → 28 Feb in non-leap years). */
+function addYearsIso(iso: string, years: number): string {
+  const y = +iso.slice(0, 4) + years;
+  const m = +iso.slice(5, 7);
+  const d = Math.min(+iso.slice(8, 10), daysInMonth(y, m));
+  return `${y}-${iso.slice(5, 7)}-${String(d).padStart(2, "0")}`;
+}
+
+/**
+ * Service in years from hire date through the last working day (inclusive): whole years by
+ * calendar anniversary, plus the elapsed fraction of the current service year.
+ * 2021-01-01 → 2023-12-31 is exactly 3 years.
+ */
+export function serviceYears(hire: string, lastDay: string): number {
+  if (lastDay < hire) return 0;
+  const end = addDaysIso(lastDay, 1); // service runs through the end of the last day
+  let years = 0;
+  while (addYearsIso(hire, years + 1) <= end) years += 1;
+  const from = addYearsIso(hire, years);
+  const to = addYearsIso(hire, years + 1);
+  return years + (toUtc(end) - toUtc(from)) / (toUtc(to) - toUtc(from));
 }
 
 // ── Pay ────────────────────────────────────────────────────────────────────
@@ -152,6 +173,12 @@ export function applyPayTiers(tiers: PayTier[], alreadyUsed: number, days: numbe
     }
   }
   if (left > 0) breakdown.push({ days: left, pct: 0 });
+  for (let k = breakdown.length - 1; k > 0; k--) {
+    if (breakdown[k].pct === breakdown[k - 1].pct) {
+      breakdown[k - 1].days += breakdown[k].days;
+      breakdown.splice(k, 1);
+    }
+  }
   const unpaidCentiDays = Math.round(breakdown.reduce((a, b) => a + b.days * (100 - b.pct), 0));
   return { breakdown, unpaidCentiDays };
 }
@@ -210,8 +237,11 @@ export function computePayslip(i: PayslipInput, s: HrSettings): PayslipAmounts {
         i.overtimeHolidayCentiHours * s.overtimeHolidayPct)) /
       10_000,
   );
-  const unpaidLeaveFils = Math.round((daily * i.unpaidLeaveCentiDays) / 100);
-  const absenceFils = Math.round(daily * i.absenceDays);
+  // Day-based deductions can never take away more than the fixed pay earned this month
+  // (e.g. a whole month of unpaid leave at wage/26 would otherwise exceed the salary).
+  const fixedPay = basicFils + housingFils + transportFils + otherAllowanceFils;
+  const unpaidLeaveFils = Math.min(Math.round((daily * i.unpaidLeaveCentiDays) / 100), fixedPay);
+  const absenceFils = Math.min(Math.round(daily * i.absenceDays), fixedPay - unpaidLeaveFils);
 
   const insured = i.pifssSalaryFils ?? wage;
   const contributions = i.isKuwaiti ? pifss(insured, s) : { employee: 0, employer: 0 };

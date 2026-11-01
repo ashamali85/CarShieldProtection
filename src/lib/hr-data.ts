@@ -46,6 +46,59 @@ export function accrualStart(emp: Employee): string {
   return added > emp.hireDate ? added : emp.hireDate;
 }
 
+/** A request's days per calendar year, in proportion to its calendar days in each year (sums to `days`). */
+export function daysByYear(start: string, end: string, days: number): [number, number][] {
+  const span = calendarDays(start, end);
+  const out: [number, number][] = [];
+  let given = 0;
+  for (let y = +start.slice(0, 4); y <= +end.slice(0, 4); y++) {
+    const overlap = overlapDays(start, end, `${y}-01-01`, `${y}-12-31`);
+    const isLast = y === +end.slice(0, 4);
+    const part = isLast ? days - given : Math.round((days * overlap) / span);
+    given += part;
+    if (part > 0) out.push([y, part]);
+  }
+  return out;
+}
+
+/**
+ * Recomputes the pay bands of every approved request of one leave type for one employee,
+ * in date order. Run after any leave is added, approved, rejected or cancelled, so bands
+ * never depend on the order things were entered.
+ */
+export async function rebandLeave(db: Db, employeeId: string, type: LeaveType): Promise<void> {
+  if (type.period === "event" || type.period === "accrual") return;
+  const reqs = await db
+    .select()
+    .from(schema.leaveRequests)
+    .where(and(eq(schema.leaveRequests.employeeId, employeeId), eq(schema.leaveRequests.leaveTypeId, type.id), eq(schema.leaveRequests.status, "approved")))
+    .orderBy(asc(schema.leaveRequests.startDate), asc(schema.leaveRequests.createdAt));
+  const usedByYear = new Map<number, number>();
+  let usedInService = 0;
+  for (const r of reqs) {
+    let breakdown: { days: number; pct: number }[] = [];
+    let unpaid = 0;
+    const parts: [number, number][] = type.period === "year" ? daysByYear(r.startDate, r.endDate, r.days) : [[0, r.days]];
+    for (const [year, part] of parts) {
+      const used = type.period === "year" ? (usedByYear.get(year) ?? 0) : usedInService;
+      const res = applyPayTiers(type.payTiers, used, part);
+      breakdown = [...breakdown, ...res.breakdown];
+      unpaid += res.unpaidCentiDays;
+      if (type.period === "year") usedByYear.set(year, used + part);
+      else usedInService += part;
+    }
+    const merged = breakdown.reduce<{ days: number; pct: number }[]>((acc, b) => {
+      const last = acc[acc.length - 1];
+      if (last && last.pct === b.pct) last.days += b.days;
+      else acc.push({ ...b });
+      return acc;
+    }, []);
+    if (r.unpaidCentiDays !== unpaid || JSON.stringify(r.payBreakdown) !== JSON.stringify(merged)) {
+      await db.update(schema.leaveRequests).set({ payBreakdown: merged, unpaidCentiDays: unpaid }).where(eq(schema.leaveRequests.id, r.id));
+    }
+  }
+}
+
 /** Approved days of a leave type already used in the period that applies to a new request starting on `start`. */
 async function usedInPeriod(db: Db, employeeId: string, type: LeaveType, start: string, excludeId?: string): Promise<number> {
   if (type.period === "event") return 0;
@@ -75,7 +128,7 @@ export type LeaveBalance = {
 export async function leaveBalances(db: Db, emp: Employee, asOf = todayKuwait()): Promise<LeaveBalance[]> {
   const types = await db.select().from(schema.leaveTypes).where(eq(schema.leaveTypes.active, true)).orderBy(asc(schema.leaveTypes.sortOrder));
   const approved = await db
-    .select({ typeId: schema.leaveRequests.leaveTypeId, start: schema.leaveRequests.startDate, days: schema.leaveRequests.days })
+    .select({ typeId: schema.leaveRequests.leaveTypeId, start: schema.leaveRequests.startDate, end: schema.leaveRequests.endDate, days: schema.leaveRequests.days })
     .from(schema.leaveRequests)
     .where(and(eq(schema.leaveRequests.employeeId, emp.id), eq(schema.leaveRequests.status, "approved")));
   const year = asOf.slice(0, 4);
@@ -90,7 +143,12 @@ export async function leaveBalances(db: Db, emp: Employee, asOf = todayKuwait())
         const used = mine.reduce((a, r) => a + r.days, 0);
         return { type: t, allowance: earned, used, available: Math.round((earned - used) * 10) / 10, eligible };
       }
-      const used = t.period === "year" ? mine.filter((m) => m.start.startsWith(year)).reduce((a, r) => a + r.days, 0) : t.period === "service" ? mine.reduce((a, r) => a + r.days, 0) : 0;
+      const used =
+        t.period === "year"
+          ? mine.reduce((a, r) => a + (daysByYear(r.start, r.end, r.days).find(([y]) => y === +year)?.[1] ?? 0), 0)
+          : t.period === "service"
+            ? mine.reduce((a, r) => a + r.days, 0)
+            : 0;
       const allowance = t.allowanceDays;
       return { type: t, allowance, used, available: allowance === null ? null : Math.max(0, allowance - used), eligible };
     });
@@ -110,7 +168,8 @@ export async function evaluateLeave(
   days: number,
   opts: { excludeId?: string; checkBalance?: boolean } = {},
 ): Promise<LeaveCheck> {
-  if (emp.status !== "active" && (!emp.endDate || start > emp.endDate)) return { ok: false, error: "inactive" };
+  if (emp.endDate && end > emp.endDate) return { ok: false, error: "inactive" };
+  if (emp.status !== "active" && !emp.endDate) return { ok: false, error: "inactive" };
   if (type.femaleOnly && emp.gender !== "female") return { ok: false, error: "female" };
   if (completeMonths(emp.hireDate, start) < type.minServiceMonths) return { ok: false, error: "service", n: type.minServiceMonths };
 

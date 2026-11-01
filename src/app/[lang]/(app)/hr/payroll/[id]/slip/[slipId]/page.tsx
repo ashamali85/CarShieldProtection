@@ -64,12 +64,14 @@ async function Payslip({ params }: PageProps<"/[lang]/hr/payroll/[id]/slip/[slip
   const money = (f: number) => formatMoney(f, lang);
   const period = monthLabel(run.year, run.month, lang);
 
-  const earnings: [string, number][] = [
-    [E.basic, p.basicFils],
-    [E.housing, p.housingFils],
-    [E.transport, p.transportFils],
-    [E.otherAllowance, p.otherAllowanceFils],
-  ];
+  const earnings: [string, number][] = (
+    [
+      [E.basic, p.basicFils],
+      [E.housing, p.housingFils],
+      [E.transport, p.transportFils],
+      [E.otherAllowance, p.otherAllowanceFils],
+    ] as [string, number][]
+  ).filter(([label, v], i) => i === 0 || v !== 0 || !label);
   if (p.overtimeFils) {
     const hrs = [p.overtimeNormalCentiHours, p.overtimeRestCentiHours, p.overtimeHolidayCentiHours].filter(Boolean).map(fromCenti).join(" + ");
     earnings.push([`${P.overtime} (${hrs} h)`, p.overtimeFils]);

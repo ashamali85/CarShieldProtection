@@ -7,7 +7,7 @@ import { getDb, schema } from "@/db";
 import type { HrSettings, PayTier, SeparationReason } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
-import { buildPayslip, employeesInMonth, evaluateLeave, getHrSettings, touchesLockedPayroll } from "@/lib/hr-data";
+import { buildPayslip, employeesInMonth, evaluateLeave, getHrSettings, rebandLeave, touchesLockedPayroll } from "@/lib/hr-data";
 import { calendarDays, computePayslip } from "@/lib/hr";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
 
@@ -80,7 +80,7 @@ export async function saveEmployee(_: ActionState, fd: FormData): Promise<Action
     transportAllowanceFils: transport!,
     otherAllowanceFils: other!,
     pifssSalaryFils: pifssSalary,
-    leaveOpeningDays: Number.isFinite(opening) ? Math.round(opening) : 0,
+    leaveOpeningDays: Number.isFinite(opening) && opening > 0 ? Math.round(opening) : 0,
     bankName: optStr(fd, "bankName"),
     iban: optStr(fd, "iban")?.replace(/\s+/g, "").toUpperCase() ?? null,
     userId: UUID_RE.test(userId) ? userId : null,
@@ -159,6 +159,7 @@ export async function recordLeave(_: ActionState, fd: FormData): Promise<ActionS
     decidedById: status === "approved" ? user.id : null,
     decidedAt: status === "approved" ? new Date() : null,
   });
+  if (status === "approved") await rebandLeave(db, employeeId, type);
   const back = str(fd, "back");
   redirect(back.startsWith(`/${lang}/hr/`) ? back : `/${lang}/hr/leave`);
 }
@@ -180,6 +181,7 @@ export async function decideLeave(_: ActionState, fd: FormData): Promise<ActionS
       db.select().from(schema.employees).where(eq(schema.employees.id, req.employeeId)).limit(1),
       db.select().from(schema.leaveTypes).where(eq(schema.leaveTypes.id, req.leaveTypeId)).limit(1),
     ]);
+    if (!emp || !type) return { error: L.errors.invalid };
     const check = await evaluateLeave(db, emp, type, req.startDate, req.endDate, req.days, { excludeId: req.id });
     if (!check.ok) return { error: fillN(L.errors[check.error], check.n ?? "") };
     await db
@@ -195,6 +197,9 @@ export async function decideLeave(_: ActionState, fd: FormData): Promise<ActionS
       .set({ status: decision as "rejected" | "cancelled", unpaidCentiDays: 0, decidedById: user.id, decidedAt: new Date() })
       .where(eq(schema.leaveRequests.id, id));
   }
+  // Pay bands of this employee's other leave of the same type may shift (e.g. after a cancellation).
+  const [type] = await db.select().from(schema.leaveTypes).where(eq(schema.leaveTypes.id, req.leaveTypeId)).limit(1);
+  if (type) await rebandLeave(db, req.employeeId, type);
   refresh();
   return undefined;
 }
@@ -289,6 +294,7 @@ export async function adjustPayslip(_: ActionState, fd: FormData): Promise<Actio
   const otherDed = kwdToFils(str(fd, "otherDeduction"));
   if ([otN, otR, otH, absenceC, bonus, otherDed].some((v) => v === null) || absenceC! % 100 !== 0) return { error: P.invalidNumber };
   const absenceDays = absenceC! / 100;
+  if (absenceDays > slip.daysEmployed) return { error: P.invalidNumber };
 
   const [emp] = await db.select().from(schema.employees).where(eq(schema.employees.id, slip.employeeId)).limit(1);
   const s = await getHrSettings(db);
