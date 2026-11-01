@@ -102,20 +102,22 @@ export function PageSkeleton() {
 }
 
 export function Stat({ label, value, href, icon }: { label: string; value: ReactNode; href?: string; icon?: BrandIconName }) {
+  // Label and icon share the top row; the value gets the full width below, so long amounts
+  // (e.g. "KWD 6,700.000") never run under the icon. Money may wrap between currency and number.
   const body = (
     <>
-      <div className="min-w-0">
-        <p className="text-sm text-muted">{label}</p>
-        <p className="num mt-1 text-2xl font-semibold tracking-tight text-ink">{value}</p>
+      <div className="flex items-start justify-between gap-3">
+        <p className="min-w-0 pt-1 text-sm text-muted">{label}</p>
+        {icon && (
+          <span className="-me-1 -mt-1 grid size-12 shrink-0 place-items-center rounded-2xl bg-linear-to-br from-white to-silver-100 ring-1 ring-line">
+            <BrandIcon name={icon} className="size-10 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3" />
+          </span>
+        )}
       </div>
-      {icon && (
-        <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-linear-to-br from-white to-silver-100 ring-1 ring-line">
-          <BrandIcon name={icon} className="size-12 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3" />
-        </span>
-      )}
+      <p className="num mt-1 text-2xl leading-tight font-semibold tracking-tight [overflow-wrap:anywhere] whitespace-normal text-ink">{value}</p>
     </>
   );
-  const cls = "card group flex items-center justify-between gap-3 p-4 sm:p-5";
+  const cls = "card group block p-4 sm:p-5";
   return href ? (
     <Link href={href} className={`${cls} transition-[box-shadow,border-color,transform] hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-(--shadow-lift)`}>
       {body}
