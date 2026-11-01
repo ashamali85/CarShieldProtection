@@ -10,6 +10,7 @@ import {
   serial,
   index,
   uniqueIndex,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -323,6 +324,205 @@ export type MovementReason = (typeof movementReason.enumValues)[number];
 export type User = typeof users.$inferSelect;
 export type Customer = typeof customers.$inferSelect;
 export type Vehicle = typeof vehicles.$inferSelect;
+// ───────────────────────────── HR ─────────────────────────────
+// Leave days are whole days. Fractional "unpaid-equivalent" days (e.g. sick leave at 75% pay)
+// are stored in hundredths of a day; overtime hours in hundredths of an hour.
+
+export const employeeStatus = pgEnum("employee_status", ["active", "terminated"]);
+export const gender = pgEnum("gender", ["male", "female"]);
+export const contractType = pgEnum("contract_type", ["unlimited", "fixed"]);
+export const separationReason = pgEnum("separation_reason", ["resignation", "termination", "contract_end", "retirement", "death", "other"]);
+export const leaveStatus = pgEnum("leave_status", ["pending", "approved", "rejected", "cancelled"]);
+export const payrollStatus = pgEnum("payroll_status", ["draft", "approved", "paid"]);
+
+export const employees = pgTable(
+  "employees",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: serial("code").notNull().unique(),
+    /** Optional link to an app login (e.g. a technician who also uses the system). */
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    fullName: text("full_name").notNull(),
+    fullNameAr: text("full_name_ar"),
+    gender: gender("gender").notNull().default("male"),
+    nationality: text("nationality").notNull(),
+    /** Kuwaiti nationals are insured with PIFSS; contributions are deducted in payroll. */
+    isKuwaiti: boolean("is_kuwaiti").notNull().default(false),
+    dateOfBirth: date("date_of_birth"),
+    phone: text("phone"),
+    email: text("email"),
+    jobTitle: text("job_title").notNull(),
+    department: text("department"),
+    hireDate: date("hire_date").notNull(),
+    contractType: contractType("contract_type").notNull().default("unlimited"),
+    contractEnd: date("contract_end"),
+    civilId: text("civil_id"),
+    civilIdExpiry: date("civil_id_expiry"),
+    passportNo: text("passport_no"),
+    passportExpiry: date("passport_expiry"),
+    residencyExpiry: date("residency_expiry"),
+    basicSalaryFils: integer("basic_salary_fils").notNull(),
+    housingAllowanceFils: integer("housing_allowance_fils").notNull().default(0),
+    transportAllowanceFils: integer("transport_allowance_fils").notNull().default(0),
+    otherAllowanceFils: integer("other_allowance_fils").notNull().default(0),
+    /** Salary registered with PIFSS; null = basic + fixed allowances. */
+    pifssSalaryFils: integer("pifss_salary_fils"),
+    /** Annual-leave days carried in when the employee was added (for existing staff). */
+    leaveOpeningDays: integer("leave_opening_days").notNull().default(0),
+    bankName: text("bank_name"),
+    iban: text("iban"),
+    status: employeeStatus("status").notNull().default("active"),
+    endDate: date("end_date"),
+    separationReason: separationReason("separation_reason"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("employees_status_idx").on(t.status)],
+);
+
+/** One pay band of a leave type: the next `days` days are paid at `pct` %. `days: null` = no limit. */
+export type PayTier = { days: number | null; pct: number };
+
+export const leaveTypes = pgTable("leave_types", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  nameEn: text("name_en").notNull(),
+  nameAr: text("name_ar").notNull(),
+  /** Days allowed per period; null = no limit. */
+  allowanceDays: integer("allowance_days"),
+  /** "year" = per calendar year, "service" = once in the employee's service, "accrual" = earned monthly (annual leave). */
+  period: text("period").$type<"year" | "service" | "accrual" | "event">().notNull().default("year"),
+  /** Pay bands applied in order to days taken within the period. */
+  payTiers: jsonb("pay_tiers").$type<PayTier[]>().notNull(),
+  minServiceMonths: integer("min_service_months").notNull().default(0),
+  femaleOnly: boolean("female_only").notNull().default(false),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const leaveRequests = pgTable(
+  "leave_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    employeeId: uuid("employee_id")
+      .notNull()
+      .references(() => employees.id, { onDelete: "cascade" }),
+    leaveTypeId: uuid("leave_type_id")
+      .notNull()
+      .references(() => leaveTypes.id, { onDelete: "restrict" }),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    days: integer("days").notNull(),
+    status: leaveStatus("status").notNull().default("approved"),
+    /** How the days split across pay bands, worked out when approved. */
+    payBreakdown: jsonb("pay_breakdown").$type<{ days: number; pct: number }[]>(),
+    /** Days of pay lost, in hundredths (e.g. 10 days at 75% = 250). */
+    unpaidCentiDays: integer("unpaid_centi_days").notNull().default(0),
+    reason: text("reason"),
+    decidedById: uuid("decided_by_id").references(() => users.id, { onDelete: "set null" }),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("leave_requests_employee_idx").on(t.employeeId), index("leave_requests_dates_idx").on(t.startDate, t.endDate)],
+);
+
+export const payrollRuns = pgTable(
+  "payroll_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    year: integer("year").notNull(),
+    month: integer("month").notNull(),
+    status: payrollStatus("status").notNull().default("draft"),
+    notes: text("notes"),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+  },
+  (t) => [uniqueIndex("payroll_runs_period_uq").on(t.year, t.month)],
+);
+
+export const payslips = pgTable(
+  "payslips",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => payrollRuns.id, { onDelete: "cascade" }),
+    employeeId: uuid("employee_id")
+      .notNull()
+      .references(() => employees.id, { onDelete: "restrict" }),
+    /** Snapshot of the employee at the time of the run. */
+    employeeName: text("employee_name").notNull(),
+    jobTitle: text("job_title").notNull(),
+    isKuwaiti: boolean("is_kuwaiti").notNull(),
+    iban: text("iban"),
+    bankName: text("bank_name"),
+    /** Calendar days employed in the month (for joiners and leavers). */
+    daysEmployed: integer("days_employed").notNull(),
+    daysInMonth: integer("days_in_month").notNull(),
+    basicFils: integer("basic_fils").notNull(),
+    housingFils: integer("housing_fils").notNull(),
+    transportFils: integer("transport_fils").notNull(),
+    otherAllowanceFils: integer("other_allowance_fils").notNull(),
+    overtimeNormalCentiHours: integer("overtime_normal_centi_hours").notNull().default(0),
+    overtimeRestCentiHours: integer("overtime_rest_centi_hours").notNull().default(0),
+    overtimeHolidayCentiHours: integer("overtime_holiday_centi_hours").notNull().default(0),
+    overtimeFils: integer("overtime_fils").notNull().default(0),
+    bonusFils: integer("bonus_fils").notNull().default(0),
+    unpaidLeaveCentiDays: integer("unpaid_leave_centi_days").notNull().default(0),
+    unpaidLeaveFils: integer("unpaid_leave_fils").notNull().default(0),
+    absenceDays: integer("absence_days").notNull().default(0),
+    absenceFils: integer("absence_fils").notNull().default(0),
+    otherDeductionFils: integer("other_deduction_fils").notNull().default(0),
+    pifssEmployeeFils: integer("pifss_employee_fils").notNull().default(0),
+    pifssEmployerFils: integer("pifss_employer_fils").notNull().default(0),
+    grossFils: integer("gross_fils").notNull(),
+    deductionsFils: integer("deductions_fils").notNull(),
+    netFils: integer("net_fils").notNull(),
+    note: text("note"),
+  },
+  (t) => [uniqueIndex("payslips_run_employee_uq").on(t.runId, t.employeeId)],
+);
+
+/** Payroll rules (PIFSS rates and caps, overtime multipliers, daily-rate divisor). One row, id = 1. */
+export const hrSettings = pgTable("hr_settings", {
+  id: integer("id").primaryKey().default(1),
+  settings: jsonb("settings").$type<HrSettings>().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type HrSettings = {
+  /** Monthly salary ÷ this = daily wage (used for unpaid leave, absence and leave encashment). */
+  dailyRateDivisor: number;
+  /** Standard working hours per day, for the hourly overtime rate. */
+  hoursPerDay: number;
+  overtimeNormalPct: number;
+  overtimeRestDayPct: number;
+  overtimeHolidayPct: number;
+  pifss: {
+    /** Upper limit of the basic-insurance band, in fils. */
+    basicCapFils: number;
+    /** Upper limit of the supplementary band (and of the other contributions), in fils. */
+    totalCapFils: number;
+    /** Upper limit for the financial-remuneration contribution, in fils. */
+    remunerationCapFils: number;
+    employee: { basic: number; supplementary: number; pensionIncrease: number; unemployment: number; remuneration: number };
+    employer: { basic: number; supplementary: number; pensionIncrease: number; unemployment: number };
+  };
+};
+
+export type Employee = typeof employees.$inferSelect;
+export type LeaveType = typeof leaveTypes.$inferSelect;
+export type LeaveRequest = typeof leaveRequests.$inferSelect;
+export type PayrollRun = typeof payrollRuns.$inferSelect;
+export type Payslip = typeof payslips.$inferSelect;
+export type EmployeeStatus = (typeof employeeStatus.enumValues)[number];
+export type SeparationReason = (typeof separationReason.enumValues)[number];
+export type LeaveStatus = (typeof leaveStatus.enumValues)[number];
+export type PayrollStatus = (typeof payrollStatus.enumValues)[number];
+
 export type CarMake = typeof carMakes.$inferSelect;
 export type CarModel = typeof carModels.$inferSelect;
 export type BodyType = (typeof bodyType.enumValues)[number];

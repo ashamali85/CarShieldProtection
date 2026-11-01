@@ -110,8 +110,9 @@ h1, h2, h3 {
   .badge {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-current/15 ring-inset;
   }
+  /* relative: keeps absolutely-positioned bits (e.g. sr-only header labels) inside the scroll box. */
   .table-wrap {
-    @apply overflow-x-auto;
+    @apply relative overflow-x-auto;
   }
   .table {
     @apply w-full text-sm;
