@@ -5,6 +5,7 @@ import { getDb, schema } from "@/db";
 import { formatDate } from "@/i18n";
 import { first, pageContext } from "@/lib/page";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
+import { CustomerTabs } from "@/components/area-tabs";
 
 export default function CustomersPage(props: PageProps<"/[lang]/customers">) {
   return (
@@ -46,6 +47,7 @@ async function Customers({ params, searchParams }: PageProps<"/[lang]/customers"
 
   return (
     <>
+      <CustomerTabs lang={lang} t={t} current="customers" />
       <PageHeader
         title={t.customers.title}
         actions={

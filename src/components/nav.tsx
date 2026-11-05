@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export type NavItem = { href: string; label: string; icon: keyof typeof ICONS };
+/** `group` starts a new labelled group at this item; `match` lists other URL prefixes that belong to it. */
+export type NavItem = { href: string; label: string; icon: keyof typeof ICONS; group?: string; match?: string[] };
 
 const ICONS = {
   dashboard: "M3 12.5 12 4l9 8.5M5.5 10.5V20h13v-9.5",
@@ -34,6 +35,11 @@ export function NavLinks({ items, activeHref }: { items: NavItem[]; activeHref?:
         const active = item.href === activeHref;
         return (
           <li key={item.href}>
+            {item.group && (
+              <p className="mt-4 mb-1 px-3 text-[11px] font-semibold tracking-wider text-silver-400/80 uppercase rtl:tracking-normal">
+                {item.group}
+              </p>
+            )}
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
@@ -56,10 +62,12 @@ export function NavLinks({ items, activeHref }: { items: NavItem[]; activeHref?:
 /** Highlights the section the current URL belongs to. */
 export function ActiveNav({ items, home }: { items: NavItem[]; home: string }) {
   const pathname = usePathname();
+  const under = (prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);
   const active =
     items
-      .filter((i) => (i.href === home ? pathname === home : pathname.startsWith(i.href)))
-      .sort((a, b) => b.href.length - a.href.length)[0]?.href ?? undefined;
+      .map((i) => ({ href: i.href, len: Math.max(...[i.href, ...(i.match ?? [])].filter((p) => (p === home ? pathname === home : under(p))).map((p) => p.length), -1) }))
+      .filter((x) => x.len >= 0)
+      .sort((a, b) => b.len - a.len)[0]?.href ?? undefined;
   return <NavLinks items={items} activeHref={active} />;
 }
 

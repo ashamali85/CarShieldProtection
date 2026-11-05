@@ -8,6 +8,7 @@ import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { PageHeader, PageSkeleton } from "@/components/ui";
 import { BrandSearch } from "@/components/brand-search";
 import { brandLogoSrc } from "@/lib/brand-logos";
+import { CatalogTabs } from "@/components/area-tabs";
 
 export default function CatalogPage(props: PageProps<"/[lang]/catalog">) {
   return (
@@ -40,6 +41,7 @@ async function Catalog({ params, searchParams }: PageProps<"/[lang]/catalog">) {
 
   return (
     <>
+      <CatalogTabs lang={lang} t={t} current="catalog" isAdmin />
       <PageHeader
         title={t.catalog.title}
         subtitle={`${t.catalog.subtitle} · ${formatNumber(makes.length, lang)} ${t.catalog.brands} · ${formatNumber(totalModels, lang)} ${t.catalog.models}`}

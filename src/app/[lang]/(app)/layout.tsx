@@ -8,23 +8,29 @@ import { ActiveNav, LanguageSwitch, NavLinks, type NavItem } from "@/components/
 import { getCurrentUser } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
 
+/**
+ * The sidebar, grouped by how often each area is used. Warranties live under Customers and the car
+ * brands under Catalog (as tabs), so their URLs still highlight the parent link.
+ */
 function navItems(lang: Locale, isAdmin: boolean): NavItem[] {
   const t = getDictionary(lang).nav;
   const base = `/${lang}`;
+  const catalog: NavItem = { href: `${base}/services`, match: [`${base}/catalog`], label: t.catalog, icon: "services" };
   const items: NavItem[] = [
     { href: base, label: t.dashboard, icon: "dashboard" },
-    { href: `${base}/jobs`, label: t.jobs, icon: "jobs" },
-    { href: `${base}/customers`, label: t.customers, icon: "customers" },
+    { href: `${base}/jobs`, label: t.jobs, icon: "jobs", group: t.groups.daily },
+    { href: `${base}/customers`, match: [`${base}/warranties`], label: t.customers, icon: "customers" },
     { href: `${base}/invoices`, label: t.invoices, icon: "invoices" },
-    { href: `${base}/warranties`, label: t.warranties, icon: "warranties" },
-    { href: `${base}/services`, label: t.services, icon: "services" },
     { href: `${base}/inventory`, label: t.inventory, icon: "inventory" },
   ];
-  if (isAdmin) items.push({ href: `${base}/finance`, label: t.finance, icon: "finance" });
-  if (isAdmin) items.push({ href: `${base}/hr`, label: t.hr, icon: "hr" });
-  if (isAdmin) items.push({ href: `${base}/catalog`, label: t.catalog, icon: "catalog" });
-  if (isAdmin) items.push({ href: `${base}/users`, label: t.users, icon: "users" });
-  return items;
+  if (!isAdmin) return [...items, catalog];
+  return [
+    ...items,
+    { href: `${base}/finance`, label: t.finance, icon: "finance", group: t.groups.management },
+    { href: `${base}/hr`, label: t.hr, icon: "hr" },
+    { ...catalog, group: t.groups.setup },
+    { href: `${base}/users`, label: t.users, icon: "users" },
+  ];
 }
 
 /** Reads the session, so it streams in behind a Suspense boundary. */

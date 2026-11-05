@@ -6,6 +6,7 @@ import { formatDate } from "@/i18n";
 import { first, pageContext } from "@/lib/page";
 import { addDays, todayKuwait } from "@/lib/dates";
 import { EmptyState, PageHeader, PageSkeleton, WarrantyBadge, warrantyState } from "@/components/ui";
+import { CustomerTabs } from "@/components/area-tabs";
 
 export default function WarrantiesPage(props: PageProps<"/[lang]/warranties">) {
   return (
@@ -57,6 +58,7 @@ async function Warranties({ params, searchParams }: PageProps<"/[lang]/warrantie
 
   return (
     <>
+      <CustomerTabs lang={lang} t={t} current="warranties" />
       <PageHeader title={t.warranties.title} subtitle={expiringOnly ? t.dashboard.expiringSoon : undefined} />
       <form className="mb-4 flex flex-wrap gap-2" role="search">
         <label htmlFor="q" className="sr-only">

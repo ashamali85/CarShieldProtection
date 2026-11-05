@@ -4,6 +4,7 @@ import { getDb, schema } from "@/db";
 import { formatMoney } from "@/i18n";
 import { pageContext } from "@/lib/page";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
+import { CatalogTabs } from "@/components/area-tabs";
 
 export default function ServicesPage(props: PageProps<"/[lang]/services">) {
   return (
@@ -21,6 +22,7 @@ async function Services({ params }: PageProps<"/[lang]/services">) {
 
   return (
     <>
+      <CatalogTabs lang={lang} t={t} current="services" isAdmin={user.role === "admin"} />
       <PageHeader
         title={t.services.title}
         actions={
