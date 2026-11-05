@@ -1,16 +1,17 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import { getDictionary, isLocale, type Dictionary, type Locale } from "@/i18n";
-import { requireAdmin, requireUser, type CurrentUser } from "./auth";
+import { requirePermission, requireUser, type CurrentUser } from "./auth";
+import type { Permission } from "./permissions";
 
 /** Validates the locale and the session for a page body. */
 export async function pageContext(
   params: Promise<{ lang: string }>,
-  opts: { admin?: boolean } = {},
+  opts: { perm?: Permission } = {},
 ): Promise<{ lang: Locale; t: Dictionary; user: CurrentUser }> {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
-  const user = opts.admin ? await requireAdmin(lang) : await requireUser(lang);
+  const user = opts.perm ? await requirePermission(lang, opts.perm) : await requireUser(lang);
   return { lang, t: getDictionary(lang), user };
 }
 

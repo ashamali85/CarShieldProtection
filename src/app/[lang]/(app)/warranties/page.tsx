@@ -7,6 +7,7 @@ import { first, pageContext } from "@/lib/page";
 import { addDays, todayKuwait } from "@/lib/dates";
 import { EmptyState, PageHeader, PageSkeleton, WarrantyBadge, warrantyState } from "@/components/ui";
 import { CustomerTabs } from "@/components/area-tabs";
+import { can } from "@/lib/auth";
 
 export default function WarrantiesPage(props: PageProps<"/[lang]/warranties">) {
   return (
@@ -17,7 +18,7 @@ export default function WarrantiesPage(props: PageProps<"/[lang]/warranties">) {
 }
 
 async function Warranties({ params, searchParams }: PageProps<"/[lang]/warranties">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t, user } = await pageContext(params, { perm: "warranties.view" });
   const sp = await searchParams;
   const q = first(sp.q);
   const expiringOnly = first(sp.state) === "expiring";
@@ -58,7 +59,7 @@ async function Warranties({ params, searchParams }: PageProps<"/[lang]/warrantie
 
   return (
     <>
-      <CustomerTabs lang={lang} t={t} current="warranties" />
+      <CustomerTabs lang={lang} t={t} current="warranties" customers={can(user, "customers.view")} warranties={can(user, "warranties.view")} />
       <PageHeader title={t.warranties.title} subtitle={expiringOnly ? t.dashboard.expiringSoon : undefined} />
       <form className="mb-4 flex flex-wrap gap-2" role="search">
         <label htmlFor="q" className="sr-only">

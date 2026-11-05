@@ -4,14 +4,14 @@ import { eq, sum } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
-import { requireUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import type { PaymentMethod } from "@/db/schema";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
 
 export async function createInvoice(formData: FormData) {
   const lang = langFrom(formData);
-  await requireUser(lang);
+  await requirePermission(lang, "invoices.manage");
   const jobId = str(formData, "jobId");
   if (!UUID_RE.test(jobId)) return;
 
@@ -51,7 +51,7 @@ const METHODS: PaymentMethod[] = ["cash", "knet", "card", "transfer"];
 
 export async function recordPayment(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  const user = await requireUser(lang);
+  const user = await requirePermission(lang, "invoices.manage");
   const dict = t(lang);
   const invoiceId = str(formData, "invoiceId");
   const method = str(formData, "method") as PaymentMethod;

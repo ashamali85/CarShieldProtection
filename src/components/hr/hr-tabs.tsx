@@ -6,19 +6,19 @@ import { usePathname } from "next/navigation";
 type Labels = { overview: string; employees: string; leave: string; payroll: string; settings: string };
 
 /** Sub-navigation for the HR section, highlighting the current page. */
-export function HrTabs({ lang, labels }: { lang: string; labels: Labels }) {
-  return <TabsView lang={lang} labels={labels} pathname={usePathname()} />;
+export function HrTabs({ lang, labels, settings = true }: { lang: string; labels: Labels; settings?: boolean }) {
+  return <TabsView lang={lang} labels={labels} pathname={usePathname()} settings={settings} />;
 }
 
 /** The tab bar itself; also used (with no active tab) while the address is still loading. */
-export function TabsView({ lang, labels, pathname }: { lang: string; labels: Labels; pathname: string }) {
+export function TabsView({ lang, labels, pathname, settings = true }: { lang: string; labels: Labels; pathname: string; settings?: boolean }) {
   const base = `/${lang}/hr`;
   const tabs = [
     { href: base, label: labels.overview, exact: true },
     { href: `${base}/employees`, label: labels.employees },
     { href: `${base}/leave`, label: labels.leave },
     { href: `${base}/payroll`, label: labels.payroll },
-    { href: `${base}/settings`, label: labels.settings },
+    ...(settings ? [{ href: `${base}/settings`, label: labels.settings }] : []),
   ];
   return (
     <nav aria-label="HR" className="no-print -mx-4 mb-2 overflow-x-auto px-4 pt-2 sm:mx-0 sm:px-0">

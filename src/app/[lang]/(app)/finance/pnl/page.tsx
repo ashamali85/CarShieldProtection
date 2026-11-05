@@ -21,7 +21,7 @@ export default function PnlPage(props: PageProps<"/[lang]/finance/pnl">) {
 }
 
 async function Pnl({ params, searchParams }: PageProps<"/[lang]/finance/pnl">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "finance.view" });
   const P = t.finance.pnl;
   const today = todayKuwait();
   const period = parsePeriod(await searchParams, today);

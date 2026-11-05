@@ -12,6 +12,7 @@ import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { RowDelete } from "@/components/finance/row-delete";
+import { can } from "@/lib/auth";
 
 const INFLOW: CashEntryKind[] = ["capital_in", "loan_received", "other_income", "deposit_refund"];
 
@@ -24,7 +25,8 @@ export default function MoneyPage(props: PageProps<"/[lang]/finance/money">) {
 }
 
 async function Money({ params, searchParams }: PageProps<"/[lang]/finance/money">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "finance.view" });
+  const canManage = can(user, "finance.manage");
   const M = t.finance.money;
   const today = todayKuwait();
   const period = parsePeriod(await searchParams, today, "year");
@@ -78,11 +80,13 @@ async function Money({ params, searchParams }: PageProps<"/[lang]/finance/money"
                         </td>
                         <td>
                           <span className="flex justify-end">
-                            <RowDelete
-                              action={deleteCashEntry}
-                              hidden={{ lang, id: r.id }}
-                              labels={{ delete: t.finance.expenses.delete, confirm: `${t.finance.expenses.delete}?`, cancel: t.common.cancel, saving: t.common.saving }}
-                            />
+                            {canManage && (
+                              <RowDelete
+                                action={deleteCashEntry}
+                                hidden={{ lang, id: r.id }}
+                                labels={{ delete: t.finance.expenses.delete, confirm: `${t.finance.expenses.delete}?`, cancel: t.common.cancel, saving: t.common.saving }}
+                              />
+                            )}
                           </span>
                         </td>
                       </tr>
@@ -93,52 +97,54 @@ async function Money({ params, searchParams }: PageProps<"/[lang]/finance/money"
             </div>
           )}
         </section>
-        <section className="card card-pad content-start">
-          <h2 className="section-title mb-4">{M.add}</h2>
-          <ActionForm action={saveCashEntry} hidden={{ lang }} className="space-y-4">
-            <div>
-              <label htmlFor="f-kind" className="label">
-                {M.kind}
-              </label>
-              <select id="f-kind" name="kind" className="input" defaultValue="capital_in">
-                <optgroup label={M.direction.in}>
-                  {INFLOW.map((k) => (
-                    <option key={k} value={k}>
-                      {M.kinds[k]}
+        {canManage && (
+          <section className="card card-pad content-start">
+            <h2 className="section-title mb-4">{M.add}</h2>
+            <ActionForm action={saveCashEntry} hidden={{ lang }} className="space-y-4">
+              <div>
+                <label htmlFor="f-kind" className="label">
+                  {M.kind}
+                </label>
+                <select id="f-kind" name="kind" className="input" defaultValue="capital_in">
+                  <optgroup label={M.direction.in}>
+                    {INFLOW.map((k) => (
+                      <option key={k} value={k}>
+                        {M.kinds[k]}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label={M.direction.out}>
+                    {(["owner_drawing", "loan_repayment", "deposit_paid"] as const).map((k) => (
+                      <option key={k} value={k}>
+                        {M.kinds[k]}
+                      </option>
+                    ))}
+                  </optgroup>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label={t.finance.expenses.date} name="date" type="date" required defaultValue={today} />
+                <Field label={t.finance.expenses.amount} name="amount" required inputMode="decimal" dir="ltr" placeholder="0.000" />
+              </div>
+              <div>
+                <label htmlFor="f-method" className="label">
+                  {t.finance.expenses.method}
+                </label>
+                <select id="f-method" name="method" className="input" defaultValue="transfer">
+                  {(["cash", "knet", "card", "transfer"] as const).map((m) => (
+                    <option key={m} value={m}>
+                      {t.invoices.methods[m]}
                     </option>
                   ))}
-                </optgroup>
-                <optgroup label={M.direction.out}>
-                  {(["owner_drawing", "loan_repayment", "deposit_paid"] as const).map((k) => (
-                    <option key={k} value={k}>
-                      {M.kinds[k]}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label={t.finance.expenses.date} name="date" type="date" required defaultValue={today} />
-              <Field label={t.finance.expenses.amount} name="amount" required inputMode="decimal" dir="ltr" placeholder="0.000" />
-            </div>
-            <div>
-              <label htmlFor="f-method" className="label">
-                {t.finance.expenses.method}
-              </label>
-              <select id="f-method" name="method" className="input" defaultValue="transfer">
-                {(["cash", "knet", "card", "transfer"] as const).map((m) => (
-                  <option key={m} value={m}>
-                    {t.invoices.methods[m]}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Field label={t.finance.expenses.description} name="description" optionalLabel={t.common.optional} />
-            <SubmitButton className="btn-primary w-full" pendingLabel={t.common.saving}>
-              {M.add}
-            </SubmitButton>
-          </ActionForm>
-        </section>
+                </select>
+              </div>
+              <Field label={t.finance.expenses.description} name="description" optionalLabel={t.common.optional} />
+              <SubmitButton className="btn-primary w-full" pendingLabel={t.common.saving}>
+                {M.add}
+              </SubmitButton>
+            </ActionForm>
+          </section>
+        )}
       </div>
     </>
   );

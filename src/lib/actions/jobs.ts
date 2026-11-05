@@ -4,7 +4,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
-import { requireUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import type { JobStatus } from "@/db/schema";
 import { todayKuwait } from "@/lib/dates";
@@ -20,7 +20,7 @@ function parseLocalDateTime(value: string): Date | null {
 
 export async function createJob(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  const user = await requireUser(lang);
+  const user = await requirePermission(lang, "jobs.manage");
   const dict = t(lang);
   const customerId = str(formData, "customerId");
   const vehicleId = str(formData, "vehicleId");
@@ -72,7 +72,7 @@ export async function createJob(_: ActionState, formData: FormData): Promise<Act
 
 export async function updateJobDetails(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireUser(lang);
+  await requirePermission(lang, "jobs.manage");
   const dict = t(lang);
   const id = str(formData, "id");
   const technicianId = optStr(formData, "technicianId");
@@ -116,7 +116,7 @@ function addMonths(isoDate: string, months: number): string {
 
 export async function setJobStatus(formData: FormData) {
   const lang = langFrom(formData);
-  const user = await requireUser(lang);
+  const user = await requirePermission(lang, "jobs.manage");
   const id = str(formData, "id");
   const to = str(formData, "to") as JobStatus;
   if (!UUID_RE.test(id)) return;
@@ -189,7 +189,7 @@ async function editableJob(jobId: string) {
 
 export async function addJobItem(formData: FormData) {
   const lang = langFrom(formData);
-  const user = await requireUser(lang);
+  const user = await requirePermission(lang, "jobs.manage");
   const jobId = str(formData, "jobId");
   const serviceId = str(formData, "serviceId");
   if (!UUID_RE.test(jobId) || !UUID_RE.test(serviceId)) return;
@@ -216,7 +216,7 @@ export async function addJobItem(formData: FormData) {
 
 export async function removeJobItem(formData: FormData) {
   const lang = langFrom(formData);
-  const user = await requireUser(lang);
+  const user = await requirePermission(lang, "jobs.manage");
   const jobId = str(formData, "jobId");
   const itemId = str(formData, "itemId");
   if (!UUID_RE.test(jobId) || !UUID_RE.test(itemId)) return;

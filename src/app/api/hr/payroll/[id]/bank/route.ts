@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
-import { getCurrentUser } from "@/lib/auth";
+import { can, getCurrentUser } from "@/lib/auth";
 import { UUID_RE } from "@/lib/actions/helpers";
 
 const cell = (v: string | number | null) => {
@@ -11,7 +11,7 @@ const cell = (v: string | number | null) => {
 /** Bank transfer list for a payroll run (CSV, admins only). */
 export async function GET(_req: Request, ctx: RouteContext<"/api/hr/payroll/[id]/bank">) {
   const user = await getCurrentUser();
-  if (!user || user.role !== "admin") return Response.json({ error: "forbidden" }, { status: 403 });
+  if (!can(user, "hr.view")) return Response.json({ error: "forbidden" }, { status: 403 });
   const { id } = await ctx.params;
   if (!UUID_RE.test(id)) return Response.json({ error: "bad request" }, { status: 400 });
   const db = await getDb();

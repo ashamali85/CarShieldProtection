@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
-import { requireUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import type { BodyType } from "@/db/schema";
 import { intOrNull, langFrom, optStr, str, t, UUID_RE } from "./helpers";
@@ -21,7 +21,7 @@ function customerFields(formData: FormData) {
 
 export async function createCustomer(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireUser(lang);
+  await requirePermission(lang, "customers.manage");
   const data = customerFields(formData);
   if (!data.name || !data.phone) return { error: t(lang).common.required };
 
@@ -37,7 +37,7 @@ export async function createCustomer(_: ActionState, formData: FormData): Promis
 
 export async function updateCustomer(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireUser(lang);
+  await requirePermission(lang, "customers.manage");
   const id = str(formData, "id");
   const data = customerFields(formData);
   if (!UUID_RE.test(id)) return { error: t(lang).common.errorGeneric };
@@ -97,7 +97,7 @@ const BODY_TYPES: BodyType[] = ["sedan", "hatchback", "coupe", "convertible", "s
 
 export async function addVehicle(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireUser(lang);
+  await requirePermission(lang, "customers.manage");
   const customerId = str(formData, "customerId");
   if (!UUID_RE.test(customerId)) return { error: t(lang).common.errorGeneric };
   const vehicle = await parseVehicle(formData);
@@ -114,7 +114,7 @@ export async function addVehicle(_: ActionState, formData: FormData): Promise<Ac
 
 export async function deleteVehicle(formData: FormData) {
   const lang = langFrom(formData);
-  await requireUser(lang);
+  await requirePermission(lang, "customers.manage");
   const id = str(formData, "id");
   const customerId = str(formData, "customerId");
   if (!UUID_RE.test(id) || !UUID_RE.test(customerId)) return;

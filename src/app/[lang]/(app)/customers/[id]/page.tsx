@@ -12,6 +12,7 @@ import { VehicleForm } from "@/components/vehicle-form";
 import { getPickerMakes, pickerLabels } from "@/lib/catalog";
 import { CarBrandBadge } from "@/components/logo";
 import { brandLogoSrc } from "@/lib/brand-logos";
+import { can } from "@/lib/auth";
 
 export default function CustomerPage(props: PageProps<"/[lang]/customers/[id]">) {
   return (
@@ -22,7 +23,8 @@ export default function CustomerPage(props: PageProps<"/[lang]/customers/[id]">)
 }
 
 async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t, user } = await pageContext(params, { perm: "customers.view" });
+  const canEdit = can(user, "customers.manage");
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const db = await getDb();
@@ -63,10 +65,12 @@ async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
         back={{ href: `/${lang}/customers`, label: t.customers.title }}
         actions={
           <>
-            <Link href={`/${lang}/customers/${id}/edit`} className="btn-secondary">
-              {t.common.edit}
-            </Link>
-            {vehicles.length > 0 && (
+            {canEdit && (
+              <Link href={`/${lang}/customers/${id}/edit`} className="btn-secondary">
+                {t.common.edit}
+              </Link>
+            )}
+            {vehicles.length > 0 && can(user, "jobs.manage") && (
               <Link href={`/${lang}/jobs/new?customer=${id}`} className="btn-primary">
                 {t.jobs.new}
               </Link>
@@ -126,7 +130,7 @@ async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
                         <span className="block text-start">{v.vin ?? "—"}</span>
                       </td>
                       <td className="text-end">
-                        {jobCount === 0 && (
+                        {jobCount === 0 && canEdit && (
                           <form action={deleteVehicle}>
                             <input type="hidden" name="lang" value={lang} />
                             <input type="hidden" name="id" value={v.id} />
@@ -143,10 +147,12 @@ async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
               </table>
             </div>
           )}
-          <div className="border-t border-line px-4 py-4 sm:px-6">
-            <h3 className="mb-3 text-sm font-semibold">{t.customers.addVehicle}</h3>
-            <VehicleForm lang={lang} t={t} customerId={id} makes={await getPickerMakes()} labels={pickerLabels(t)} />
-          </div>
+          {canEdit && (
+            <div className="border-t border-line px-4 py-4 sm:px-6">
+              <h3 className="mb-3 text-sm font-semibold">{t.customers.addVehicle}</h3>
+              <VehicleForm lang={lang} t={t} customerId={id} makes={await getPickerMakes()} labels={pickerLabels(t)} />
+            </div>
+          )}
         </section>
 
         <section className="card">

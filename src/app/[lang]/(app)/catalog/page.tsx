@@ -19,7 +19,7 @@ export default function CatalogPage(props: PageProps<"/[lang]/catalog">) {
 }
 
 async function Catalog({ params, searchParams }: PageProps<"/[lang]/catalog">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "catalog.manage" });
   const q = first((await searchParams).q);
   const db = await getDb();
 
@@ -41,7 +41,7 @@ async function Catalog({ params, searchParams }: PageProps<"/[lang]/catalog">) {
 
   return (
     <>
-      <CatalogTabs lang={lang} t={t} current="catalog" isAdmin />
+      <CatalogTabs lang={lang} t={t} current="catalog" showBrands />
       <PageHeader
         title={t.catalog.title}
         subtitle={`${t.catalog.subtitle} · ${formatNumber(makes.length, lang)} ${t.catalog.brands} · ${formatNumber(totalModels, lang)} ${t.catalog.models}`}

@@ -15,7 +15,7 @@ export default function FinanceSettingsPage(props: PageProps<"/[lang]/finance/se
 }
 
 async function Settings({ params }: PageProps<"/[lang]/finance/settings">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "finance.manage" });
   const S = t.finance.settings;
   const db = await getDb();
   const [settings, categories] = await Promise.all([

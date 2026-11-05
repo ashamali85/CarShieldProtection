@@ -5,11 +5,21 @@ import { redirect } from "next/navigation";
 import { getDb, schema } from "@/db";
 import { readSession } from "./session";
 import type { Locale } from "@/i18n";
-import type { UserRole } from "@/db/schema";
+import { ALL_PERMISSIONS, normalizePermissions, type Permission } from "./permissions";
 
-export type CurrentUser = { id: string; name: string; email: string; role: UserRole };
+export type CurrentUser = {
+  id: string;
+  name: string;
+  email: string;
+  roleId: string;
+  roleNameEn: string;
+  roleNameAr: string;
+  /** True for the built-in Admin role, which always has every permission. */
+  isAdmin: boolean;
+  permissions: ReadonlySet<Permission>;
+};
 
-/** Reads the session cookie and loads the user once per request. */
+/** Reads the session cookie and loads the user with their role once per request. */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const session = await readSession();
   if (!session) return null;
@@ -19,15 +29,33 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
       id: schema.users.id,
       name: schema.users.name,
       email: schema.users.email,
-      role: schema.users.role,
       active: schema.users.active,
+      roleId: schema.roles.id,
+      roleNameEn: schema.roles.nameEn,
+      roleNameAr: schema.roles.nameAr,
+      system: schema.roles.system,
+      permissions: schema.roles.permissions,
     })
     .from(schema.users)
+    .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
     .where(eq(schema.users.id, session.userId))
     .limit(1);
   if (!user || !user.active) return null;
-  return { id: user.id, name: user.name, email: user.email, role: user.role };
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    roleId: user.roleId,
+    roleNameEn: user.roleNameEn,
+    roleNameAr: user.roleNameAr,
+    isAdmin: user.system,
+    permissions: new Set(user.system ? ALL_PERMISSIONS : normalizePermissions(user.permissions)),
+  };
 });
+
+export function can(user: CurrentUser | null | undefined, permission: Permission): boolean {
+  return !!user && user.permissions.has(permission);
+}
 
 /** Use in every page body and Server Action: the proxy check alone is not authorization. */
 export async function requireUser(lang: Locale): Promise<CurrentUser> {
@@ -36,8 +64,9 @@ export async function requireUser(lang: Locale): Promise<CurrentUser> {
   return user;
 }
 
-export async function requireAdmin(lang: Locale): Promise<CurrentUser> {
+/** Signed in and allowed to do `permission`; otherwise back to the dashboard with a notice. */
+export async function requirePermission(lang: Locale, permission: Permission): Promise<CurrentUser> {
   const user = await requireUser(lang);
-  if (user.role !== "admin") redirect(`/${lang}?denied=1`);
+  if (!can(user, permission)) redirect(`/${lang}?denied=1`);
   return user;
 }

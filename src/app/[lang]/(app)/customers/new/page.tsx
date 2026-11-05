@@ -14,7 +14,7 @@ export default function NewCustomerPage(props: PageProps<"/[lang]/customers/new"
 }
 
 async function NewCustomer({ params }: PageProps<"/[lang]/customers/new">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t } = await pageContext(params, { perm: "customers.manage" });
   const makes = await getPickerMakes();
   return (
     <>

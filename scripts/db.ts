@@ -91,11 +91,14 @@ async function main() {
       const password = process.env.ADMIN_PASSWORD ?? "ChangeMe123!";
       const existing = await conn.db.select().from(schema.users).limit(1);
       if (existing.length === 0) {
+        // The Admin role is created by the roles migration.
+        const [admin] = await conn.db.select({ id: schema.roles.id }).from(schema.roles).where(eq(schema.roles.key, "admin")).limit(1);
         await conn.db.insert(schema.users).values({
           name: "Administrator",
           email,
           passwordHash: await bcrypt.hash(password, 10),
           role: "admin",
+          roleId: admin.id,
         });
         console.log(`Admin user created: ${email}`);
       } else {

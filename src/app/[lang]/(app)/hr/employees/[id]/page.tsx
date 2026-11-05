@@ -15,6 +15,7 @@ import { SubmitButton } from "@/components/forms";
 import { EmployeeStatusBadge, LeaveStatusBadge, PayBreakdown, monthLabel } from "@/components/hr/ui";
 import { LeaveActions } from "@/components/hr/leave-actions";
 import { EndServiceForm } from "@/components/hr/end-service";
+import { can } from "@/lib/auth";
 
 export default function EmployeePage(props: PageProps<"/[lang]/hr/employees/[id]">) {
   return (
@@ -39,7 +40,8 @@ function DocDue({ date, lang, t, today }: { date: string | null; lang: Locale; t
 }
 
 async function Employee({ params }: PageProps<"/[lang]/hr/employees/[id]">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "hr.view" });
+  const canManage = can(user, "hr.manage");
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const db = await getDb();
@@ -105,14 +107,16 @@ async function Employee({ params }: PageProps<"/[lang]/hr/employees/[id]">) {
         back={{ href: `/${lang}/hr/employees`, label: E.title }}
         actions={
           <>
-            {emp.status === "active" && (
+            {emp.status === "active" && canManage && (
               <Link href={`/${lang}/hr/leave/new?employee=${emp.id}`} className="btn-secondary">
                 {L.record}
               </Link>
             )}
-            <Link href={`/${lang}/hr/employees/${emp.id}/edit`} className="btn-primary">
-              {t.common.edit}
-            </Link>
+            {canManage && (
+              <Link href={`/${lang}/hr/employees/${emp.id}/edit`} className="btn-primary">
+                {t.common.edit}
+              </Link>
+            )}
           </>
         }
       />
@@ -257,7 +261,9 @@ async function Employee({ params }: PageProps<"/[lang]/hr/employees/[id]">) {
                           <LeaveStatusBadge status={r.status} t={t} />
                         </td>
                         <td>
-                          <LeaveActions lang={lang} id={r.id} status={r.status} labels={{ approve: L.approve, reject: L.reject, cancel: L.cancel, saving: t.common.saving }} />
+                          {canManage && (
+                            <LeaveActions lang={lang} id={r.id} status={r.status} labels={{ approve: L.approve, reject: L.reject, cancel: L.cancel, saving: t.common.saving }} />
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -340,11 +346,13 @@ async function Employee({ params }: PageProps<"/[lang]/hr/employees/[id]">) {
                   </div>
                 </dl>
                 <p className="hint mt-2">{X.settlementHint}</p>
-                <form action={reinstateEmployee} className="mt-4">
-                  <input type="hidden" name="lang" value={lang} />
-                  <input type="hidden" name="id" value={emp.id} />
-                  <SubmitButton className="btn-secondary w-full">{X.reinstate}</SubmitButton>
-                </form>
+                {canManage && (
+                  <form action={reinstateEmployee} className="mt-4">
+                    <input type="hidden" name="lang" value={lang} />
+                    <input type="hidden" name="id" value={emp.id} />
+                    <SubmitButton className="btn-secondary w-full">{X.reinstate}</SubmitButton>
+                  </form>
+                )}
               </>
             ) : (
               <>
@@ -367,14 +375,16 @@ async function Employee({ params }: PageProps<"/[lang]/hr/employees/[id]">) {
                 </dl>
                 <p className="hint mt-3">{X.estimateHint}</p>
                 <p className="hint">{X.resignNote}</p>
-                <div className="mt-4">
-                  <EndServiceForm
-                    lang={lang}
-                    id={emp.id}
-                    today={today}
-                    labels={{ record: X.record, endDate: X.endDate, reason: X.reason, reasons: X.reasons, confirm: X.confirm, cancel: t.common.cancel, saving: t.common.saving }}
-                  />
-                </div>
+                {canManage && (
+                  <div className="mt-4">
+                    <EndServiceForm
+                      lang={lang}
+                      id={emp.id}
+                      today={today}
+                      labels={{ record: X.record, endDate: X.endDate, reason: X.reason, reasons: X.reasons, confirm: X.confirm, cancel: t.common.cancel, saving: t.common.saving }}
+                    />
+                  </div>
+                )}
               </>
             )}
           </section>

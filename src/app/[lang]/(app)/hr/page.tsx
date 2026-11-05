@@ -9,6 +9,7 @@ import { getHrSettings } from "@/lib/hr-data";
 import { addDaysIso, calendarDays, monthlyWage, pifss } from "@/lib/hr";
 import { EmptyState, PageHeader, PageSkeleton, Stat } from "@/components/ui";
 import { PayrollStatusBadge, monthLabel } from "@/components/hr/ui";
+import { can } from "@/lib/auth";
 
 export default function HrOverviewPage(props: PageProps<"/[lang]/hr">) {
   return (
@@ -19,7 +20,8 @@ export default function HrOverviewPage(props: PageProps<"/[lang]/hr">) {
 }
 
 async function Overview({ params }: PageProps<"/[lang]/hr">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "hr.view" });
+  const canManage = can(user, "hr.manage");
   const O = t.hr.overview;
   const E = t.hr.employees;
   const db = await getDb();
@@ -67,12 +69,16 @@ async function Overview({ params }: PageProps<"/[lang]/hr">) {
         subtitle={O.subtitle}
         actions={
           <>
-            <Link href={`/${lang}/hr/leave/new`} className="btn-secondary">
-              {t.hr.leave.record}
-            </Link>
-            <Link href={`/${lang}/hr/employees/new`} className="btn-primary">
-              {E.new}
-            </Link>
+            {canManage && (
+              <>
+                <Link href={`/${lang}/hr/leave/new`} className="btn-secondary">
+                  {t.hr.leave.record}
+                </Link>
+                <Link href={`/${lang}/hr/employees/new`} className="btn-primary">
+                  {E.new}
+                </Link>
+              </>
+            )}
           </>
         }
       />

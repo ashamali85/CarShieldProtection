@@ -15,7 +15,7 @@ export default function HrSettingsPage(props: PageProps<"/[lang]/hr/settings">) 
 }
 
 async function Settings({ params }: PageProps<"/[lang]/hr/settings">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "hr.manage" });
   const S = t.hr.settings;
   const L = t.hr.leave;
   const db = await getDb();

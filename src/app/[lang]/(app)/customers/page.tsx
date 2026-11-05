@@ -6,6 +6,7 @@ import { formatDate } from "@/i18n";
 import { first, pageContext } from "@/lib/page";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { CustomerTabs } from "@/components/area-tabs";
+import { can } from "@/lib/auth";
 
 export default function CustomersPage(props: PageProps<"/[lang]/customers">) {
   return (
@@ -16,7 +17,8 @@ export default function CustomersPage(props: PageProps<"/[lang]/customers">) {
 }
 
 async function Customers({ params, searchParams }: PageProps<"/[lang]/customers">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t, user } = await pageContext(params, { perm: "customers.view" });
+  const canAdd = can(user, "customers.manage");
   const q = first((await searchParams).q);
   const db = await getDb();
 
@@ -47,13 +49,15 @@ async function Customers({ params, searchParams }: PageProps<"/[lang]/customers"
 
   return (
     <>
-      <CustomerTabs lang={lang} t={t} current="customers" />
+      <CustomerTabs lang={lang} t={t} current="customers" customers={can(user, "customers.view")} warranties={can(user, "warranties.view")} />
       <PageHeader
         title={t.customers.title}
         actions={
-          <Link href={`/${lang}/customers/new`} className="btn-primary">
-            {t.customers.new}
-          </Link>
+          canAdd && (
+            <Link href={`/${lang}/customers/new`} className="btn-primary">
+              {t.customers.new}
+            </Link>
+          )
         }
       />
       <form className="mb-4 flex gap-2" role="search">
@@ -70,7 +74,8 @@ async function Customers({ params, searchParams }: PageProps<"/[lang]/customers"
           <EmptyState
             message={q ? t.customers.emptySearch : t.customers.empty}
             action={
-              !q && (
+              !q &&
+              canAdd && (
                 <Link href={`/${lang}/customers/new`} className="btn-primary">
                   {t.customers.new}
                 </Link>

@@ -10,6 +10,7 @@ import { PrintButton } from "@/components/print-button";
 import { PayrollStatusBadge, fromCenti, monthLabel } from "@/components/hr/ui";
 import { PayslipRow } from "@/components/hr/payslip-row";
 import { RunActions } from "@/components/hr/run-actions";
+import { can } from "@/lib/auth";
 
 export default function PayrollRunPage(props: PageProps<"/[lang]/hr/payroll/[id]">) {
   return (
@@ -20,7 +21,8 @@ export default function PayrollRunPage(props: PageProps<"/[lang]/hr/payroll/[id]
 }
 
 async function Run({ params }: PageProps<"/[lang]/hr/payroll/[id]">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "hr.view" });
+  const canManage = can(user, "hr.manage");
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const db = await getDb();
@@ -48,21 +50,23 @@ async function Run({ params }: PageProps<"/[lang]/hr/payroll/[id]">) {
         back={{ href: `/${lang}/hr/payroll`, label: P.runs }}
         actions={
           <>
-            <RunActions
-              lang={lang}
-              id={run.id}
-              status={run.status}
-              labels={{
-                recalc: P.recalc,
-                approve: P.approve,
-                reopen: P.reopen,
-                markPaid: P.markPaid,
-                delete: P.delete,
-                deleteConfirm: P.deleteConfirm,
-                cancel: t.common.cancel,
-                saving: t.common.saving,
-              }}
-            />
+            {canManage && (
+              <RunActions
+                lang={lang}
+                id={run.id}
+                status={run.status}
+                labels={{
+                  recalc: P.recalc,
+                  approve: P.approve,
+                  reopen: P.reopen,
+                  markPaid: P.markPaid,
+                  delete: P.delete,
+                  deleteConfirm: P.deleteConfirm,
+                  cancel: t.common.cancel,
+                  saving: t.common.saving,
+                }}
+              />
+            )}
             {run.status !== "draft" && (
               <a href={`/api/hr/payroll/${run.id}/bank`} className="btn-secondary" download>
                 {P.bankFile}
@@ -104,7 +108,7 @@ async function Run({ params }: PageProps<"/[lang]/hr/payroll/[id]">) {
                   key={p.id}
                   lang={lang}
                   href={`/${lang}/hr/payroll/${run.id}/slip/${p.id}`}
-                  editable={editable}
+                  editable={editable && canManage}
                   slip={{
                     id: p.id,
                     name: p.employeeName,

@@ -13,6 +13,7 @@ import { UUID_RE } from "@/lib/actions/helpers";
 import { addJobItem, removeJobItem, setJobStatus, updateJobDetails } from "@/lib/actions/jobs";
 import { createInvoice } from "@/lib/actions/invoices";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
+import { can } from "@/lib/auth";
 import {
   DefinitionList,
   InvoiceStatusBadge,
@@ -53,7 +54,8 @@ function transitions(status: JobStatus, hasInvoice: boolean): Transition[] {
 }
 
 async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t, user } = await pageContext(params, { perm: "jobs.view" });
+  const canManage = can(user, "jobs.manage");
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const db = await getDb();
@@ -79,7 +81,7 @@ async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
 
   const subtotal = items.reduce((a, i) => a + i.priceFils * i.quantity, 0);
   const discount = invoice ? invoice.discountFils : Math.min(job.discountFils, subtotal);
-  const editable = !invoice && job.status !== "cancelled" && job.status !== "delivered";
+  const editable = canManage && (!invoice && job.status !== "cancelled" && job.status !== "delivered");
   const closed = job.status === "cancelled" || job.status === "delivered";
   const today = todayKuwait();
   const name = (i: { nameEn: string; nameAr: string }) => (lang === "ar" ? i.nameAr : i.nameEn);
@@ -99,7 +101,7 @@ async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
         }
         subtitle={<span dir="auto" className="auto-dir block">{`${customer.name} · ${vehicle.make} ${vehicle.model}`}</span>}
         back={{ href: `/${lang}/jobs`, label: t.jobs.title }}
-        actions={transitions(job.status, !!invoice).map((tr) => (
+        actions={(canManage ? transitions(job.status, !!invoice) : []).map((tr) => (
           <form key={tr.key} action={setJobStatus}>
             <input type="hidden" name="lang" value={lang} />
             <input type="hidden" name="id" value={job.id} />
@@ -186,7 +188,7 @@ async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
           {!closed || job.notes || job.status === "delivered" ? (
             <section className="card card-pad">
               <h2 className="section-title mb-4">{t.jobs.details}</h2>
-              {closed ? (
+              {closed || !canManage ? (
                 <DefinitionList
                   items={[
                     { label: t.jobs.technician, value: row.technician ?? t.jobs.unassigned },
@@ -289,9 +291,13 @@ async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
         <aside className="grid min-w-0 content-start gap-6 [&>*]:min-w-0">
           <section className="card card-pad">
             <h2 className="section-title mb-3">{t.jobs.customer}</h2>
-            <Link href={`/${lang}/customers/${customer.id}`} className="link">
-              {customer.name}
-            </Link>
+            {can(user, "customers.view") ? (
+              <Link href={`/${lang}/customers/${customer.id}`} className="link">
+                {customer.name}
+              </Link>
+            ) : (
+              <span dir="auto">{customer.name}</span>
+            )}
             <p className="num mt-1 text-sm text-muted" dir="ltr">
               <span className="block text-start">{customer.phone}</span>
             </p>
@@ -309,12 +315,18 @@ async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
             <h2 className="section-title mb-3">{t.jobs.invoice}</h2>
             {invoice ? (
               <div className="flex items-center justify-between gap-2">
-                <Link href={`/${lang}/invoices/${invoice.id}`} className="link">
-                  {t.invoices.number} <span className="num">#{invoice.number}</span>
-                </Link>
+                {can(user, "invoices.view") ? (
+                  <Link href={`/${lang}/invoices/${invoice.id}`} className="link">
+                    {t.invoices.number} <span className="num">#{invoice.number}</span>
+                  </Link>
+                ) : (
+                  <span>
+                    {t.invoices.number} <span className="num">#{invoice.number}</span>
+                  </span>
+                )}
                 <InvoiceStatusBadge status={invoice.status} t={t} />
               </div>
-            ) : job.status !== "cancelled" && items.length > 0 ? (
+            ) : job.status !== "cancelled" && items.length > 0 && can(user, "invoices.manage") ? (
               <form action={createInvoice}>
                 <input type="hidden" name="lang" value={lang} />
                 <input type="hidden" name="jobId" value={job.id} />

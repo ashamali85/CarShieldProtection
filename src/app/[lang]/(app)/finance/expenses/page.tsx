@@ -14,6 +14,7 @@ import { PeriodPicker } from "@/components/finance/period-picker";
 import { ExpenseForm } from "@/components/finance/expense-form";
 import { ShareBars } from "@/components/finance/month-chart";
 import { RowDelete } from "@/components/finance/row-delete";
+import { can } from "@/lib/auth";
 
 export default function ExpensesPage(props: PageProps<"/[lang]/finance/expenses">) {
   return (
@@ -24,7 +25,8 @@ export default function ExpensesPage(props: PageProps<"/[lang]/finance/expenses"
 }
 
 async function Expenses({ params, searchParams }: PageProps<"/[lang]/finance/expenses">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "finance.view" });
+  const canManage = can(user, "finance.manage");
   const X = t.finance.expenses;
   const sp = await searchParams;
   const today = todayKuwait();
@@ -129,10 +131,14 @@ async function Expenses({ params, searchParams }: PageProps<"/[lang]/finance/exp
                         <td className="num text-end font-medium">{money(r.amountFils)}</td>
                         <td>
                           <span className="flex justify-end gap-1">
-                            <Link href={`/${lang}/finance/expenses/${r.id}?back=${encodeURIComponent(here)}`} className="btn-ghost min-h-8 px-2 text-xs">
-                              {t.common.edit}
-                            </Link>
-                            <RowDelete action={deleteExpense} hidden={{ lang, id: r.id }} labels={{ delete: X.delete, confirm: X.deleteConfirm, cancel: t.common.cancel, saving: t.common.saving }} />
+                            {canManage && (
+                              <>
+                              <Link href={`/${lang}/finance/expenses/${r.id}?back=${encodeURIComponent(here)}`} className="btn-ghost min-h-8 px-2 text-xs">
+                                {t.common.edit}
+                              </Link>
+                              <RowDelete action={deleteExpense} hidden={{ lang, id: r.id }} labels={{ delete: X.delete, confirm: X.deleteConfirm, cancel: t.common.cancel, saving: t.common.saving }} />
+                              </>
+                            )}
                           </span>
                         </td>
                       </tr>
@@ -144,10 +150,12 @@ async function Expenses({ params, searchParams }: PageProps<"/[lang]/finance/exp
           </section>
         </div>
         <aside className="grid min-w-0 content-start gap-6 [&>*]:min-w-0">
-          <section className="card card-pad">
-            <h2 className="section-title mb-4">{X.add}</h2>
-            <ExpenseForm lang={lang} t={t} categories={categories} today={today >= period.from && today <= period.to ? today : period.from} />
-          </section>
+          {canManage && (
+            <section className="card card-pad">
+              <h2 className="section-title mb-4">{X.add}</h2>
+              <ExpenseForm lang={lang} t={t} categories={categories} today={today >= period.from && today <= period.to ? today : period.from} />
+            </section>
+          )}
           <section className="card card-pad">
             <h2 className="section-title mb-4">{X.byCategory}</h2>
             <ShareBars items={[...totals].map(([id, v]) => ({ label: name(id), value: v }))} money={money} empty={X.empty} />

@@ -15,7 +15,7 @@ export default function NewLeavePage(props: PageProps<"/[lang]/hr/leave/new">) {
 }
 
 async function NewLeave({ params, searchParams }: PageProps<"/[lang]/hr/leave/new">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "hr.manage" });
   const pre = first((await searchParams).employee);
   const db = await getDb();
   const [emps, types] = await Promise.all([

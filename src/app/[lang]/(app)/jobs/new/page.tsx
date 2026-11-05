@@ -20,7 +20,7 @@ export default function NewJobPage(props: PageProps<"/[lang]/jobs/new">) {
 }
 
 async function NewJob({ params, searchParams }: PageProps<"/[lang]/jobs/new">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t } = await pageContext(params, { perm: "jobs.manage" });
   const sp = await searchParams;
   const customerId = first(sp.customer);
   const q = first(sp.q);

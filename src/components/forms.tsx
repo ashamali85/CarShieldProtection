@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, startTransition, use, useActionState, useEffect, useRef, type ReactNode } from "react";
+import { createContext, startTransition, use, useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 
 export type ActionState = { error?: string } | undefined;
@@ -38,6 +38,7 @@ export function ActionForm({
   hidden,
   onSuccess,
   resetOnSuccess = true,
+  successMessage,
 }: {
   action: FormAction;
   children: ReactNode;
@@ -46,7 +47,10 @@ export function ActionForm({
   /** Called after the action finishes without an error. */
   onSuccess?: () => void;
   resetOnSuccess?: boolean;
+  /** Shown briefly after a successful submit. */
+  successMessage?: string;
 }) {
+  const [saved, setSaved] = useState(false);
   const [state, formAction, pending] = useActionState(action, undefined);
   const formRef = useRef<HTMLFormElement>(null);
   const submitted = useRef(false);
@@ -57,9 +61,14 @@ export function ActionForm({
       if (!state?.error) {
         if (resetOnSuccess) formRef.current?.reset();
         onSuccess?.();
+        if (successMessage) {
+          // Shown from a timer callback (not during the effect) and hidden again after 3 s.
+          window.setTimeout(() => setSaved(true), 0);
+          window.setTimeout(() => setSaved(false), 3000);
+        }
       }
     }
-  }, [pending, state, onSuccess, resetOnSuccess]);
+  }, [pending, state, onSuccess, resetOnSuccess, successMessage]);
 
   return (
     <PendingContext value={pending}>
@@ -84,6 +93,11 @@ export function ActionForm({
           </p>
         )}
         {children}
+        {successMessage && (
+          <p role="status" className={`mt-3 text-sm text-emerald-700 ${saved ? "" : "sr-only"}`}>
+            {saved ? successMessage : ""}
+          </p>
+        )}
       </form>
     </PendingContext>
   );

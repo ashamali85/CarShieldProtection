@@ -5,38 +5,68 @@ import { notFound } from "next/navigation";
 import { getDictionary, isLocale, type Locale } from "@/i18n";
 import { BrandMark } from "@/components/logo";
 import { ActiveNav, LanguageSwitch, NavLinks, type NavItem } from "@/components/nav";
-import { getCurrentUser } from "@/lib/auth";
+import { can, getCurrentUser, type CurrentUser } from "@/lib/auth";
+import type { Permission } from "@/lib/permissions";
 import { logout } from "@/lib/actions/auth";
 
 /**
- * The sidebar, grouped by how often each area is used. Warranties live under Customers and the car
- * brands under Catalog (as tabs), so their URLs still highlight the parent link.
+ * The sidebar, grouped by how often each area is used, showing only what the user's role allows.
+ * Warranties live under Customers, car brands under Catalog and roles under User accounts (as tabs),
+ * so those URLs still highlight the parent link. A group's heading sits on its first visible link.
  */
-function navItems(lang: Locale, isAdmin: boolean): NavItem[] {
+function navItems(lang: Locale, user: CurrentUser | null): NavItem[] {
   const t = getDictionary(lang).nav;
   const base = `/${lang}`;
-  const catalog: NavItem = { href: `${base}/services`, match: [`${base}/catalog`], label: t.catalog, icon: "services" };
-  const items: NavItem[] = [
-    { href: base, label: t.dashboard, icon: "dashboard" },
-    { href: `${base}/jobs`, label: t.jobs, icon: "jobs", group: t.groups.daily },
-    { href: `${base}/customers`, match: [`${base}/warranties`], label: t.customers, icon: "customers" },
-    { href: `${base}/invoices`, label: t.invoices, icon: "invoices" },
-    { href: `${base}/inventory`, label: t.inventory, icon: "inventory" },
+  const has = (p: Permission) => can(user, p);
+  const pick = (...opts: [Permission, string][]) => opts.find(([p]) => has(p))?.[1];
+  const groups: { label?: string; items: (NavItem | false | undefined)[] }[] = [
+    { items: [{ href: base, label: t.dashboard, icon: "dashboard" }] },
+    {
+      label: t.groups.daily,
+      items: [
+        has("jobs.view") && { href: `${base}/jobs`, label: t.jobs, icon: "jobs" },
+        (has("customers.view") || has("warranties.view")) && {
+          href: pick(["customers.view", `${base}/customers`], ["warranties.view", `${base}/warranties`])!,
+          match: [`${base}/customers`, `${base}/warranties`],
+          label: t.customers,
+          icon: "customers",
+        },
+        has("invoices.view") && { href: `${base}/invoices`, label: t.invoices, icon: "invoices" },
+        has("inventory.view") && { href: `${base}/inventory`, label: t.inventory, icon: "inventory" },
+      ],
+    },
+    {
+      label: t.groups.management,
+      items: [has("finance.view") && { href: `${base}/finance`, label: t.finance, icon: "finance" }, has("hr.view") && { href: `${base}/hr`, label: t.hr, icon: "hr" }],
+    },
+    {
+      label: t.groups.setup,
+      items: [
+        (has("services.view") || has("catalog.manage")) && {
+          href: pick(["services.view", `${base}/services`], ["catalog.manage", `${base}/catalog`])!,
+          match: [`${base}/services`, `${base}/catalog`],
+          label: t.catalog,
+          icon: "services",
+        },
+        (has("users.manage") || has("roles.manage")) && {
+          href: pick(["users.manage", `${base}/users`], ["roles.manage", `${base}/roles`])!,
+          match: [`${base}/users`, `${base}/roles`],
+          label: t.users,
+          icon: "users",
+        },
+      ],
+    },
   ];
-  if (!isAdmin) return [...items, catalog];
-  return [
-    ...items,
-    { href: `${base}/finance`, label: t.finance, icon: "finance", group: t.groups.management },
-    { href: `${base}/hr`, label: t.hr, icon: "hr" },
-    { ...catalog, group: t.groups.setup },
-    { href: `${base}/users`, label: t.users, icon: "users" },
-  ];
+  return groups.flatMap((g) => {
+    const items = g.items.filter((i): i is NavItem => !!i);
+    return items.map((item, n) => (n === 0 && g.label ? { ...item, group: g.label } : item));
+  });
 }
 
 /** Reads the session, so it streams in behind a Suspense boundary. */
 async function UserNav({ lang }: { lang: Locale }) {
   const user = await getCurrentUser();
-  return <ActiveNav items={navItems(lang, user?.role === "admin")} home={`/${lang}`} />;
+  return <ActiveNav items={navItems(lang, user)} home={`/${lang}`} />;
 }
 
 async function UserMenu({ lang }: { lang: Locale }) {
@@ -50,7 +80,7 @@ async function UserMenu({ lang }: { lang: Locale }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-white" dir="auto">{user.name}</p>
-        <p className="truncate text-xs text-silver-400">{t.users.roles[user.role]}</p>
+        <p className="truncate text-xs text-silver-400">{lang === "ar" ? user.roleNameAr : user.roleNameEn}</p>
       </div>
       <form action={logout}>
         <input type="hidden" name="lang" value={lang} />
@@ -66,7 +96,7 @@ export default async function AppLayout({ children }: LayoutProps<"/[lang]">) {
   const lang = await langParam();
   if (!isLocale(lang)) notFound();
   const t = getDictionary(lang);
-  const fallbackNav = <NavLinks items={navItems(lang, false)} />;
+  const fallbackNav = <NavLinks items={navItems(lang, null)} />;
 
   const sidebar = (
     <div className="flex h-full flex-col gap-6 p-4">

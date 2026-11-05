@@ -9,6 +9,7 @@ import { todayKuwait } from "@/lib/dates";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { LeaveStatusBadge, PayBreakdown } from "@/components/hr/ui";
 import { LeaveActions } from "@/components/hr/leave-actions";
+import { can } from "@/lib/auth";
 
 const FILTERS = ["pending", "approved", "all"] as const;
 
@@ -21,7 +22,8 @@ export default function LeavePage(props: PageProps<"/[lang]/hr/leave">) {
 }
 
 async function Leave({ params, searchParams }: PageProps<"/[lang]/hr/leave">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "hr.view" });
+  const canManage = can(user, "hr.manage");
   const raw = first((await searchParams).status);
   const filter = (FILTERS as readonly string[]).includes(raw)
     ? (raw as (typeof FILTERS)[number])
@@ -91,9 +93,11 @@ async function Leave({ params, searchParams }: PageProps<"/[lang]/hr/leave">) {
       <PageHeader
         title={L.title}
         actions={
-          <Link href={`/${lang}/hr/leave/new`} className="btn-primary">
-            {L.record}
-          </Link>
+          canManage && (
+            <Link href={`/${lang}/hr/leave/new`} className="btn-primary">
+              {L.record}
+            </Link>
+          )
         }
       />
       {offToday.length > 0 && (
@@ -129,7 +133,8 @@ async function Leave({ params, searchParams }: PageProps<"/[lang]/hr/leave">) {
             icon="calendar"
             message={filter === "all" ? L.empty : L.emptyFilter}
             action={
-              filter === "all" && (
+              filter === "all" &&
+              canManage && (
                 <Link href={`/${lang}/hr/leave/new`} className="btn-primary">
                   {L.record}
                 </Link>
@@ -189,17 +194,19 @@ async function Leave({ params, searchParams }: PageProps<"/[lang]/hr/leave">) {
                       <LeaveStatusBadge status={r.status} t={t} />
                     </td>
                     <td>
-                      <LeaveActions
-                        lang={lang}
-                        id={r.id}
-                        status={r.status}
-                        labels={{
-                          approve: L.approve,
-                          reject: L.reject,
-                          cancel: L.cancel,
-                          saving: t.common.saving,
-                        }}
-                      />
+                      {canManage && (
+                        <LeaveActions
+                          lang={lang}
+                          id={r.id}
+                          status={r.status}
+                          labels={{
+                            approve: L.approve,
+                            reject: L.reject,
+                            cancel: L.cancel,
+                            saving: t.common.saving,
+                          }}
+                        />
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -21,7 +21,7 @@ export default function CashflowPage(props: PageProps<"/[lang]/finance/cashflow"
 }
 
 async function Cashflow({ params, searchParams }: PageProps<"/[lang]/finance/cashflow">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "finance.view" });
   const C = t.finance.cashflow;
   const today = todayKuwait();
   const period = parsePeriod(await searchParams, today);

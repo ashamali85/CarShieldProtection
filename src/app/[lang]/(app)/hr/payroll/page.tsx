@@ -9,6 +9,7 @@ import { startPayroll } from "@/lib/actions/hr";
 import { ActionForm, SubmitButton } from "@/components/forms";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { PayrollStatusBadge, monthLabel } from "@/components/hr/ui";
+import { can } from "@/lib/auth";
 
 export default function PayrollPage(props: PageProps<"/[lang]/hr/payroll">) {
   return (
@@ -19,7 +20,8 @@ export default function PayrollPage(props: PageProps<"/[lang]/hr/payroll">) {
 }
 
 async function Payroll({ params }: PageProps<"/[lang]/hr/payroll">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "hr.view" });
+  const canManage = can(user, "hr.manage");
   const P = t.hr.payroll;
   const db = await getDb();
   const runs = await db
@@ -82,20 +84,22 @@ async function Payroll({ params }: PageProps<"/[lang]/hr/payroll">) {
             </div>
           )}
         </section>
-        <section className="card card-pad content-start">
-          <h2 className="section-title mb-4">{P.start}</h2>
-          <ActionForm action={startPayroll} hidden={{ lang }} className="space-y-4">
-            <div>
-              <label htmlFor="f-period" className="label">
-                {P.period}
-              </label>
-              <input id="f-period" name="period" type="month" required defaultValue={thisMonth} className="input" />
-            </div>
-            <SubmitButton className="btn-primary w-full" pendingLabel={t.common.saving}>
-              {P.start}
-            </SubmitButton>
-          </ActionForm>
-        </section>
+        {canManage && (
+          <section className="card card-pad content-start">
+            <h2 className="section-title mb-4">{P.start}</h2>
+            <ActionForm action={startPayroll} hidden={{ lang }} className="space-y-4">
+              <div>
+                <label htmlFor="f-period" className="label">
+                  {P.period}
+                </label>
+                <input id="f-period" name="period" type="month" required defaultValue={thisMonth} className="input" />
+              </div>
+              <SubmitButton className="btn-primary w-full" pendingLabel={t.common.saving}>
+                {P.start}
+              </SubmitButton>
+            </ActionForm>
+          </section>
+        )}
       </div>
     </>
   );

@@ -4,7 +4,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import type { BodyType } from "@/db/schema";
 import { intOrNull, langFrom, str, t, UUID_RE } from "./helpers";
@@ -13,7 +13,7 @@ const BODY_TYPES: BodyType[] = ["sedan", "hatchback", "coupe", "convertible", "s
 
 export async function addMake(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "catalog.manage");
   const name = str(formData, "name");
   const nameAr = str(formData, "nameAr");
   if (!name || !nameAr) return { error: t(lang).common.required };
@@ -25,7 +25,7 @@ export async function addMake(_: ActionState, formData: FormData): Promise<Actio
 
 export async function addModel(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "catalog.manage");
   const makeId = str(formData, "makeId");
   const name = str(formData, "name");
   const bodies = formData.getAll("bodyType").map(String).filter((b): b is BodyType => BODY_TYPES.includes(b as BodyType));
@@ -49,7 +49,7 @@ export async function addModel(_: ActionState, formData: FormData): Promise<Acti
 /** Hidden models stay linked to existing vehicles but no longer appear in the picker. */
 export async function toggleModel(formData: FormData) {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "catalog.manage");
   const id = str(formData, "id");
   const makeId = str(formData, "makeId");
   if (!UUID_RE.test(id) || !UUID_RE.test(makeId)) return;
@@ -65,7 +65,7 @@ export async function toggleModel(formData: FormData) {
 
 export async function toggleMake(formData: FormData) {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "catalog.manage");
   const id = str(formData, "id");
   if (!UUID_RE.test(id)) return;
   const db = await getDb();
@@ -95,7 +95,7 @@ function validYears(yearFrom: number | null, yearTo: number | null) {
 
 export async function updateMake(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "catalog.manage");
   const id = str(formData, "id");
   const name = str(formData, "name");
   const nameAr = str(formData, "nameAr");
@@ -123,7 +123,7 @@ export async function updateMake(_: ActionState, formData: FormData): Promise<Ac
 /** Deletes a brand and (by cascade) its models. Linked vehicles keep their make/model text; their model link is cleared. */
 export async function deleteMake(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "catalog.manage");
   const id = str(formData, "id");
   if (!UUID_RE.test(id)) return { error: t(lang).common.required };
   const db = await getDb();
@@ -133,7 +133,7 @@ export async function deleteMake(_: ActionState, formData: FormData): Promise<Ac
 
 export async function updateModel(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "catalog.manage");
   const id = str(formData, "id");
   const makeId = str(formData, "makeId");
   const name = str(formData, "name");
@@ -168,7 +168,7 @@ export async function updateModel(_: ActionState, formData: FormData): Promise<A
 
 export async function deleteModel(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "catalog.manage");
   const id = str(formData, "id");
   const makeId = str(formData, "makeId");
   if (!UUID_RE.test(id) || !UUID_RE.test(makeId)) return { error: t(lang).common.required };

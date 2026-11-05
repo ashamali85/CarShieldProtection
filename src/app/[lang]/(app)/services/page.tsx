@@ -5,6 +5,7 @@ import { formatMoney } from "@/i18n";
 import { pageContext } from "@/lib/page";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { CatalogTabs } from "@/components/area-tabs";
+import { can } from "@/lib/auth";
 
 export default function ServicesPage(props: PageProps<"/[lang]/services">) {
   return (
@@ -15,14 +16,14 @@ export default function ServicesPage(props: PageProps<"/[lang]/services">) {
 }
 
 async function Services({ params }: PageProps<"/[lang]/services">) {
-  const { lang, t, user } = await pageContext(params);
-  const isAdmin = user.role === "admin";
+  const { lang, t, user } = await pageContext(params, { perm: "services.view" });
+  const isAdmin = can(user, "services.manage");
   const db = await getDb();
   const rows = await db.select().from(schema.services).orderBy(schema.services.category, schema.services.nameEn);
 
   return (
     <>
-      <CatalogTabs lang={lang} t={t} current="services" isAdmin={user.role === "admin"} />
+      <CatalogTabs lang={lang} t={t} current="services" showBrands={can(user, "catalog.manage")} />
       <PageHeader
         title={t.services.title}
         actions={

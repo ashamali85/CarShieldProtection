@@ -20,7 +20,7 @@ export default function EditServicePage(props: PageProps<"/[lang]/services/[id]"
 }
 
 async function EditService({ params }: PageProps<"/[lang]/services/[id]">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "services.manage" });
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const db = await getDb();

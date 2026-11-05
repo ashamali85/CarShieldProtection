@@ -14,7 +14,7 @@ export default function NewEmployeePage(props: PageProps<"/[lang]/hr/employees/n
 }
 
 async function NewEmployee({ params }: PageProps<"/[lang]/hr/employees/new">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "hr.manage" });
   const db = await getDb();
   const users = await db.select({ id: schema.users.id, name: schema.users.name }).from(schema.users).where(eq(schema.users.active, true)).orderBy(asc(schema.users.name));
   return (

@@ -11,6 +11,7 @@ import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { InvoiceStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
 import { BrandMark } from "@/components/logo";
 import { PrintButton } from "@/components/print-button";
+import { can } from "@/lib/auth";
 
 export default function InvoicePage(props: PageProps<"/[lang]/invoices/[id]">) {
   return (
@@ -21,7 +22,7 @@ export default function InvoicePage(props: PageProps<"/[lang]/invoices/[id]">) {
 }
 
 async function InvoiceDetail({ params }: PageProps<"/[lang]/invoices/[id]">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t, user } = await pageContext(params, { perm: "invoices.view" });
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const db = await getDb();
@@ -152,7 +153,7 @@ async function InvoiceDetail({ params }: PageProps<"/[lang]/invoices/[id]">) {
         </article>
 
         <aside className="no-print grid content-start gap-6">
-          {balance > 0 && invoice.status !== "void" && (
+          {balance > 0 && invoice.status !== "void" && can(user, "invoices.manage") && (
             <section className="card card-pad">
               <h2 className="section-title mb-4">{t.invoices.recordPayment}</h2>
               <ActionForm action={recordPayment} hidden={{ lang, invoiceId: invoice.id }} className="space-y-4">

@@ -8,6 +8,7 @@ import { todayKuwait } from "@/lib/dates";
 import { contractStatuses } from "@/lib/finance";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { ContractBadge, ContractForm } from "@/components/finance/contract-form";
+import { can } from "@/lib/auth";
 
 export default function ContractsPage(props: PageProps<"/[lang]/finance/contracts">) {
   return (
@@ -18,7 +19,8 @@ export default function ContractsPage(props: PageProps<"/[lang]/finance/contract
 }
 
 async function Contracts({ params }: PageProps<"/[lang]/finance/contracts">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "finance.view" });
+  const canManage = can(user, "finance.manage");
   const C = t.finance.contracts;
   const today = todayKuwait();
   const db = await getDb();
@@ -77,11 +79,13 @@ async function Contracts({ params }: PageProps<"/[lang]/finance/contracts">) {
             </div>
           )}
         </section>
-        <section className="card card-pad min-w-0 content-start">
-          <h2 className="section-title">{C.add}</h2>
-          <p className="hint mb-4">{C.doubleHint}</p>
-          <ContractForm lang={lang} t={t} categories={categories} today={today} />
-        </section>
+        {canManage && (
+          <section className="card card-pad min-w-0 content-start">
+            <h2 className="section-title">{C.add}</h2>
+            <p className="hint mb-4">{C.doubleHint}</p>
+            <ContractForm lang={lang} t={t} categories={categories} today={today} />
+          </section>
+        )}
       </div>
     </>
   );

@@ -7,6 +7,7 @@ import { first, pageContext } from "@/lib/page";
 import { monthlyWage } from "@/lib/hr";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { EmployeeStatusBadge } from "@/components/hr/ui";
+import { can } from "@/lib/auth";
 
 export default function EmployeesPage(props: PageProps<"/[lang]/hr/employees">) {
   return (
@@ -17,7 +18,8 @@ export default function EmployeesPage(props: PageProps<"/[lang]/hr/employees">) 
 }
 
 async function Employees({ params, searchParams }: PageProps<"/[lang]/hr/employees">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "hr.view" });
+  const canManage = can(user, "hr.manage");
   const sp = await searchParams;
   const q = first(sp.q);
   const former = first(sp.show) === "former";
@@ -58,9 +60,11 @@ async function Employees({ params, searchParams }: PageProps<"/[lang]/hr/employe
       <PageHeader
         title={E.title}
         actions={
-          <Link href={`/${lang}/hr/employees/new`} className="btn-primary">
-            {E.new}
-          </Link>
+          canManage && (
+            <Link href={`/${lang}/hr/employees/new`} className="btn-primary">
+              {E.new}
+            </Link>
+          )
         }
       />
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -84,7 +88,8 @@ async function Employees({ params, searchParams }: PageProps<"/[lang]/hr/employe
             message={q || former ? E.emptyFilter : E.empty}
             action={
               !q &&
-              !former && (
+              !former &&
+              canManage && (
                 <Link href={`/${lang}/hr/employees/new`} className="btn-primary">
                   {E.new}
                 </Link>

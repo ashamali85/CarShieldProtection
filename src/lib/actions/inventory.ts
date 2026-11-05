@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
-import { requireAdmin, requireUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { moveStock } from "@/lib/inventory";
 import type { ActionState } from "@/components/forms";
 import type { InventoryUnit } from "@/db/schema";
@@ -14,7 +14,7 @@ const UNITS: InventoryUnit[] = ["piece", "roll", "meter", "sqm", "ml", "liter", 
 
 export async function saveInventoryItem(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  const user = await requireAdmin(lang);
+  const user = await requirePermission(lang, "inventory.manage");
   const dict = t(lang);
   const id = str(formData, "id");
   const nameEn = str(formData, "nameEn");
@@ -55,7 +55,7 @@ export async function saveInventoryItem(_: ActionState, formData: FormData): Pro
 /** Front desk and admins can receive deliveries. */
 export async function receiveStock(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  const user = await requireUser(lang);
+  const user = await requirePermission(lang, "inventory.receive");
   const itemId = str(formData, "itemId");
   const qty = qtyToMilli(str(formData, "quantity"));
   if (!UUID_RE.test(itemId) || !qty || qty <= 0) return { error: t(lang).inventory.invalidQty };
@@ -82,7 +82,7 @@ export async function receiveStock(_: ActionState, formData: FormData): Promise<
 /** Admins set the counted quantity; the difference is recorded as a correction. */
 export async function adjustStock(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  const user = await requireAdmin(lang);
+  const user = await requirePermission(lang, "inventory.manage");
   const itemId = str(formData, "itemId");
   const counted = qtyToMilli(str(formData, "counted"));
   if (!UUID_RE.test(itemId) || counted === null || counted < 0) return { error: t(lang).inventory.invalidQty };
@@ -102,7 +102,7 @@ export async function adjustStock(_: ActionState, formData: FormData): Promise<A
 
 export async function setServiceMaterial(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "services.manage");
   const serviceId = str(formData, "serviceId");
   const itemId = str(formData, "itemId");
   const qty = qtyToMilli(str(formData, "quantity"));
@@ -122,7 +122,7 @@ export async function setServiceMaterial(_: ActionState, formData: FormData): Pr
 
 export async function removeServiceMaterial(formData: FormData) {
   const lang = langFrom(formData);
-  await requireAdmin(lang);
+  await requirePermission(lang, "services.manage");
   const id = str(formData, "id");
   const serviceId = str(formData, "serviceId");
   if (!UUID_RE.test(id) || !UUID_RE.test(serviceId)) return;

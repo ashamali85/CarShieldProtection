@@ -12,7 +12,7 @@ export default function NewServicePage(props: PageProps<"/[lang]/services/new">)
 }
 
 async function NewService({ params }: PageProps<"/[lang]/services/new">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "services.manage" });
   return (
     <>
       <PageHeader title={t.services.new} back={{ href: `/${lang}/services`, label: t.services.title }} />

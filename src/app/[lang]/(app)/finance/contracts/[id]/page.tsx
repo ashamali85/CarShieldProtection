@@ -16,6 +16,7 @@ import { ContractBadge, ContractForm } from "@/components/finance/contract-form"
 import { RowDelete } from "@/components/finance/row-delete";
 import { monthLabel } from "@/components/hr/ui";
 import Link from "next/link";
+import { can } from "@/lib/auth";
 
 export default function ContractPage(props: PageProps<"/[lang]/finance/contracts/[id]">) {
   return (
@@ -26,7 +27,8 @@ export default function ContractPage(props: PageProps<"/[lang]/finance/contracts
 }
 
 async function Contract({ params }: PageProps<"/[lang]/finance/contracts/[id]">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t, user } = await pageContext(params, { perm: "finance.view" });
+  const canManage = can(user, "finance.manage");
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const C = t.finance.contracts;
@@ -129,10 +131,14 @@ async function Contract({ params }: PageProps<"/[lang]/finance/contracts/[id]">)
                         <td className="num text-end font-medium">{money(p.amountFils)}</td>
                         <td>
                           <span className="flex justify-end gap-1">
-                            <Link href={`/${lang}/finance/expenses/${p.id}?back=${encodeURIComponent(back)}`} className="btn-ghost min-h-8 px-2 text-xs">
-                              {t.common.edit}
-                            </Link>
-                            <RowDelete action={deleteExpense} hidden={{ lang, id: p.id }} labels={{ delete: X.delete, confirm: `${X.delete}?`, cancel: t.common.cancel, saving: t.common.saving }} />
+                            {canManage && (
+                              <>
+                              <Link href={`/${lang}/finance/expenses/${p.id}?back=${encodeURIComponent(back)}`} className="btn-ghost min-h-8 px-2 text-xs">
+                                {t.common.edit}
+                              </Link>
+                              <RowDelete action={deleteExpense} hidden={{ lang, id: p.id }} labels={{ delete: X.delete, confirm: `${X.delete}?`, cancel: t.common.cancel, saving: t.common.saving }} />
+                              </>
+                            )}
                           </span>
                         </td>
                       </tr>
@@ -143,7 +149,7 @@ async function Contract({ params }: PageProps<"/[lang]/finance/contracts/[id]">)
             )}
           </section>
 
-          {loose.length > 0 && (
+          {loose.length > 0 && canManage && (
             <section className="card border-amber-200">
               <div className="border-b border-line px-4 py-3.5 sm:px-6">
                 <h2 className="section-title">{C.link.replace("{category}", catName)}</h2>
@@ -200,34 +206,36 @@ async function Contract({ params }: PageProps<"/[lang]/finance/contracts/[id]">)
         </div>
 
         <aside className="grid min-w-0 content-start gap-6 [&>*]:min-w-0">
-          <section className="card card-pad">
-            <h2 className="section-title">{C.recordPayment}</h2>
-            <p className="hint mb-4">{C.paymentHint}</p>
-            <ActionForm action={recordContractPayment} hidden={{ lang, contractId: id }} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <Field label={X.date} name="date" type="date" required defaultValue={today} />
-                <Field label={X.amount} name="amount" required inputMode="decimal" dir="ltr" defaultValue={(status.monthly / 1000).toFixed(3)} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="f-method" className="label">
-                    {X.method}
-                  </label>
-                  <select id="f-method" name="method" className="input" defaultValue="transfer">
-                    {(["cash", "knet", "card", "transfer"] as const).map((m) => (
-                      <option key={m} value={m}>
-                        {t.invoices.methods[m]}
-                      </option>
-                    ))}
-                  </select>
+          {canManage && (
+            <section className="card card-pad">
+              <h2 className="section-title">{C.recordPayment}</h2>
+              <p className="hint mb-4">{C.paymentHint}</p>
+              <ActionForm action={recordContractPayment} hidden={{ lang, contractId: id }} className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label={X.date} name="date" type="date" required defaultValue={today} />
+                  <Field label={X.amount} name="amount" required inputMode="decimal" dir="ltr" defaultValue={(status.monthly / 1000).toFixed(3)} />
                 </div>
-                <Field label={X.reference} name="reference" dir="ltr" optionalLabel={t.common.optional} />
-              </div>
-              <SubmitButton className="btn-primary w-full" pendingLabel={t.common.saving}>
-                {C.recordPayment}
-              </SubmitButton>
-            </ActionForm>
-          </section>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="f-method" className="label">
+                      {X.method}
+                    </label>
+                    <select id="f-method" name="method" className="input" defaultValue="transfer">
+                      {(["cash", "knet", "card", "transfer"] as const).map((m) => (
+                        <option key={m} value={m}>
+                          {t.invoices.methods[m]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <Field label={X.reference} name="reference" dir="ltr" optionalLabel={t.common.optional} />
+                </div>
+                <SubmitButton className="btn-primary w-full" pendingLabel={t.common.saving}>
+                  {C.recordPayment}
+                </SubmitButton>
+              </ActionForm>
+            </section>
+          )}
 
           <section className="card">
             <div className="border-b border-line px-4 py-3.5 sm:px-6">
@@ -241,31 +249,35 @@ async function Contract({ params }: PageProps<"/[lang]/finance/contracts/[id]">)
                   <span className="num">{formatDate(r.effectiveFrom, lang)}</span>
                   <span className="num ms-auto font-medium">{money(r.monthlyFils)}</span>
                   <span className="flex w-14 justify-end">
-                    {i > 0 && (
+                    {i > 0 && canManage && (
                       <RowDelete action={deleteContractRate} hidden={{ lang, id: r.id, contractId: id }} labels={{ delete: X.delete, confirm: `${X.delete}?`, cancel: t.common.cancel, saving: t.common.saving }} />
                     )}
                   </span>
                 </li>
               ))}
             </ul>
-            <ActionForm action={addContractRate} hidden={{ lang, contractId: id }} className="grid grid-cols-2 items-end gap-3 px-4 py-4 sm:px-6">
-              <Field label={C.rateFrom} name="effectiveFrom" type="date" required min={contract.startDate} />
-              <Field label={C.monthly} name="monthly" required inputMode="decimal" dir="ltr" placeholder="0.000" />
-              <SubmitButton className="btn-secondary col-span-2" pendingLabel={t.common.saving}>
-                {C.addRate}
-              </SubmitButton>
-            </ActionForm>
-          </section>
-
-          <section className="card card-pad">
-            <h2 className="section-title mb-4">{C.edit}</h2>
-            <ContractForm lang={lang} t={t} categories={categories} today={today} contract={contract} />
-            {payments.length === 0 && (
-              <div className="mt-4 flex justify-end border-t border-line pt-4">
-                <RowDelete action={deleteContract} hidden={{ lang, id }} labels={{ delete: C.delete, confirm: C.deleteConfirm, cancel: t.common.cancel, saving: t.common.saving }} />
-              </div>
+            {canManage && (
+              <ActionForm action={addContractRate} hidden={{ lang, contractId: id }} className="grid grid-cols-2 items-end gap-3 px-4 py-4 sm:px-6">
+                <Field label={C.rateFrom} name="effectiveFrom" type="date" required min={contract.startDate} />
+                <Field label={C.monthly} name="monthly" required inputMode="decimal" dir="ltr" placeholder="0.000" />
+                <SubmitButton className="btn-secondary col-span-2" pendingLabel={t.common.saving}>
+                  {C.addRate}
+                </SubmitButton>
+              </ActionForm>
             )}
           </section>
+
+          {canManage && (
+            <section className="card card-pad">
+              <h2 className="section-title mb-4">{C.edit}</h2>
+              <ContractForm lang={lang} t={t} categories={categories} today={today} contract={contract} />
+              {payments.length === 0 && (
+                <div className="mt-4 flex justify-end border-t border-line pt-4">
+                  <RowDelete action={deleteContract} hidden={{ lang, id }} labels={{ delete: C.delete, confirm: C.deleteConfirm, cancel: t.common.cancel, saving: t.common.saving }} />
+                </div>
+              )}
+            </section>
+          )}
         </aside>
       </div>
     </>

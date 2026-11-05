@@ -12,7 +12,7 @@ export default function NewInventoryPage(props: PageProps<"/[lang]/inventory/new
 }
 
 async function NewItem({ params }: PageProps<"/[lang]/inventory/new">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "inventory.manage" });
   return (
     <>
       <PageHeader title={t.inventory.new} back={{ href: `/${lang}/inventory`, label: t.inventory.title }} />

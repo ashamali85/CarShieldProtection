@@ -46,7 +46,7 @@ function Lines({ title, items, total, totalLabel, money, sign = "" }: { title: s
 }
 
 async function Payslip({ params }: PageProps<"/[lang]/hr/payroll/[id]/slip/[slipId]">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "hr.view" });
   const { id, slipId } = await params;
   if (!UUID_RE.test(id) || !UUID_RE.test(slipId)) notFound();
   const db = await getDb();

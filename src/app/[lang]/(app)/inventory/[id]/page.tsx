@@ -10,6 +10,7 @@ import { adjustStock, receiveStock } from "@/lib/actions/inventory";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { DefinitionList, PageHeader, PageSkeleton } from "@/components/ui";
 import { StockLevel } from "@/components/inventory-form";
+import { can } from "@/lib/auth";
 
 export default function InventoryItemPage(props: PageProps<"/[lang]/inventory/[id]">) {
   return (
@@ -20,10 +21,11 @@ export default function InventoryItemPage(props: PageProps<"/[lang]/inventory/[i
 }
 
 async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
-  const { lang, t, user } = await pageContext(params);
+  const { lang, t, user } = await pageContext(params, { perm: "inventory.view" });
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
-  const isAdmin = user.role === "admin";
+  const isAdmin = can(user, "inventory.manage");
+  const canEditServices = can(user, "services.manage");
   const db = await getDb();
 
   const [item] = await db.select().from(schema.inventoryItems).where(eq(schema.inventoryItems.id, id)).limit(1);
@@ -96,7 +98,7 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
               <ul>
                 {usedIn.map((s) => (
                   <li key={s.serviceId} className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 text-sm last:border-b-0 sm:px-6">
-                    {isAdmin ? (
+                    {canEditServices ? (
                       <Link href={`/${lang}/services/${s.serviceId}`} className="link">
                         {lang === "ar" ? s.nameAr : s.nameEn}
                       </Link>
@@ -158,41 +160,43 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
         </div>
 
         <aside className="grid min-w-0 content-start gap-6 [&>*]:min-w-0">
-          <section className="card card-pad">
-            <h2 className="section-title">{t.inventory.receive}</h2>
-            <p className="mb-4 text-sm text-muted">{t.inventory.receiveHint}</p>
-            <ActionForm action={receiveStock} hidden={{ lang, itemId: id }} className="space-y-4">
-              <Field label={`${t.inventory.quantity} (${unit})`} name="quantity" required inputMode="decimal" dir="ltr" />
-              <Field
-                label={t.inventory.totalCost}
-                name="totalCost"
-                inputMode="decimal"
-                dir="ltr"
-                placeholder="0.000"
-                hint={t.inventory.totalCostHint}
-                optionalLabel={t.common.optional}
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <Field label={t.inventory.supplier} name="supplier" optionalLabel={t.common.optional} />
-                <div>
-                  <label htmlFor="f-paidWith" className="label">
-                    {t.inventory.paidWith}
-                  </label>
-                  <select id="f-paidWith" name="paidWith" className="input" defaultValue="cash">
-                    {(["cash", "knet", "card", "transfer"] as const).map((m) => (
-                      <option key={m} value={m}>
-                        {t.invoices.methods[m]}
-                      </option>
-                    ))}
-                  </select>
+          {can(user, "inventory.receive") && (
+            <section className="card card-pad">
+              <h2 className="section-title">{t.inventory.receive}</h2>
+              <p className="mb-4 text-sm text-muted">{t.inventory.receiveHint}</p>
+              <ActionForm action={receiveStock} hidden={{ lang, itemId: id }} className="space-y-4">
+                <Field label={`${t.inventory.quantity} (${unit})`} name="quantity" required inputMode="decimal" dir="ltr" />
+                <Field
+                  label={t.inventory.totalCost}
+                  name="totalCost"
+                  inputMode="decimal"
+                  dir="ltr"
+                  placeholder="0.000"
+                  hint={t.inventory.totalCostHint}
+                  optionalLabel={t.common.optional}
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label={t.inventory.supplier} name="supplier" optionalLabel={t.common.optional} />
+                  <div>
+                    <label htmlFor="f-paidWith" className="label">
+                      {t.inventory.paidWith}
+                    </label>
+                    <select id="f-paidWith" name="paidWith" className="input" defaultValue="cash">
+                      {(["cash", "knet", "card", "transfer"] as const).map((m) => (
+                        <option key={m} value={m}>
+                          {t.invoices.methods[m]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <Field label={t.inventory.note} name="note" optionalLabel={t.common.optional} />
-              <SubmitButton className="btn-primary w-full" pendingLabel={t.common.saving}>
-                {t.inventory.receive}
-              </SubmitButton>
-            </ActionForm>
-          </section>
+                <Field label={t.inventory.note} name="note" optionalLabel={t.common.optional} />
+                <SubmitButton className="btn-primary w-full" pendingLabel={t.common.saving}>
+                  {t.inventory.receive}
+                </SubmitButton>
+              </ActionForm>
+            </section>
+          )}
 
           {isAdmin && (
             <section className="card card-pad">

@@ -6,6 +6,7 @@ import { formatDate, formatTime, type Locale } from "@/i18n";
 import type { JobStatus } from "@/db/schema";
 import { first, pageContext } from "@/lib/page";
 import { EmptyState, JobStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
+import { can } from "@/lib/auth";
 
 const STATUSES: JobStatus[] = ["scheduled", "in_progress", "quality_check", "completed", "delivered", "cancelled"];
 
@@ -18,7 +19,8 @@ export default function JobsPage(props: PageProps<"/[lang]/jobs">) {
 }
 
 async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t, user } = await pageContext(params, { perm: "jobs.view" });
+  const canAdd = can(user, "jobs.manage");
   const raw = first((await searchParams).status);
   const status = STATUSES.includes(raw as JobStatus) ? (raw as JobStatus) : null;
   const db = await getDb();
@@ -70,9 +72,11 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
       <PageHeader
         title={t.jobs.title}
         actions={
-          <Link href={`/${lang}/jobs/new`} className="btn-primary">
-            {t.jobs.new}
-          </Link>
+          canAdd && (
+            <Link href={`/${lang}/jobs/new`} className="btn-primary">
+              {t.jobs.new}
+            </Link>
+          )
         }
       />
       <nav className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0" aria-label={t.common.status}>
@@ -84,7 +88,8 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
           <EmptyState
             message={status ? t.jobs.emptyFilter : t.jobs.empty}
             action={
-              !status && (
+              !status &&
+              canAdd && (
                 <Link href={`/${lang}/jobs/new`} className="btn-primary">
                   {t.jobs.new}
                 </Link>

@@ -17,7 +17,7 @@ export default function EditCustomerPage(props: PageProps<"/[lang]/customers/[id
 }
 
 async function EditCustomer({ params }: PageProps<"/[lang]/customers/[id]/edit">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t } = await pageContext(params, { perm: "customers.manage" });
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const db = await getDb();

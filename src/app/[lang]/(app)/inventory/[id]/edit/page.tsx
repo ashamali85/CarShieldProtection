@@ -16,7 +16,7 @@ export default function EditInventoryPage(props: PageProps<"/[lang]/inventory/[i
 }
 
 async function EditItem({ params }: PageProps<"/[lang]/inventory/[id]/edit">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "inventory.manage" });
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const db = await getDb();

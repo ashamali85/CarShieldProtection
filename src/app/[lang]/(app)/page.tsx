@@ -7,6 +7,7 @@ import { pageContext, first } from "@/lib/page";
 import { addDays, kuwaitDayRange, kuwaitHour, kuwaitMonthStart, todayKuwait } from "@/lib/dates";
 import { EmptyState, JobStatusBadge, PageSkeleton, Stat } from "@/components/ui";
 import { BRAND } from "@/components/logo";
+import { can } from "@/lib/auth";
 
 export default function DashboardPage(props: PageProps<"/[lang]">) {
   return (
@@ -52,6 +53,9 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]">) {
   ]);
 
   const outstanding = Number(invoiced.v ?? 0) - Number(paidAll.v ?? 0);
+  // Each part of the dashboard shows only if the role can see that area.
+  const seeJobs = can(user, "jobs.view");
+  const seeMoney = can(user, "invoices.view");
 
   return (
     <>
@@ -60,10 +64,12 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]">) {
         t={t}
         name={user.name}
         actions={
-          <Link href={`/${lang}/jobs/new`} className="btn-primary">
-            <span aria-hidden="true" className="text-base leading-none">+</span>
-            {t.dashboard.newJob}
-          </Link>
+          can(user, "jobs.manage") && (
+            <Link href={`/${lang}/jobs/new`} className="btn-primary">
+              <span aria-hidden="true" className="text-base leading-none">+</span>
+              {t.dashboard.newJob}
+            </Link>
+          )
         }
       />
       {denied && (
@@ -71,13 +77,15 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]">) {
           {t.errors.forbidden}
         </p>
       )}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat icon="jobs" label={t.dashboard.activeJobs} value={formatNumber(active.n, lang)} href={`/${lang}/jobs?status=in_progress`} />
-        <Stat icon="calendar" label={t.dashboard.scheduledToday} value={formatNumber(scheduledToday.n, lang)} href={`/${lang}/jobs?status=scheduled`} />
-        <Stat icon="revenue" label={t.dashboard.monthRevenue} value={formatMoney(Number(collected.v ?? 0), lang)} href={`/${lang}/invoices`} />
-        <Stat icon="due" label={t.dashboard.outstanding} value={formatMoney(outstanding, lang)} href={`/${lang}/invoices?status=open`} />
-      </div>
-      {lowStock.n > 0 && (
+      {(seeJobs || seeMoney) && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {seeJobs && <Stat icon="jobs" label={t.dashboard.activeJobs} value={formatNumber(active.n, lang)} href={`/${lang}/jobs?status=in_progress`} />}
+          {seeJobs && <Stat icon="calendar" label={t.dashboard.scheduledToday} value={formatNumber(scheduledToday.n, lang)} href={`/${lang}/jobs?status=scheduled`} />}
+          {seeMoney && <Stat icon="revenue" label={t.dashboard.monthRevenue} value={formatMoney(Number(collected.v ?? 0), lang)} href={`/${lang}/invoices`} />}
+          {seeMoney && <Stat icon="due" label={t.dashboard.outstanding} value={formatMoney(outstanding, lang)} href={`/${lang}/invoices?status=open`} />}
+        </div>
+      )}
+      {lowStock.n > 0 && can(user, "inventory.view") && (
         <Link
           href={`/${lang}/inventory?filter=low`}
           className="mt-3 flex items-center justify-between rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 hover:bg-red-100"
@@ -86,7 +94,7 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]">) {
           <span className="num font-semibold">{formatNumber(lowStock.n, lang)}</span>
         </Link>
       )}
-      {expiring.n > 0 && (
+      {expiring.n > 0 && can(user, "warranties.view") && (
         <Link
           href={`/${lang}/warranties?state=expiring`}
           className="mt-3 flex items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 hover:bg-amber-100"
@@ -96,10 +104,12 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]">) {
         </Link>
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <JobList title={t.dashboard.upcoming} rows={upcoming} empty={t.dashboard.noUpcoming} lang={lang} t={t} showDate />
-        <JobList title={t.dashboard.recentJobs} rows={recent} empty={t.dashboard.noJobs} lang={lang} t={t} />
-      </div>
+      {seeJobs && (
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <JobList title={t.dashboard.upcoming} rows={upcoming} empty={t.dashboard.noUpcoming} lang={lang} t={t} showDate />
+          <JobList title={t.dashboard.recentJobs} rows={recent} empty={t.dashboard.noJobs} lang={lang} t={t} />
+        </div>
+      )}
     </>
   );
 }

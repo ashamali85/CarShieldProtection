@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
 import type { HrSettings, PayTier, SeparationReason } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import { buildPayslip, employeesInMonth, evaluateLeave, getHrSettings, rebandLeave, touchesLockedPayroll } from "@/lib/hr-data";
 import { calendarDays, computePayslip } from "@/lib/hr";
@@ -35,7 +35,7 @@ const SEPARATION: SeparationReason[] = ["resignation", "termination", "contract_
 
 export async function saveEmployee(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "hr.manage");
   const e = t(lang).hr.employees;
   const id = str(fd, "id");
 
@@ -98,7 +98,7 @@ export async function saveEmployee(_: ActionState, fd: FormData): Promise<Action
 
 export async function endService(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "hr.manage");
   const id = str(fd, "id");
   const endDate = str(fd, "endDate");
   const reason = str(fd, "reason") as SeparationReason;
@@ -112,7 +112,7 @@ export async function endService(_: ActionState, fd: FormData): Promise<ActionSt
 
 export async function reinstateEmployee(fd: FormData) {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "hr.manage");
   const id = str(fd, "id");
   if (!UUID_RE.test(id)) return;
   const db = await getDb();
@@ -124,7 +124,7 @@ export async function reinstateEmployee(fd: FormData) {
 
 export async function recordLeave(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  const user = await requireAdmin(lang);
+  const user = await requirePermission(lang, "hr.manage");
   const L = t(lang).hr.leave;
   const employeeId = str(fd, "employeeId");
   const typeId = str(fd, "leaveTypeId");
@@ -166,7 +166,7 @@ export async function recordLeave(_: ActionState, fd: FormData): Promise<ActionS
 
 export async function decideLeave(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  const user = await requireAdmin(lang);
+  const user = await requirePermission(lang, "hr.manage");
   const L = t(lang).hr.leave;
   const id = str(fd, "id");
   const decision = str(fd, "decision");
@@ -208,7 +208,7 @@ export async function decideLeave(_: ActionState, fd: FormData): Promise<ActionS
 
 export async function startPayroll(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  const user = await requireAdmin(lang);
+  const user = await requirePermission(lang, "hr.manage");
   const P = t(lang).hr.payroll;
   const period = str(fd, "period"); // YYYY-MM
   if (!/^\d{4}-\d{2}$/.test(period)) return { error: P.invalidNumber };
@@ -242,7 +242,7 @@ async function draftRun(db: Awaited<ReturnType<typeof getDb>>, runId: string) {
 /** Rebuilds every payslip in a draft run from current employee data and approved leave, keeping manual entries. */
 export async function recalcPayroll(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "hr.manage");
   const id = str(fd, "id");
   const db = await getDb();
   const run = UUID_RE.test(id) ? await draftRun(db, id) : null;
@@ -279,7 +279,7 @@ export async function recalcPayroll(_: ActionState, fd: FormData): Promise<Actio
 
 export async function adjustPayslip(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "hr.manage");
   const P = t(lang).hr.payroll;
   const id = str(fd, "id");
   const db = await getDb();
@@ -337,7 +337,7 @@ export async function adjustPayslip(_: ActionState, fd: FormData): Promise<Actio
 
 export async function setPayrollStatus(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "hr.manage");
   const id = str(fd, "id");
   const to = str(fd, "to");
   if (!UUID_RE.test(id)) return undefined;
@@ -360,7 +360,7 @@ export async function setPayrollStatus(_: ActionState, fd: FormData): Promise<Ac
 
 export async function deletePayroll(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "hr.manage");
   const id = str(fd, "id");
   const db = await getDb();
   if (!UUID_RE.test(id) || !(await draftRun(db, id))) return { error: t(lang).hr.payroll.lockedHint };
@@ -372,7 +372,7 @@ export async function deletePayroll(_: ActionState, fd: FormData): Promise<Actio
 
 export async function saveHrSettings(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "hr.manage");
   const S = t(lang).hr.settings;
   const num = (k: string) => {
     const v = Number(str(fd, k));
@@ -423,7 +423,7 @@ export async function saveHrSettings(_: ActionState, fd: FormData): Promise<Acti
 
 export async function saveLeaveType(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "hr.manage");
   const S = t(lang).hr.settings;
   const id = str(fd, "id");
   const nameEn = str(fd, "nameEn");

@@ -2,7 +2,15 @@ import { Suspense } from "react";
 import { lang as langParam } from "next/root-params";
 import { notFound } from "next/navigation";
 import { getDictionary, isLocale } from "@/i18n";
-import { SectionTabs, TabsView } from "@/components/section-tabs";
+import { SectionTabs, TabsView, type SectionTab } from "@/components/section-tabs";
+import { can, getCurrentUser } from "@/lib/auth";
+
+/** Reads the session, so it renders inside the Suspense boundary. Settings is only for people who can change it. */
+async function Tabs({ tabs, label, settingsHref }: { tabs: SectionTab[]; label: string; settingsHref: string }) {
+  const user = await getCurrentUser();
+  const shown = can(user, "finance.manage") ? tabs : tabs.filter((x) => x.href !== settingsHref);
+  return <SectionTabs tabs={shown} label={label} keepQuery={["p", "y", "m", "q", "from", "to"]} />;
+}
 
 export default async function FinanceLayout({ children }: LayoutProps<"/[lang]/finance">) {
   const lang = await langParam();
@@ -21,7 +29,7 @@ export default async function FinanceLayout({ children }: LayoutProps<"/[lang]/f
   return (
     <>
       <Suspense fallback={<TabsView tabs={tabs} label={T.title} pathname="" />}>
-        <SectionTabs tabs={tabs} label={T.title} keepQuery={["p", "y", "m", "q", "from", "to"]} />
+        <Tabs tabs={tabs} label={T.title} settingsHref={`${base}/settings`} />
       </Suspense>
       {children}
     </>

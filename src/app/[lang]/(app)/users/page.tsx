@@ -1,7 +1,12 @@
 import { Suspense } from "react";
 import { getDb, schema } from "@/db";
 import { pageContext } from "@/lib/page";
+import { asc } from "drizzle-orm";
+import { can } from "@/lib/auth";
+import { canGrant } from "@/lib/roles";
 import { createUser, toggleUserActive } from "@/lib/actions/admin";
+import { setUserRole } from "@/lib/actions/roles";
+import { UserTabs } from "@/components/area-tabs";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { PageHeader, PageSkeleton } from "@/components/ui";
 
@@ -14,18 +19,30 @@ export default function UsersPage(props: PageProps<"/[lang]/users">) {
 }
 
 async function Users({ params }: PageProps<"/[lang]/users">) {
-  const { lang, t, user: me } = await pageContext(params, { admin: true });
+  const { lang, t, user: me } = await pageContext(params, { perm: "users.manage" });
   const db = await getDb();
-  const rows = await db
-    .select({ id: schema.users.id, name: schema.users.name, email: schema.users.email, role: schema.users.role, active: schema.users.active })
-    .from(schema.users)
-    .orderBy(schema.users.name);
+  const [rows, roles] = await Promise.all([
+    db
+      .select({ id: schema.users.id, name: schema.users.name, email: schema.users.email, active: schema.users.active, roleId: schema.users.roleId })
+      .from(schema.users)
+      .orderBy(schema.users.name),
+    db.select().from(schema.roles).orderBy(asc(schema.roles.createdAt)),
+  ]);
+  const roleById = new Map(roles.map((r) => [r.id, r]));
+  const roleName = (id: string) => {
+    const r = roleById.get(id);
+    return r ? (lang === "ar" ? r.nameAr : r.nameEn) : "—";
+  };
+  // Only roles within your own access can be given; the built-in Admin role comes first.
+  const grantable = roles.filter((r) => canGrant(me, r)).sort((a, b) => Number(b.system) - Number(a.system));
+  const defaultRole = grantable.find((r) => r.key === "staff") ?? grantable.find((r) => !r.system) ?? grantable[0];
 
   return (
     <>
+      <UserTabs lang={lang} t={t} current="users" users roles={can(me, "roles.manage")} />
       <PageHeader title={t.users.title} />
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="card lg:col-span-2">
+        <div className="card min-w-0 lg:col-span-2">
           <div className="table-wrap">
             <table className="table">
               <thead>
@@ -49,14 +66,34 @@ async function Users({ params }: PageProps<"/[lang]/users">) {
                         <span className="block text-start">{u.email}</span>
                       </span>
                     </td>
-                    <td>{t.users.roles[u.role]}</td>
+                    <td>
+                      {u.id !== me.id && roleById.get(u.roleId) && canGrant(me, roleById.get(u.roleId)!) ? (
+                        <ActionForm action={setUserRole} hidden={{ lang, id: u.id }} resetOnSuccess={false} className="flex items-center gap-1.5">
+                          <label htmlFor={`role-${u.id}`} className="sr-only">
+                            {t.users.changeRole}
+                          </label>
+                          <select id={`role-${u.id}`} name="roleId" defaultValue={u.roleId} className="input min-h-9 w-auto py-1 text-sm">
+                            {grantable.map((r) => (
+                              <option key={r.id} value={r.id}>
+                                {lang === "ar" ? r.nameAr : r.nameEn}
+                              </option>
+                            ))}
+                          </select>
+                          <SubmitButton className="btn-ghost min-h-9 px-2 text-xs" pendingLabel={t.common.saving}>
+                            {t.common.save}
+                          </SubmitButton>
+                        </ActionForm>
+                      ) : (
+                        roleName(u.roleId)
+                      )}
+                    </td>
                     <td>
                       <span className={`badge ${u.active ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"}`}>
                         {u.active ? t.common.active : t.common.inactive}
                       </span>
                     </td>
                     <td className="text-end">
-                      {u.id !== me.id && (
+                      {u.id !== me.id && roleById.get(u.roleId) && canGrant(me, roleById.get(u.roleId)!) && (
                         <form action={toggleUserActive}>
                           <input type="hidden" name="lang" value={lang} />
                           <input type="hidden" name="id" value={u.id} />
@@ -92,10 +129,10 @@ async function Users({ params }: PageProps<"/[lang]/users">) {
               <label htmlFor="f-role" className="label">
                 {t.users.role}
               </label>
-              <select id="f-role" name="role" className="input" defaultValue="staff">
-                {(["staff", "technician", "admin"] as const).map((r) => (
-                  <option key={r} value={r}>
-                    {t.users.roles[r]}
+              <select id="f-role" name="roleId" className="input" defaultValue={defaultRole?.id}>
+                {grantable.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {lang === "ar" ? r.nameAr : r.nameEn}
                   </option>
                 ))}
               </select>

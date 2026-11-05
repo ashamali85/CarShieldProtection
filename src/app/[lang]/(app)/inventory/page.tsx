@@ -6,6 +6,7 @@ import { formatMoney, formatQty } from "@/i18n";
 import { first, pageContext } from "@/lib/page";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { StockLevel } from "@/components/inventory-form";
+import { can } from "@/lib/auth";
 
 export default function InventoryPage(props: PageProps<"/[lang]/inventory">) {
   return (
@@ -16,11 +17,11 @@ export default function InventoryPage(props: PageProps<"/[lang]/inventory">) {
 }
 
 async function Inventory({ params, searchParams }: PageProps<"/[lang]/inventory">) {
-  const { lang, t, user } = await pageContext(params);
+  const { lang, t, user } = await pageContext(params, { perm: "inventory.view" });
   const sp = await searchParams;
   const q = first(sp.q);
   const lowOnly = first(sp.filter) === "low";
-  const isAdmin = user.role === "admin";
+  const isAdmin = can(user, "inventory.manage");
   const db = await getDb();
   const like = `%${q}%`;
 

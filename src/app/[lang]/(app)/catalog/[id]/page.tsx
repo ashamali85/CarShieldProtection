@@ -24,7 +24,7 @@ export default function CatalogBrandPage(props: PageProps<"/[lang]/catalog/[id]"
 }
 
 async function Brand({ params }: PageProps<"/[lang]/catalog/[id]">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "catalog.manage" });
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const db = await getDb();

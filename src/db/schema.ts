@@ -13,6 +13,7 @@ import {
   jsonb,
   doublePrecision,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 /**
  * Money is stored as integer fils (1 KWD = 1000 fils) to avoid rounding errors.
@@ -53,12 +54,27 @@ export const paymentMethod = pgEnum("payment_method", [
 
 export const warrantyStatus = pgEnum("warranty_status", ["active", "void"]);
 
+/** A role and the permissions it grants (see src/lib/permissions.ts). The system Admin role always has everything. */
+export const roles = pgTable("roles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").notNull().unique(),
+  nameEn: text("name_en").notNull(),
+  nameAr: text("name_ar").notNull(),
+  permissions: text("permissions").array().notNull().default(sql`'{}'::text[]`),
+  system: boolean("system").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  /** Legacy fixed role, kept for history; access now comes from roleId. */
   role: userRole("role").notNull().default("staff"),
+  roleId: uuid("role_id")
+    .notNull()
+    .references(() => roles.id, { onDelete: "restrict" }),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -653,5 +669,6 @@ export type Warranty = typeof warranties.$inferSelect;
 
 export type JobStatus = (typeof jobStatus.enumValues)[number];
 export type UserRole = (typeof userRole.enumValues)[number];
+export type Role = typeof roles.$inferSelect;
 export type ServiceCategory = (typeof serviceCategory.enumValues)[number];
 export type InvoiceStatus = (typeof invoiceStatus.enumValues)[number];

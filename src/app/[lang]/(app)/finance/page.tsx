@@ -34,7 +34,7 @@ function Kpi({ label, value, change, good, hint, tone, href }: { label: string; 
 }
 
 async function Dashboard({ params, searchParams }: PageProps<"/[lang]/finance">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "finance.view" });
   const D = t.finance.dashboard;
   const today = todayKuwait();
   const period = parsePeriod(await searchParams, today);

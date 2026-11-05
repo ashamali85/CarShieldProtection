@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
 import type { CashEntryKind, PaymentMethod } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import { addDaysIso } from "@/lib/hr";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
@@ -34,7 +34,7 @@ const back = (fd: FormData, lang: string, fallback: string) => {
 
 export async function saveExpense(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  const user = await requireAdmin(lang);
+  const user = await requirePermission(lang, "finance.manage");
   const id = str(fd, "id");
   const date = str(fd, "date");
   const categoryId = str(fd, "categoryId");
@@ -74,7 +74,7 @@ export async function saveExpense(_: ActionState, fd: FormData): Promise<ActionS
 
 export async function deleteExpense(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "finance.manage");
   const id = str(fd, "id");
   if (!UUID_RE.test(id)) return undefined;
   const db = await getDb();
@@ -85,7 +85,7 @@ export async function deleteExpense(_: ActionState, fd: FormData): Promise<Actio
 
 export async function saveCashEntry(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  const user = await requireAdmin(lang);
+  const user = await requirePermission(lang, "finance.manage");
   const date = str(fd, "date");
   const kind = KINDS.find((k) => k === str(fd, "kind"));
   const amount = positive(fd, "amount");
@@ -99,7 +99,7 @@ export async function saveCashEntry(_: ActionState, fd: FormData): Promise<Actio
 
 export async function deleteCashEntry(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "finance.manage");
   const id = str(fd, "id");
   if (!UUID_RE.test(id)) return undefined;
   const db = await getDb();
@@ -110,7 +110,7 @@ export async function deleteCashEntry(_: ActionState, fd: FormData): Promise<Act
 
 export async function saveFinanceSettings(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "finance.manage");
   const raw = str(fd, "openingCash").replace(/^-/, "");
   const amount = kwdToFils(raw);
   const negative = str(fd, "openingCash").startsWith("-");
@@ -125,7 +125,7 @@ export async function saveFinanceSettings(_: ActionState, fd: FormData): Promise
 
 export async function saveExpenseCategory(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "finance.manage");
   const S = t(lang).finance.settings;
   const id = str(fd, "id");
   const nameEn = str(fd, "nameEn");
@@ -163,7 +163,7 @@ const dueDayOf = (fd: FormData) => {
 
 export async function saveContract(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "finance.manage");
   const C = t(lang).finance.contracts;
   const id = str(fd, "id");
   const isEdit = UUID_RE.test(id);
@@ -201,7 +201,7 @@ export async function saveContract(_: ActionState, fd: FormData): Promise<Action
 
 export async function deleteContract(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "finance.manage");
   const id = str(fd, "id");
   if (!UUID_RE.test(id)) return undefined;
   const db = await getDb();
@@ -213,7 +213,7 @@ export async function deleteContract(_: ActionState, fd: FormData): Promise<Acti
 
 export async function addContractRate(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "finance.manage");
   const C = t(lang).finance.contracts;
   const contractId = str(fd, "contractId");
   const effectiveFrom = str(fd, "effectiveFrom");
@@ -235,7 +235,7 @@ export async function addContractRate(_: ActionState, fd: FormData): Promise<Act
 
 export async function deleteContractRate(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "finance.manage");
   const id = str(fd, "id");
   const contractId = str(fd, "contractId");
   if (!UUID_RE.test(id) || !UUID_RE.test(contractId)) return undefined;
@@ -254,7 +254,7 @@ export async function deleteContractRate(_: ActionState, fd: FormData): Promise<
 
 export async function recordContractPayment(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  const user = await requireAdmin(lang);
+  const user = await requirePermission(lang, "finance.manage");
   const T = t(lang).finance;
   const contractId = str(fd, "contractId");
   const date = str(fd, "date");
@@ -282,7 +282,7 @@ export async function recordContractPayment(_: ActionState, fd: FormData): Promi
 /** Turns an ordinary expense (recorded before the contract existed) into a payment against it. */
 export async function linkExpenseToContract(_: ActionState, fd: FormData): Promise<ActionState> {
   const lang = langFrom(fd);
-  await requireAdmin(lang);
+  await requirePermission(lang, "finance.manage");
   const contractId = str(fd, "contractId");
   const id = str(fd, "id");
   if (!UUID_RE.test(contractId) || !UUID_RE.test(id)) return undefined;

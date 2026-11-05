@@ -17,7 +17,7 @@ export default function EditExpensePage(props: PageProps<"/[lang]/finance/expens
 }
 
 async function EditExpense({ params, searchParams }: PageProps<"/[lang]/finance/expenses/[id]">) {
-  const { lang, t } = await pageContext(params, { admin: true });
+  const { lang, t } = await pageContext(params, { perm: "finance.manage" });
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
   const raw = first((await searchParams).back);

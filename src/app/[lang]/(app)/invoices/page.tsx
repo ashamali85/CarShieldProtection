@@ -15,7 +15,7 @@ export default function InvoicesPage(props: PageProps<"/[lang]/invoices">) {
 }
 
 async function Invoices({ params, searchParams }: PageProps<"/[lang]/invoices">) {
-  const { lang, t } = await pageContext(params);
+  const { lang, t } = await pageContext(params, { perm: "invoices.view" });
   const open = first((await searchParams).status) === "open";
   const db = await getDb();
 
