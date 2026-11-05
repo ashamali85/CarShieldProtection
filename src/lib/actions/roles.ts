@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requirePermission } from "@/lib/auth";
-import { canGrant } from "@/lib/roles";
+import { canGrant, legacyRole, safeToChange } from "@/lib/roles";
 import { normalizePermissions } from "@/lib/permissions";
 import type { ActionState } from "@/components/forms";
 import { langFrom, str, t, UUID_RE } from "./helpers";
@@ -37,7 +37,8 @@ export async function saveRole(_: ActionState, fd: FormData): Promise<ActionStat
   if (UUID_RE.test(id)) {
     const [role] = await db.select().from(schema.roles).where(eq(schema.roles.id, id)).limit(1);
     if (!role) return { error: R.invalid };
-    if (role.system || !(canGrant(me, role))) return { error: t(lang).users.notAllowed };
+    // Your own role is off limits too, so no one can lock themselves (and their team) out by accident.
+    if (role.system || role.id === me.roleId || !canGrant(me, role)) return { error: t(lang).users.notAllowed };
     await db.update(schema.roles).set({ nameEn, nameAr, permissions }).where(eq(schema.roles.id, id));
     refresh();
     return undefined;
@@ -54,7 +55,7 @@ export async function deleteRole(_: ActionState, fd: FormData): Promise<ActionSt
   if (!UUID_RE.test(id)) return undefined;
   const db = await getDb();
   const [role] = await db.select().from(schema.roles).where(eq(schema.roles.id, id)).limit(1);
-  if (!role || role.system || !(canGrant(me, role))) return { error: t(lang).users.notAllowed };
+  if (!role || role.system || !canGrant(me, role)) return { error: t(lang).users.notAllowed };
   const [{ n }] = await db.select({ n: count() }).from(schema.users).where(eq(schema.users.roleId, id));
   if (n > 0) return { error: t(lang).roles.inUse };
   await db.delete(schema.roles).where(eq(schema.roles.id, id));
@@ -70,14 +71,19 @@ export async function setUserRole(_: ActionState, fd: FormData): Promise<ActionS
   if (!UUID_RE.test(id) || !UUID_RE.test(roleId) || id === me.id) return { error: t(lang).users.notAllowed };
   const db = await getDb();
   const [target] = await db
-    .select({ system: schema.roles.system, permissions: schema.roles.permissions })
+    .select({ roleId: schema.roles.id, system: schema.roles.system, permissions: schema.roles.permissions })
     .from(schema.users)
     .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
     .where(eq(schema.users.id, id))
     .limit(1);
   const [role] = await db.select().from(schema.roles).where(eq(schema.roles.id, roleId)).limit(1);
-  if (!target || !role || !(canGrant(me, target)) || !(canGrant(me, role))) return { error: t(lang).users.notAllowed };
-  await db.update(schema.users).set({ roleId }).where(eq(schema.users.id, id));
+  if (!target || !role || !canGrant(me, target) || !canGrant(me, role)) return { error: t(lang).users.notAllowed };
+  const done = await db
+    .update(schema.users)
+    .set({ roleId, role: legacyRole(role) })
+    .where(safeToChange(id, target.roleId, target.system && !role.system))
+    .returning({ id: schema.users.id });
+  if (done.length === 0) return { error: t(lang).users.notAllowed };
   refresh();
   return undefined;
 }

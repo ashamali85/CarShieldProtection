@@ -34,7 +34,7 @@ async function RoleView({ params }: PageProps<"/[lang]/roles/[id]">) {
     .where(eq(schema.users.roleId, id))
     .orderBy(asc(schema.users.name));
   // The Admin role, and roles with access the editor lacks, are shown read-only.
-  const editable = !role.system && canGrant(me, role);
+  const editable = !role.system && role.id !== me.roleId && canGrant(me, role);
   const perms = role.system ? ALL_PERMISSIONS : normalizePermissions(role.permissions);
   const name = lang === "ar" ? role.nameAr : role.nameEn;
 

@@ -67,7 +67,7 @@ async function Run({ params }: PageProps<"/[lang]/hr/payroll/[id]">) {
                 }}
               />
             )}
-            {run.status !== "draft" && (
+            {run.status !== "draft" && canManage && (
               <a href={`/api/hr/payroll/${run.id}/bank`} className="btn-secondary" download>
                 {P.bankFile}
               </a>

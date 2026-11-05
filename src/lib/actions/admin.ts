@@ -7,8 +7,8 @@ import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
-import type { ServiceCategory, UserRole } from "@/db/schema";
-import { canGrant } from "@/lib/roles";
+import type { ServiceCategory } from "@/db/schema";
+import { canGrant, legacyRole, safeToChange } from "@/lib/roles";
 import { intOrNull, kwdToFils, langFrom, str, t, UUID_RE } from "./helpers";
 
 const CATEGORIES: ServiceCategory[] = ["ppf", "ceramic", "tint", "detailing", "other"];
@@ -50,13 +50,11 @@ export async function createUser(_: ActionState, formData: FormData): Promise<Ac
   const db = await getDb();
   const [role] = await db.select().from(schema.roles).where(eq(schema.roles.id, roleId)).limit(1);
   if (!role) return { error: dict.common.required };
-  if (!(canGrant(me, role))) return { error: dict.users.notAllowed };
+  if (!canGrant(me, role)) return { error: dict.users.notAllowed };
   const [taken] = await db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.email, email)).limit(1);
   if (taken) return { error: dict.users.emailTaken };
 
-  // The legacy role column follows the built-in roles where it can.
-  const legacy: UserRole = role.key === "admin" ? "admin" : role.key === "technician" ? "technician" : "staff";
-  await db.insert(schema.users).values({ name, email, role: legacy, roleId, passwordHash: await bcrypt.hash(password, 10) });
+  await db.insert(schema.users).values({ name, email, role: legacyRole(role), roleId, passwordHash: await bcrypt.hash(password, 10) });
   redirect(`/${lang}/users`);
 }
 
@@ -67,16 +65,17 @@ export async function toggleUserActive(formData: FormData) {
   if (!UUID_RE.test(id) || id === me.id) return;
   const db = await getDb();
   const [u] = await db
-    .select({ active: schema.users.active, system: schema.roles.system, permissions: schema.roles.permissions })
+    .select({ active: schema.users.active, roleId: schema.roles.id, system: schema.roles.system, permissions: schema.roles.permissions })
     .from(schema.users)
     .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
     .where(eq(schema.users.id, id))
     .limit(1);
   // You can't switch off someone with more access than you.
-  if (!u || !(canGrant(me, u))) return;
+  if (!u || !canGrant(me, u)) return;
   await db
     .update(schema.users)
     .set({ active: !u.active })
-    .where(and(eq(schema.users.id, id), ne(schema.users.id, me.id)));
+    // Deactivating an admin needs another active admin to remain.
+    .where(and(ne(schema.users.id, me.id), safeToChange(id, u.roleId, u.system && u.active)));
   refresh();
 }
