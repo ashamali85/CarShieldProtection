@@ -5,7 +5,7 @@ import { formatMoney } from "@/i18n";
 import { pageContext } from "@/lib/page";
 import { todayKuwait } from "@/lib/dates";
 import { addDaysIso } from "@/lib/hr";
-import { cashAt, financeReport, getFinanceSettings, receivables } from "@/lib/finance";
+import { cashAt, contractStatuses, financeReport, getFinanceSettings, prepaidExpenses, receivables } from "@/lib/finance";
 import { parsePeriod, periodQuery, previousPeriod } from "@/lib/period";
 import { periodLabels, periodTitle, pickerYears } from "@/lib/finance-ui";
 import { pct } from "@/lib/finance-lines";
@@ -22,10 +22,10 @@ export default function FinanceDashboardPage(props: PageProps<"/[lang]/finance">
   );
 }
 
-function Kpi({ label, value, change, good, hint, tone }: { label: string; value: string; change?: string; good?: boolean | null; hint?: string; tone?: "neg" }) {
+function Kpi({ label, value, change, good, hint, tone, href }: { label: string; value: string; change?: string; good?: boolean | null; hint?: string; tone?: "neg"; href?: string }) {
   return (
     <div className="card p-4 sm:p-5">
-      <p className="text-sm text-muted">{label}</p>
+      <p className="text-sm text-muted">{href ? <Link href={href} className="link">{label}</Link> : label}</p>
       <p className={`num mt-1 text-2xl leading-tight font-semibold tracking-tight [overflow-wrap:anywhere] whitespace-normal ${tone === "neg" ? "text-red-700" : "text-ink"}`}>{value}</p>
       {change && <p className={`num mt-1 text-xs ${good == null ? "text-muted" : good ? "text-emerald-700" : "text-red-700"}`}>{change}</p>}
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
@@ -45,14 +45,17 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]/finance">)
   // Cash figures count only from the opening-balance date, matching the cash-flow page.
   const { openingDate } = await getFinanceSettings(db);
   const opt = { cashFrom: openingDate };
-  const [cur, prev, year, cashNow, owed, years] = await Promise.all([
+  const [cur, prev, year, cashNow, owed, years, contracts, prepaid] = await Promise.all([
     financeReport(db, period.from, period.to, opt),
     financeReport(db, prevRange.from, prevRange.to, opt),
     financeReport(db, yearFrom, yearTo, opt),
     cashAt(db, addDaysIso(today, 1)),
     receivables(db),
     pickerYears(db, +today.slice(0, 4)),
+    contractStatuses(db, today),
+    prepaidExpenses(db, today),
   ]);
+  const owedContracts = contracts.reduce((a, s) => a + Math.max(s.balance, 0), 0);
   const money = (f: number) => formatMoney(Math.round(f), lang);
   const signed = (f: number) => (f < 0 ? `−${money(-f)}` : money(f));
   const c = cur.total;
@@ -97,6 +100,10 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]/finance">)
         <Kpi label={D.cashOut} value={money(c.cash.out)} {...change(c.cash.out, p.cash.out, true)} />
         <Kpi label={D.cashBalance} value={signed(cashNow)} tone={cashNow < 0 ? "neg" : undefined} hint={new Intl.DateTimeFormat(lang === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kuwait" }).format(new Date())} />
         <Kpi label={D.receivables} value={money(owed)} hint={D.receivablesHint} />
+        {contracts.length > 0 && (
+          <Kpi label={D.owedContracts} value={money(owedContracts)} tone={owedContracts > 0 ? "neg" : undefined} hint={D.owedContractsHint} href={`/${lang}/finance/contracts`} />
+        )}
+        {prepaid > 0 && <Kpi label={D.prepaid} value={money(prepaid)} hint={D.prepaidHint} />}
       </div>
       <p className="mt-2 flex flex-wrap justify-end gap-4 text-sm">
         <Link href={`/${lang}/finance/pnl${q}`} className="link">

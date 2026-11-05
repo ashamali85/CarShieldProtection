@@ -543,7 +543,7 @@ export type PayrollStatus = (typeof payrollStatus.enumValues)[number];
 
 /** "operating" costs go to the P&L; "asset" purchases (equipment) only to the cash flow as investing. */
 export const expenseKind = pgEnum("expense_kind", ["operating", "asset"]);
-export const cashEntryKind = pgEnum("cash_entry_kind", ["capital_in", "owner_drawing", "loan_received", "loan_repayment", "other_income"]);
+export const cashEntryKind = pgEnum("cash_entry_kind", ["capital_in", "owner_drawing", "loan_received", "loan_repayment", "other_income", "deposit_paid", "deposit_refund"]);
 
 export const expenseCategories = pgTable("expense_categories", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -568,10 +568,45 @@ export const expenses = pgTable(
     method: paymentMethod("method").notNull(),
     vendor: text("vendor"),
     reference: text("reference"),
+    /** Set when this is a payment against a recurring contract (e.g. rent); the P&L uses the contract's accrual instead. */
+    contractId: uuid("contract_id").references(() => recurringCosts.id, { onDelete: "restrict" }),
+    /** Optional period the payment covers (e.g. a year of insurance); the P&L spreads it evenly over these days. */
+    periodFrom: date("period_from"),
+    periodTo: date("period_to"),
     createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("expenses_date_idx").on(t.date), index("expenses_category_idx").on(t.categoryId)],
+  (t) => [index("expenses_date_idx").on(t.date), index("expenses_category_idx").on(t.categoryId), index("expenses_contract_idx").on(t.contractId)],
+);
+
+/** A recurring cost charged every month whether paid or not, e.g. a workshop lease. */
+export const recurringCosts = pgTable("recurring_costs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  categoryId: uuid("category_id")
+    .notNull()
+    .references(() => expenseCategories.id, { onDelete: "restrict" }),
+  vendor: text("vendor"),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date"),
+  /** Day of the month the payment falls due (1–28). */
+  dueDay: integer("due_day").notNull().default(1),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** The monthly amount of a recurring cost from a date onwards (a rent change adds a row). */
+export const recurringCostRates = pgTable(
+  "recurring_cost_rates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    contractId: uuid("contract_id")
+      .notNull()
+      .references(() => recurringCosts.id, { onDelete: "cascade" }),
+    effectiveFrom: date("effective_from").notNull(),
+    monthlyFils: integer("monthly_fils").notNull(),
+  },
+  (t) => [uniqueIndex("recurring_cost_rates_contract_from_idx").on(t.contractId, t.effectiveFrom)],
 );
 
 /** Money in or out that is neither a sale nor an expense: owner capital, drawings, loans, other income. */
@@ -602,6 +637,8 @@ export type ExpenseCategory = typeof expenseCategories.$inferSelect;
 export type Expense = typeof expenses.$inferSelect;
 export type CashEntry = typeof cashEntries.$inferSelect;
 export type CashEntryKind = (typeof cashEntryKind.enumValues)[number];
+export type RecurringCost = typeof recurringCosts.$inferSelect;
+export type RecurringCostRate = typeof recurringCostRates.$inferSelect;
 export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
 
 export type CarMake = typeof carMakes.$inferSelect;

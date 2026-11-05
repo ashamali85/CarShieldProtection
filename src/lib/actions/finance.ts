@@ -1,17 +1,20 @@
 "use server";
 
-import { and, eq, ne } from "drizzle-orm";
+import { and, asc, count, eq, isNull, ne } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
 import type { CashEntryKind, PaymentMethod } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
+import { addDaysIso } from "@/lib/hr";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
 
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+/** A real calendar date between 2000 and 2100 (rejects 2026-02-31). */
+const DATE = { test: (v: string) => DATE_RE.test(v) && v >= "2000-01-01" && v <= "2100-12-31" && new Date(`${v}T00:00:00Z`).toISOString().startsWith(v) };
 const METHODS: PaymentMethod[] = ["cash", "knet", "card", "transfer"];
-const KINDS: CashEntryKind[] = ["capital_in", "owner_drawing", "loan_received", "loan_repayment", "other_income"];
+const KINDS: CashEntryKind[] = ["capital_in", "owner_drawing", "loan_received", "loan_repayment", "other_income", "deposit_paid", "deposit_refund"];
 const method = (fd: FormData) => METHODS.find((m) => m === str(fd, "method")) ?? null;
 const positive = (fd: FormData, k: string) => {
   const v = kwdToFils(str(fd, k));
@@ -32,10 +35,29 @@ export async function saveExpense(_: ActionState, fd: FormData): Promise<ActionS
   const description = str(fd, "description");
   const amount = positive(fd, "amount");
   const m = method(fd);
-  if (!DATE.test(date) || !UUID_RE.test(categoryId) || !description || !amount || !m) return { error: t(lang).finance.expenses.invalid };
-  const values = { date, categoryId, description, amountFils: amount, method: m, vendor: optStr(fd, "vendor"), reference: optStr(fd, "reference") };
+  const X = t(lang).finance.expenses;
+  if (!DATE.test(date) || !UUID_RE.test(categoryId) || !description || !amount || !m) return { error: X.invalid };
   const db = await getDb();
-  if (UUID_RE.test(id)) {
+  const [cat] = await db.select({ kind: schema.expenseCategories.kind }).from(schema.expenseCategories).where(eq(schema.expenseCategories.id, categoryId)).limit(1);
+  if (!cat) return { error: X.invalid };
+  const existing = UUID_RE.test(id)
+    ? (await db.select({ contractId: schema.expenses.contractId }).from(schema.expenses).where(eq(schema.expenses.id, id)).limit(1))[0]
+    : undefined;
+  // Optional period the payment covers. Not used for assets or contract payments.
+  let periodFrom: string | null = null;
+  let periodTo: string | null = null;
+  if (fd.get("hasPeriod") === "on" && cat.kind === "operating" && !existing?.contractId) {
+    periodFrom = str(fd, "periodFrom");
+    periodTo = str(fd, "periodTo");
+    if (!DATE.test(periodFrom) || !DATE.test(periodTo) || periodTo < periodFrom || periodTo > addDaysIso(periodFrom, 5 * 366)) return { error: X.periodInvalid };
+  }
+  const values = { date, categoryId, description, amountFils: amount, method: m, vendor: optStr(fd, "vendor"), reference: optStr(fd, "reference"), periodFrom, periodTo };
+  if (existing) {
+    if (existing.contractId) {
+      // A contract payment keeps the contract's category.
+      const [c] = await db.select({ categoryId: schema.recurringCosts.categoryId }).from(schema.recurringCosts).where(eq(schema.recurringCosts.id, existing.contractId)).limit(1);
+      if (c) values.categoryId = c.categoryId;
+    }
     await db.update(schema.expenses).set(values).where(eq(schema.expenses.id, id));
     redirect(back(fd, lang, `/${lang}/finance/expenses`));
   }
@@ -117,6 +139,140 @@ export async function saveExpenseCategory(_: ActionState, fd: FormData): Promise
     const code = `${nameEn.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 30) || "cat"}_${Date.now().toString(36)}`;
     await db.insert(schema.expenseCategories).values({ code, nameEn, nameAr, kind, sortOrder: 50 });
   }
+  refresh();
+  return undefined;
+}
+
+/* ---------------------------------------------------------------- Recurring costs (contracts) */
+
+const dueDayOf = (fd: FormData) => {
+  const n = Number(str(fd, "dueDay"));
+  return Number.isInteger(n) && n >= 1 && n <= 28 ? n : null;
+};
+
+export async function saveContract(_: ActionState, fd: FormData): Promise<ActionState> {
+  const lang = langFrom(fd);
+  await requireAdmin(lang);
+  const C = t(lang).finance.contracts;
+  const id = str(fd, "id");
+  const isEdit = UUID_RE.test(id);
+  const name = str(fd, "name");
+  const categoryId = str(fd, "categoryId");
+  const startDate = str(fd, "startDate");
+  const endDate = optStr(fd, "endDate");
+  const dueDay = dueDayOf(fd);
+  const monthly = isEdit ? 1 : positive(fd, "monthly");
+  if (!name || !UUID_RE.test(categoryId) || !DATE.test(startDate) || (endDate && (!DATE.test(endDate) || endDate < startDate)) || !dueDay || !monthly) return { error: C.invalid };
+  const db = await getDb();
+  const [cat] = await db.select({ kind: schema.expenseCategories.kind }).from(schema.expenseCategories).where(eq(schema.expenseCategories.id, categoryId)).limit(1);
+  if (!cat || cat.kind !== "operating") return { error: C.invalid };
+  const values = { name, categoryId, vendor: optStr(fd, "vendor"), startDate, endDate, dueDay, notes: optStr(fd, "notes") };
+  if (isEdit) {
+    await db.update(schema.recurringCosts).set(values).where(eq(schema.recurringCosts.id, id));
+    // Payments follow the contract's category.
+    await db.update(schema.expenses).set({ categoryId }).where(eq(schema.expenses.contractId, id));
+    refresh();
+    return undefined;
+  }
+  const [row] = await db.insert(schema.recurringCosts).values(values).returning({ id: schema.recurringCosts.id });
+  await db.insert(schema.recurringCostRates).values({ contractId: row.id, effectiveFrom: startDate, monthlyFils: monthly });
+  redirect(`/${lang}/finance/contracts/${row.id}`);
+}
+
+export async function deleteContract(_: ActionState, fd: FormData): Promise<ActionState> {
+  const lang = langFrom(fd);
+  await requireAdmin(lang);
+  const id = str(fd, "id");
+  if (!UUID_RE.test(id)) return undefined;
+  const db = await getDb();
+  const [{ n }] = await db.select({ n: count() }).from(schema.expenses).where(eq(schema.expenses.contractId, id));
+  if (n > 0) return { error: t(lang).finance.contracts.cannotDelete };
+  await db.delete(schema.recurringCosts).where(eq(schema.recurringCosts.id, id));
+  redirect(`/${lang}/finance/contracts`);
+}
+
+export async function addContractRate(_: ActionState, fd: FormData): Promise<ActionState> {
+  const lang = langFrom(fd);
+  await requireAdmin(lang);
+  const C = t(lang).finance.contracts;
+  const contractId = str(fd, "contractId");
+  const effectiveFrom = str(fd, "effectiveFrom");
+  const monthly = positive(fd, "monthly");
+  if (!UUID_RE.test(contractId) || !DATE.test(effectiveFrom) || !monthly) return { error: C.rateInvalid };
+  const db = await getDb();
+  const [c] = await db.select({ start: schema.recurringCosts.startDate }).from(schema.recurringCosts).where(eq(schema.recurringCosts.id, contractId)).limit(1);
+  if (!c || effectiveFrom < c.start) return { error: C.rateInvalid };
+  const [clash] = await db
+    .select({ id: schema.recurringCostRates.id })
+    .from(schema.recurringCostRates)
+    .where(and(eq(schema.recurringCostRates.contractId, contractId), eq(schema.recurringCostRates.effectiveFrom, effectiveFrom)))
+    .limit(1);
+  if (clash) return { error: C.rateExists };
+  await db.insert(schema.recurringCostRates).values({ contractId, effectiveFrom, monthlyFils: monthly });
+  refresh();
+  return undefined;
+}
+
+export async function deleteContractRate(_: ActionState, fd: FormData): Promise<ActionState> {
+  const lang = langFrom(fd);
+  await requireAdmin(lang);
+  const id = str(fd, "id");
+  const contractId = str(fd, "contractId");
+  if (!UUID_RE.test(id) || !UUID_RE.test(contractId)) return undefined;
+  const db = await getDb();
+  // The first amount can't be removed: the contract always needs one.
+  const rates = await db
+    .select({ id: schema.recurringCostRates.id })
+    .from(schema.recurringCostRates)
+    .where(eq(schema.recurringCostRates.contractId, contractId))
+    .orderBy(asc(schema.recurringCostRates.effectiveFrom));
+  if (rates.length < 2 || rates[0].id === id) return undefined;
+  await db.delete(schema.recurringCostRates).where(and(eq(schema.recurringCostRates.id, id), eq(schema.recurringCostRates.contractId, contractId)));
+  refresh();
+  return undefined;
+}
+
+export async function recordContractPayment(_: ActionState, fd: FormData): Promise<ActionState> {
+  const lang = langFrom(fd);
+  const user = await requireAdmin(lang);
+  const T = t(lang).finance;
+  const contractId = str(fd, "contractId");
+  const date = str(fd, "date");
+  const amount = positive(fd, "amount");
+  const m = method(fd);
+  if (!UUID_RE.test(contractId) || !DATE.test(date) || !amount || !m) return { error: T.contracts.paymentInvalid };
+  const db = await getDb();
+  const [c] = await db.select().from(schema.recurringCosts).where(eq(schema.recurringCosts.id, contractId)).limit(1);
+  if (!c) return { error: T.contracts.paymentInvalid };
+  await db.insert(schema.expenses).values({
+    date,
+    categoryId: c.categoryId,
+    description: optStr(fd, "description") ?? T.expenses.contractPayment.replace("{name}", c.name),
+    amountFils: amount,
+    method: m,
+    vendor: c.vendor,
+    reference: optStr(fd, "reference"),
+    contractId,
+    createdById: user.id,
+  });
+  refresh();
+  return undefined;
+}
+
+/** Turns an ordinary expense (recorded before the contract existed) into a payment against it. */
+export async function linkExpenseToContract(_: ActionState, fd: FormData): Promise<ActionState> {
+  const lang = langFrom(fd);
+  await requireAdmin(lang);
+  const contractId = str(fd, "contractId");
+  const id = str(fd, "id");
+  if (!UUID_RE.test(contractId) || !UUID_RE.test(id)) return undefined;
+  const db = await getDb();
+  const [c] = await db.select({ categoryId: schema.recurringCosts.categoryId }).from(schema.recurringCosts).where(eq(schema.recurringCosts.id, contractId)).limit(1);
+  if (!c) return undefined;
+  await db
+    .update(schema.expenses)
+    .set({ contractId, categoryId: c.categoryId, periodFrom: null, periodTo: null })
+    .where(and(eq(schema.expenses.id, id), isNull(schema.expenses.contractId)));
   refresh();
   return undefined;
 }

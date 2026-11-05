@@ -2,6 +2,7 @@ import type { Dictionary, Locale } from "@/i18n";
 import type { Expense, ExpenseCategory } from "@/db/schema";
 import { saveExpense } from "@/lib/actions/finance";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
+import { PeriodFields } from "@/components/finance/period-fields";
 
 export function ExpenseForm({
   lang,
@@ -31,7 +32,8 @@ export function ExpenseForm({
         <label htmlFor="f-categoryId" className="label">
           {X.category}
         </label>
-        <select id="f-categoryId" name="categoryId" required defaultValue={e?.categoryId ?? ""} className="input">
+        {e?.contractId && <p className="hint mb-1.5">{X.contractLocked}</p>}
+        <select id="f-categoryId" name="categoryId" required defaultValue={e?.categoryId ?? ""} className="input" disabled={!!e?.contractId}>
           <option value="" disabled>
             —
           </option>
@@ -43,6 +45,7 @@ export function ExpenseForm({
               </option>
             ))}
         </select>
+        {e?.contractId && <input type="hidden" name="categoryId" value={e.categoryId} />}
       </div>
       <Field label={X.description} name="description" required defaultValue={e?.description} />
       <div className="grid gap-4 sm:grid-cols-2">
@@ -61,6 +64,7 @@ export function ExpenseForm({
         <Field label={X.vendor} name="vendor" defaultValue={e?.vendor ?? ""} optionalLabel={t.common.optional} />
       </div>
       <Field label={X.reference} name="reference" dir="ltr" defaultValue={e?.reference ?? ""} optionalLabel={t.common.optional} />
+      {!e?.contractId && <PeriodFields from={e?.periodFrom} to={e?.periodTo} labels={{ period: X.period, hint: X.periodHint, from: X.periodFrom, to: X.periodTo }} />}
       <div className="flex gap-2">
         <SubmitButton className={e ? "btn-primary" : "btn-primary w-full"} pendingLabel={t.common.saving}>
           {e ? t.common.save : X.add}

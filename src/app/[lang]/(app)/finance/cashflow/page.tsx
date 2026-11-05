@@ -58,6 +58,8 @@ async function Cashflow({ params, searchParams }: PageProps<"/[lang]/finance/cas
     { label: C.netOperating, value: c?.operating ?? z, previous: p?.operating ?? z, kind: "total" },
     { label: C.investing, value: 0, kind: "section" },
     { label: C.equipment, value: c?.equipment ?? z, previous: p?.equipment ?? z, level: 1, negative: true, costLike: true },
+    ...(c?.depositsOut || p?.depositsOut ? [{ label: C.depositsOut, value: c?.depositsOut ?? z, previous: p?.depositsOut ?? z, level: 1, negative: true, costLike: true } as Line] : []),
+    ...(c?.depositsIn || p?.depositsIn ? [{ label: C.depositsIn, value: c?.depositsIn ?? z, previous: p?.depositsIn ?? z, level: 1 } as Line] : []),
     { label: C.netInvesting, value: c?.investing ?? z, previous: p?.investing ?? z, kind: "total" },
     { label: C.financing, value: 0, kind: "section" },
     { label: C.capitalIn, value: c?.capitalIn ?? z, previous: p?.capitalIn ?? z, level: 1 },

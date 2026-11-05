@@ -1,9 +1,10 @@
 import "server-only";
-import { and, eq, gte, inArray, lt, lte, ne, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, isNotNull, isNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { CashEntryKind, PaymentMethod } from "@/db/schema";
-import { kuwaitDayRange } from "@/lib/dates";
+import { kuwaitDayRange, todayKuwait } from "@/lib/dates";
 import { addDaysIso, daysInMonth, overlapDays } from "@/lib/hr";
+import { accrueByMonth, dueSoFar, prepaidPortion, rateSegments, spreadByMonth } from "@/lib/accrual";
 
 type Db = Awaited<ReturnType<typeof getDb>>;
 type ServiceCategory = "ppf" | "ceramic" | "tint" | "detailing" | "other";
@@ -39,6 +40,8 @@ export type MonthFigures = {
     salaries: number;
     pifss: number;
     equipment: number;
+    depositsOut: number;
+    depositsIn: number;
     capitalIn: number;
     drawings: number;
     loansIn: number;
@@ -76,6 +79,8 @@ function emptyMonth(): MonthFigures {
       salaries: 0,
       pifss: 0,
       equipment: 0,
+      depositsOut: 0,
+      depositsIn: 0,
       capitalIn: 0,
       drawings: 0,
       loansIn: 0,
@@ -101,11 +106,11 @@ function finish(m: MonthFigures): MonthFigures {
   const c = m.cash;
   const customers = Object.values(c.fromCustomers).reduce((a, b) => a + b, 0);
   c.operating = customers + c.otherIncome - c.expenses - c.suppliers - c.salaries - c.pifss;
-  c.investing = -c.equipment;
+  c.investing = c.depositsIn - c.equipment - c.depositsOut;
   c.financing = c.capitalIn + c.loansIn - c.drawings - c.loansOut;
   c.net = c.operating + c.investing + c.financing;
-  c.in = customers + c.otherIncome + c.capitalIn + c.loansIn;
-  c.out = c.expenses + c.suppliers + c.salaries + c.pifss + c.equipment + c.drawings + c.loansOut;
+  c.in = customers + c.otherIncome + c.depositsIn + c.capitalIn + c.loansIn;
+  c.out = c.expenses + c.suppliers + c.salaries + c.pifss + c.equipment + c.depositsOut + c.drawings + c.loansOut;
   return m;
 }
 
@@ -123,7 +128,7 @@ export function sumMonths(months: MonthFigures[]): MonthFigures {
     t.stockLoss += m.stockLoss;
     t.otherIncome += m.otherIncome;
     for (const k of Object.keys(t.cash.fromCustomers) as PaymentMethod[]) t.cash.fromCustomers[k] += m.cash.fromCustomers[k];
-    for (const k of ["otherIncome", "expenses", "suppliers", "salaries", "pifss", "equipment", "capitalIn", "drawings", "loansIn", "loansOut"] as const) t.cash[k] += m.cash[k];
+    for (const k of ["otherIncome", "expenses", "suppliers", "salaries", "pifss", "equipment", "depositsOut", "depositsIn", "capitalIn", "drawings", "loansIn", "loansOut"] as const) t.cash[k] += m.cash[k];
   }
   return finish(t);
 }
@@ -167,7 +172,7 @@ export async function financeReport(db: Db, from: string, to: string, opts: { ca
   const months = new Map(keys.map((k) => [k, emptyMonth()]));
   const at = (iso: string) => months.get(monthKey(iso));
 
-  const [invoiceLines, invoices, movements, expenseRows, categories, runs, payments, entries] = await Promise.all([
+  const [invoiceLines, invoices, movements, expenseRows, categories, runs, payments, entries, contracts, rates] = await Promise.all([
     db
       .select({
         invoiceId: schema.invoices.id,
@@ -195,7 +200,16 @@ export async function financeReport(db: Db, from: string, to: string, opts: { ca
       })
       .from(schema.inventoryMovements)
       .where(and(gte(schema.inventoryMovements.createdAt, start), lt(schema.inventoryMovements.createdAt, end))),
-    db.select().from(schema.expenses).where(and(gte(schema.expenses.date, from), lte(schema.expenses.date, to))),
+    // Paid in the range, or covering part of it (a period payment made earlier or later).
+    db
+      .select()
+      .from(schema.expenses)
+      .where(
+        or(
+          and(gte(schema.expenses.date, from), lte(schema.expenses.date, to)),
+          and(isNotNull(schema.expenses.periodFrom), lte(schema.expenses.periodFrom, to), gte(schema.expenses.periodTo, from)),
+        ),
+      ),
     db
       .select({ id: schema.expenseCategories.id, code: schema.expenseCategories.code, nameEn: schema.expenseCategories.nameEn, nameAr: schema.expenseCategories.nameAr, kind: schema.expenseCategories.kind })
       .from(schema.expenseCategories)
@@ -221,6 +235,11 @@ export async function financeReport(db: Db, from: string, to: string, opts: { ca
       .from(schema.payments)
       .where(and(gte(schema.payments.paidAt, start), lt(schema.payments.paidAt, end))),
     db.select().from(schema.cashEntries).where(and(gte(schema.cashEntries.date, from), lte(schema.cashEntries.date, to))),
+    db
+      .select()
+      .from(schema.recurringCosts)
+      .where(and(lte(schema.recurringCosts.startDate, to), or(isNull(schema.recurringCosts.endDate), gte(schema.recurringCosts.endDate, from)))),
+    db.select().from(schema.recurringCostRates),
   ]);
 
   // Revenue: invoice lines by service category, with each invoice's discount kept separate.
@@ -260,17 +279,44 @@ export async function financeReport(db: Db, from: string, to: string, opts: { ca
   }
 
   const kindOf = new Map(categories.map((c) => [c.id, c]));
+  // Contract charges and spread costs are booked up to the end of the current month, not into the future.
+  const today = todayKuwait();
+  const thisMonthEnd = `${today.slice(0, 7)}-${String(daysInMonth(+today.slice(0, 4), +today.slice(5, 7))).padStart(2, "0")}`;
+  const accrueTo = to < thisMonthEnd ? to : thisMonthEnd;
+  const addOpex = (key: string, code: string, v: number) => {
+    const m = months.get(key);
+    if (m && v) m.opexByCategory[code] = (m.opexByCategory[code] ?? 0) + v;
+  };
   for (const e of expenseRows) {
-    const m = at(e.date);
     const cat = kindOf.get(e.categoryId);
-    if (!m || !cat) continue;
-    const inCash = e.date >= cashFrom;
+    if (!cat) continue;
+    const paidInRange = e.date >= from && e.date <= to;
+    const m = paidInRange ? at(e.date) : undefined;
+    const inCash = paidInRange && e.date >= cashFrom;
     if (cat.kind === "asset") {
-      if (inCash) m.cash.equipment += e.amountFils;
-    } else {
-      m.opexByCategory[cat.code] = (m.opexByCategory[cat.code] ?? 0) + e.amountFils;
-      if (inCash) m.cash.expenses += e.amountFils;
+      if (m && inCash) m.cash.equipment += e.amountFils;
+      continue;
     }
+    if (m && inCash) m.cash.expenses += e.amountFils;
+    // Contract payments: the P&L carries the contract's monthly charge instead (below).
+    if (e.contractId) continue;
+    if (e.periodFrom && e.periodTo) {
+      for (const [key, v] of spreadByMonth(e.amountFils, e.periodFrom, e.periodTo, from, accrueTo)) addOpex(key, cat.code, v);
+    } else if (m) {
+      m.opexByCategory[cat.code] = (m.opexByCategory[cat.code] ?? 0) + e.amountFils;
+    }
+  }
+
+  // Recurring contracts (rent): each month carries its charge, paid or not.
+  for (const c of contracts) {
+    const cat = kindOf.get(c.categoryId);
+    if (!cat) continue;
+    const segments = rateSegments(
+      rates.filter((r) => r.contractId === c.id),
+      c.startDate,
+      c.endDate,
+    );
+    for (const [key, v] of accrueByMonth(segments, from, accrueTo)) addOpex(key, cat.code, v);
   }
 
   // Payroll: cost in the payroll month; cash when the run is marked paid.
@@ -302,12 +348,14 @@ export async function financeReport(db: Db, from: string, to: string, opts: { ca
     if (m && day >= cashFrom) m.cash.fromCustomers[p.method] += p.amount;
   }
 
-  const entryField: Record<CashEntryKind, "capitalIn" | "drawings" | "loansIn" | "loansOut" | "otherIncome"> = {
+  const entryField: Record<CashEntryKind, "capitalIn" | "drawings" | "loansIn" | "loansOut" | "otherIncome" | "depositsOut" | "depositsIn"> = {
     capital_in: "capitalIn",
     owner_drawing: "drawings",
     loan_received: "loansIn",
     loan_repayment: "loansOut",
     other_income: "otherIncome",
+    deposit_paid: "depositsOut",
+    deposit_refund: "depositsIn",
   };
   for (const e of entries) {
     const m = at(e.date);
@@ -323,6 +371,7 @@ export async function financeReport(db: Db, from: string, to: string, opts: { ca
     m.payrollFixed = Math.round(m.payrollFixed);
     m.payrollExtra = Math.round(m.payrollExtra);
     m.employerPifss = Math.round(m.employerPifss);
+    for (const k of Object.keys(m.opexByCategory)) m.opexByCategory[k] = Math.round(m.opexByCategory[k]);
     finish(m);
   }
   const list = keys.map((key) => ({ key, figures: months.get(key)! }));
@@ -358,4 +407,53 @@ export async function receivables(db: Db): Promise<number> {
     .leftJoin(paid, eq(paid.invoiceId, schema.invoices.id))
     .where(ne(schema.invoices.status, "void"));
   return Number(row.v);
+}
+
+export type ContractStatus = {
+  id: string;
+  name: string;
+  vendor: string | null;
+  categoryId: string;
+  startDate: string;
+  endDate: string | null;
+  dueDay: number;
+  notes: string | null;
+  /** Monthly amount in force on `asOf` (or the last one, if the contract has ended). */
+  monthly: number;
+  dueSoFar: number;
+  paid: number;
+  /** Positive: payments are behind by this much. Negative: paid ahead. */
+  balance: number;
+  ended: boolean;
+};
+
+/** Every contract with what has fallen due and what has been paid up to `asOf`. */
+export async function contractStatuses(db: Db, asOf: string): Promise<ContractStatus[]> {
+  const [contracts, rates, paid] = await Promise.all([
+    db.select().from(schema.recurringCosts).orderBy(schema.recurringCosts.startDate),
+    db.select().from(schema.recurringCostRates),
+    db
+      .select({ contractId: schema.expenses.contractId, v: sql<number>`coalesce(sum(${schema.expenses.amountFils}), 0)::bigint` })
+      .from(schema.expenses)
+      .where(and(isNotNull(schema.expenses.contractId), lte(schema.expenses.date, asOf)))
+      .groupBy(schema.expenses.contractId),
+  ]);
+  const paidBy = new Map(paid.map((p) => [p.contractId, Number(p.v)]));
+  return contracts.map((c) => {
+    const own = rates.filter((r) => r.contractId === c.id);
+    const segments = rateSegments(own, c.startDate, c.endDate);
+    const current = segments.filter((s) => s.from <= asOf).at(-1) ?? segments[0];
+    const due = Math.round(dueSoFar(segments, c.startDate, c.endDate, c.dueDay, asOf));
+    const p = paidBy.get(c.id) ?? 0;
+    return { ...c, monthly: current?.monthly ?? 0, dueSoFar: due, paid: p, balance: due - p, ended: !!c.endDate && c.endDate < asOf };
+  });
+}
+
+/** Expenses paid on or before `asOf` for a period that isn't used up yet (e.g. insurance paid a year ahead). */
+export async function prepaidExpenses(db: Db, asOf: string): Promise<number> {
+  const rows = await db
+    .select({ amount: schema.expenses.amountFils, date: schema.expenses.date, from: schema.expenses.periodFrom, to: schema.expenses.periodTo })
+    .from(schema.expenses)
+    .where(and(isNull(schema.expenses.contractId), isNotNull(schema.expenses.periodFrom), lte(schema.expenses.date, asOf), sql`${schema.expenses.periodTo} > ${asOf}`));
+  return Math.round(rows.reduce((a, r) => a + prepaidPortion(r.amount, r.date, r.from!, r.to!, asOf), 0));
 }

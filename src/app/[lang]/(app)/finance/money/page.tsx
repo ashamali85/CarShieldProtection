@@ -13,7 +13,7 @@ import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { PeriodPicker } from "@/components/finance/period-picker";
 import { RowDelete } from "@/components/finance/row-delete";
 
-const INFLOW: CashEntryKind[] = ["capital_in", "loan_received", "other_income"];
+const INFLOW: CashEntryKind[] = ["capital_in", "loan_received", "other_income", "deposit_refund"];
 
 export default function MoneyPage(props: PageProps<"/[lang]/finance/money">) {
   return (
@@ -109,7 +109,7 @@ async function Money({ params, searchParams }: PageProps<"/[lang]/finance/money"
                   ))}
                 </optgroup>
                 <optgroup label={M.direction.out}>
-                  {(["owner_drawing", "loan_repayment"] as const).map((k) => (
+                  {(["owner_drawing", "loan_repayment", "deposit_paid"] as const).map((k) => (
                     <option key={k} value={k}>
                       {M.kinds[k]}
                     </option>

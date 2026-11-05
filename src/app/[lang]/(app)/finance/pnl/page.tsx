@@ -57,6 +57,7 @@ async function Pnl({ params, searchParams }: PageProps<"/[lang]/finance/pnl">) {
           <li>{P.note2}</li>
           <li>{P.note3}</li>
           <li>{P.note4}</li>
+          <li>{P.note5}</li>
         </ul>
       </details>
     </>

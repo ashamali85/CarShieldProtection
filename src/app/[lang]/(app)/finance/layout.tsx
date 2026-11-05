@@ -14,6 +14,7 @@ export default async function FinanceLayout({ children }: LayoutProps<"/[lang]/f
     { href: `${base}/pnl`, label: T.tabs.pnl },
     { href: `${base}/cashflow`, label: T.tabs.cashflow },
     { href: `${base}/expenses`, label: T.tabs.expenses },
+    { href: `${base}/contracts`, label: T.tabs.contracts },
     { href: `${base}/money`, label: T.tabs.money },
     { href: `${base}/settings`, label: T.tabs.settings },
   ];

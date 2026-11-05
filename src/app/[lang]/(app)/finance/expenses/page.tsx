@@ -114,6 +114,16 @@ async function Expenses({ params, searchParams }: PageProps<"/[lang]/finance/exp
                               {[r.vendor, r.reference].filter(Boolean).join(" · ")}
                             </span>
                           )}
+                          {r.periodFrom && r.periodTo && (
+                            <span className="num block text-xs text-brand-700">
+                              {X.covers.replace("{from}", formatDate(r.periodFrom, lang)).replace("{to}", formatDate(r.periodTo, lang))}
+                            </span>
+                          )}
+                          {r.contractId && (
+                            <Link href={`/${lang}/finance/contracts/${r.contractId}`} className="badge mt-1 bg-brand-50 text-brand-800 hover:underline">
+                              {t.finance.contracts.title}
+                            </Link>
+                          )}
                         </td>
                         <td className="text-muted">{t.invoices.methods[r.method]}</td>
                         <td className="num text-end font-medium">{money(r.amountFils)}</td>
