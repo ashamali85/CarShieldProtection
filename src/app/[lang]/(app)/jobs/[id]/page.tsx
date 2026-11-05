@@ -110,7 +110,7 @@ async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="grid content-start gap-6 lg:col-span-2">
+        <div className="grid min-w-0 content-start gap-6 [&>*]:min-w-0 lg:col-span-2">
           <section className="card">
             <h2 className="section-title border-b border-line px-4 py-3 sm:px-6">{t.jobs.services}</h2>
             <div className="table-wrap">
@@ -286,7 +286,7 @@ async function JobDetail({ params }: PageProps<"/[lang]/jobs/[id]">) {
           </section>
         </div>
 
-        <aside className="grid content-start gap-6">
+        <aside className="grid min-w-0 content-start gap-6 [&>*]:min-w-0">
           <section className="card card-pad">
             <h2 className="section-title mb-3">{t.jobs.customer}</h2>
             <Link href={`/${lang}/customers/${customer.id}`} className="link">

@@ -311,6 +311,14 @@ export const inventoryMovements = pgTable(
     jobId: uuid("job_id").references(() => jobs.id, { onDelete: "set null" }),
     jobItemId: uuid("job_item_id").references(() => jobItems.id, { onDelete: "set null" }),
     note: text("note"),
+    /**
+     * Cost per unit (fils per whole unit) at the time of the movement: the purchase price for a
+     * restock, the item's average cost for everything else. Null on rows recorded before costs.
+     */
+    unitCostFils: integer("unit_cost_fils"),
+    /** Restocks only: who it was bought from and how it was paid. */
+    supplier: text("supplier"),
+    paidWith: paymentMethod("paid_with"),
     userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -523,6 +531,71 @@ export type SeparationReason = (typeof separationReason.enumValues)[number];
 export type LeaveStatus = (typeof leaveStatus.enumValues)[number];
 export type PayrollStatus = (typeof payrollStatus.enumValues)[number];
 
+// ─────────────────────────── Finance ───────────────────────────
+
+/** "operating" costs go to the P&L; "asset" purchases (equipment) only to the cash flow as investing. */
+export const expenseKind = pgEnum("expense_kind", ["operating", "asset"]);
+export const cashEntryKind = pgEnum("cash_entry_kind", ["capital_in", "owner_drawing", "loan_received", "loan_repayment", "other_income"]);
+
+export const expenseCategories = pgTable("expense_categories", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  nameEn: text("name_en").notNull(),
+  nameAr: text("name_ar").notNull(),
+  kind: expenseKind("kind").notNull().default("operating"),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const expenses = pgTable(
+  "expenses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    date: date("date").notNull(),
+    categoryId: uuid("category_id")
+      .notNull()
+      .references(() => expenseCategories.id, { onDelete: "restrict" }),
+    description: text("description").notNull(),
+    amountFils: integer("amount_fils").notNull(),
+    method: paymentMethod("method").notNull(),
+    vendor: text("vendor"),
+    reference: text("reference"),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("expenses_date_idx").on(t.date), index("expenses_category_idx").on(t.categoryId)],
+);
+
+/** Money in or out that is neither a sale nor an expense: owner capital, drawings, loans, other income. */
+export const cashEntries = pgTable(
+  "cash_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    date: date("date").notNull(),
+    kind: cashEntryKind("kind").notNull(),
+    amountFils: integer("amount_fils").notNull(),
+    method: paymentMethod("method").notNull(),
+    description: text("description"),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("cash_entries_date_idx").on(t.date)],
+);
+
+/** Opening cash position the cash-flow statement starts from. One row, id = 1. */
+export const financeSettings = pgTable("finance_settings", {
+  id: integer("id").primaryKey().default(1),
+  openingCashFils: integer("opening_cash_fils").notNull().default(0),
+  openingDate: date("opening_date").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ExpenseCategory = typeof expenseCategories.$inferSelect;
+export type Expense = typeof expenses.$inferSelect;
+export type CashEntry = typeof cashEntries.$inferSelect;
+export type CashEntryKind = (typeof cashEntryKind.enumValues)[number];
+export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
+
 export type CarMake = typeof carMakes.$inferSelect;
 export type CarModel = typeof carModels.$inferSelect;
 export type BodyType = (typeof bodyType.enumValues)[number];
@@ -536,5 +609,4 @@ export type Warranty = typeof warranties.$inferSelect;
 export type JobStatus = (typeof jobStatus.enumValues)[number];
 export type UserRole = (typeof userRole.enumValues)[number];
 export type ServiceCategory = (typeof serviceCategory.enumValues)[number];
-export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
 export type InvoiceStatus = (typeof invoiceStatus.enumValues)[number];

@@ -2,7 +2,7 @@ import "server-only";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { Db } from "@/db";
-import type { MovementReason } from "@/db/schema";
+import type { MovementReason, PaymentMethod } from "@/db/schema";
 
 /** Records a stock change and updates the cached on-hand quantity. */
 export async function moveStock(
@@ -15,9 +15,21 @@ export async function moveStock(
     jobId?: string | null;
     jobItemId?: string | null;
     note?: string | null;
+    /** Restocks: the purchase price per whole unit. Updates the item's average cost. */
+    purchaseUnitCostFils?: number | null;
+    /** Value this movement at a given cost instead of the current average (used for job reversals). */
+    unitCostOverrideFils?: number | null;
+    supplier?: string | null;
+    paidWith?: PaymentMethod | null;
   },
 ) {
   if (m.deltaMilli === 0) return;
+  const [item] = await db
+    .select({ onHand: schema.inventoryItems.onHandMilli, cost: schema.inventoryItems.unitCostFils })
+    .from(schema.inventoryItems)
+    .where(eq(schema.inventoryItems.id, m.itemId))
+    .limit(1);
+  const purchase = m.reason === "restock" && m.purchaseUnitCostFils != null && m.deltaMilli > 0 ? m.purchaseUnitCostFils : null;
   await db.insert(schema.inventoryMovements).values({
     itemId: m.itemId,
     deltaMilli: m.deltaMilli,
@@ -26,10 +38,20 @@ export async function moveStock(
     jobId: m.jobId ?? null,
     jobItemId: m.jobItemId ?? null,
     note: m.note ?? null,
+    // Purchases are valued at what was paid; everything else at the item's average cost.
+    unitCostFils: purchase ?? m.unitCostOverrideFils ?? item?.cost ?? null,
+    supplier: m.supplier ?? null,
+    paidWith: m.paidWith ?? null,
   });
+  // Weighted average cost: stock on hand at the old average plus the new purchase.
+  let newCost: number | undefined;
+  if (purchase !== null && item) {
+    const before = Math.max(0, item.onHand);
+    newCost = item.cost == null || before === 0 ? purchase : Math.round((before * item.cost + m.deltaMilli * purchase) / (before + m.deltaMilli));
+  }
   await db
     .update(schema.inventoryItems)
-    .set({ onHandMilli: sql`${schema.inventoryItems.onHandMilli} + ${m.deltaMilli}` })
+    .set({ onHandMilli: sql`${schema.inventoryItems.onHandMilli} + ${m.deltaMilli}`, ...(newCost !== undefined ? { unitCostFils: newCost } : {}) })
     .where(eq(schema.inventoryItems.id, m.itemId));
 }
 
@@ -71,6 +93,9 @@ export async function restoreJobStock(db: Db, jobId: string, userId: string, job
       itemId: schema.inventoryMovements.itemId,
       jobItemId: schema.inventoryMovements.jobItemId,
       total: sql<number>`sum(${schema.inventoryMovements.deltaMilli})::int`,
+      /** Cost value of what was consumed, so a reversal puts it back at the same cost. */
+      value: sql<number>`sum(${schema.inventoryMovements.deltaMilli}::bigint * ${schema.inventoryMovements.unitCostFils})::float8`,
+      costed: sql<number>`count(${schema.inventoryMovements.unitCostFils})::int`,
     })
     .from(schema.inventoryMovements)
     .where(
@@ -91,6 +116,7 @@ export async function restoreJobStock(db: Db, jobId: string, userId: string, job
         jobId,
         jobItemId: row.jobItemId,
         userId,
+        unitCostOverrideFils: row.costed > 0 && row.value != null ? Math.round(row.value / row.total) : null,
       });
     }
   }

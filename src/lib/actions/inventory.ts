@@ -56,8 +56,23 @@ export async function receiveStock(_: ActionState, formData: FormData): Promise<
   const itemId = str(formData, "itemId");
   const qty = qtyToMilli(str(formData, "quantity"));
   if (!UUID_RE.test(itemId) || !qty || qty <= 0) return { error: t(lang).inventory.invalidQty };
+  const costRaw = str(formData, "totalCost");
+  const total = costRaw === "" ? null : kwdToFils(costRaw);
+  if (costRaw !== "" && total === null) return { error: t(lang).inventory.invalidCost };
+  const method = str(formData, "paidWith");
+  const paidWith = (["cash", "knet", "card", "transfer"] as const).find((m) => m === method) ?? null;
   const db = await getDb();
-  await moveStock(db, { itemId, deltaMilli: qty, reason: "restock", userId: user.id, note: optStr(formData, "note") });
+  await moveStock(db, {
+    itemId,
+    deltaMilli: qty,
+    reason: "restock",
+    userId: user.id,
+    note: optStr(formData, "note"),
+    // Price per whole unit = total paid ÷ quantity received.
+    purchaseUnitCostFils: total === null ? null : Math.round((total * 1000) / qty),
+    supplier: optStr(formData, "supplier"),
+    paidWith: total === null ? null : (paidWith ?? "cash"),
+  });
   refresh();
   return undefined;
 }

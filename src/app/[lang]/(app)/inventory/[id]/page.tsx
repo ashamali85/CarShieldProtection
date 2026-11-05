@@ -70,7 +70,7 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="grid content-start gap-6 lg:col-span-2">
+        <div className="grid min-w-0 content-start gap-6 [&>*]:min-w-0 lg:col-span-2">
           <section className="card card-pad">
             <DefinitionList
               items={[
@@ -157,12 +157,36 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
           </section>
         </div>
 
-        <aside className="grid content-start gap-6">
+        <aside className="grid min-w-0 content-start gap-6 [&>*]:min-w-0">
           <section className="card card-pad">
             <h2 className="section-title">{t.inventory.receive}</h2>
             <p className="mb-4 text-sm text-muted">{t.inventory.receiveHint}</p>
             <ActionForm action={receiveStock} hidden={{ lang, itemId: id }} className="space-y-4">
               <Field label={`${t.inventory.quantity} (${unit})`} name="quantity" required inputMode="decimal" dir="ltr" />
+              <Field
+                label={t.inventory.totalCost}
+                name="totalCost"
+                inputMode="decimal"
+                dir="ltr"
+                placeholder="0.000"
+                hint={t.inventory.totalCostHint}
+                optionalLabel={t.common.optional}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <Field label={t.inventory.supplier} name="supplier" optionalLabel={t.common.optional} />
+                <div>
+                  <label htmlFor="f-paidWith" className="label">
+                    {t.inventory.paidWith}
+                  </label>
+                  <select id="f-paidWith" name="paidWith" className="input" defaultValue="cash">
+                    {(["cash", "knet", "card", "transfer"] as const).map((m) => (
+                      <option key={m} value={m}>
+                        {t.invoices.methods[m]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <Field label={t.inventory.note} name="note" optionalLabel={t.common.optional} />
               <SubmitButton className="btn-primary w-full" pendingLabel={t.common.saving}>
                 {t.inventory.receive}

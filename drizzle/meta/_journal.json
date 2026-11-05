@@ -36,6 +36,13 @@
       "when": 1793560480159,
       "tag": "0004_hr",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793895842688,
+      "tag": "0005_finance",
+      "breakpoints": true
     }
   ]
 }
