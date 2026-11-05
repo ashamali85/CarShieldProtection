@@ -15,21 +15,30 @@ export async function moveStock(
     jobId?: string | null;
     jobItemId?: string | null;
     note?: string | null;
-    /** Restocks: the purchase price per whole unit. Updates the item's average cost. */
-    purchaseUnitCostFils?: number | null;
-    /** Value this movement at a given cost instead of the current average (used for job reversals). */
-    unitCostOverrideFils?: number | null;
+    /** Restocks: exactly what was paid for this delivery, in fils. Updates the item's average cost. */
+    purchaseTotalFils?: number | null;
+    /**
+     * Value this movement at a given cost per unit instead of the current average (job reversals
+     * put stock back at the cost it was taken out at). "uncosted" keeps it without a cost.
+     */
+    unitCostOverrideFils?: number | "uncosted" | null;
     supplier?: string | null;
     paidWith?: PaymentMethod | null;
   },
 ) {
   if (m.deltaMilli === 0) return;
   const [item] = await db
-    .select({ onHand: schema.inventoryItems.onHandMilli, cost: schema.inventoryItems.unitCostFils })
+    .select({ avg: schema.inventoryItems.avgCostFils, cost: schema.inventoryItems.unitCostFils })
     .from(schema.inventoryItems)
     .where(eq(schema.inventoryItems.id, m.itemId))
     .limit(1);
-  const purchase = m.reason === "restock" && m.purchaseUnitCostFils != null && m.deltaMilli > 0 ? m.purchaseUnitCostFils : null;
+  const isPurchase = m.reason === "restock" && m.purchaseTotalFils != null && m.deltaMilli > 0;
+  // Cost per whole unit, unrounded: 12.345 KWD for 5,000 ml is 2.469 fils per ml.
+  const purchaseUnit = isPurchase ? (m.purchaseTotalFils! * 1000) / m.deltaMilli : null;
+  const current = item?.avg ?? item?.cost ?? null;
+  const unitCost =
+    purchaseUnit ?? (m.unitCostOverrideFils === "uncosted" ? null : (m.unitCostOverrideFils ?? current));
+
   await db.insert(schema.inventoryMovements).values({
     itemId: m.itemId,
     deltaMilli: m.deltaMilli,
@@ -38,21 +47,30 @@ export async function moveStock(
     jobId: m.jobId ?? null,
     jobItemId: m.jobItemId ?? null,
     note: m.note ?? null,
-    // Purchases are valued at what was paid; everything else at the item's average cost.
-    unitCostFils: purchase ?? m.unitCostOverrideFils ?? item?.cost ?? null,
+    unitCostFils: unitCost,
+    totalCostFils: isPurchase ? m.purchaseTotalFils! : null,
     supplier: m.supplier ?? null,
-    paidWith: m.paidWith ?? null,
+    paidWith: isPurchase ? (m.paidWith ?? "cash") : null,
   });
-  // Weighted average cost: stock on hand at the old average plus the new purchase.
-  let newCost: number | undefined;
-  if (purchase !== null && item) {
-    const before = Math.max(0, item.onHand);
-    newCost = item.cost == null || before === 0 ? purchase : Math.round((before * item.cost + m.deltaMilli * purchase) / (before + m.deltaMilli));
+
+  const items = schema.inventoryItems;
+  if (purchaseUnit !== null) {
+    // One atomic statement, so two deliveries at once can't average against a stale quantity.
+    // Weighted average: stock on hand (never below zero) at the old average plus this purchase.
+    const avg = sql`case when ${items.onHandMilli} <= 0 or coalesce(${items.avgCostFils}, ${items.unitCostFils}) is null
+      then ${purchaseUnit}::float8
+      else (${items.onHandMilli}::float8 * coalesce(${items.avgCostFils}, ${items.unitCostFils}) + ${m.deltaMilli}::float8 * ${purchaseUnit}::float8)
+           / (${items.onHandMilli} + ${m.deltaMilli}) end`;
+    await db
+      .update(items)
+      .set({ onHandMilli: sql`${items.onHandMilli} + ${m.deltaMilli}`, avgCostFils: avg, unitCostFils: sql`round(${avg})::int` })
+      .where(eq(items.id, m.itemId));
+  } else {
+    await db
+      .update(items)
+      .set({ onHandMilli: sql`${items.onHandMilli} + ${m.deltaMilli}` })
+      .where(eq(items.id, m.itemId));
   }
-  await db
-    .update(schema.inventoryItems)
-    .set({ onHandMilli: sql`${schema.inventoryItems.onHandMilli} + ${m.deltaMilli}`, ...(newCost !== undefined ? { unitCostFils: newCost } : {}) })
-    .where(eq(schema.inventoryItems.id, m.itemId));
 }
 
 /** Deducts the materials of the given job items, using each service's current material list. */
@@ -116,7 +134,8 @@ export async function restoreJobStock(db: Db, jobId: string, userId: string, job
         jobId,
         jobItemId: row.jobItemId,
         userId,
-        unitCostOverrideFils: row.costed > 0 && row.value != null ? Math.round(row.value / row.total) : null,
+        // Same cost it was taken out at (unrounded); uncosted usage stays uncosted.
+        unitCostOverrideFils: row.costed > 0 && row.value != null ? row.value / row.total : "uncosted",
       });
     }
   }

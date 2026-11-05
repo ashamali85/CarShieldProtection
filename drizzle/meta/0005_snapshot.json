@@ -1,5 +1,5 @@
 {
-  "id": "5ff5bd38-21bb-4fc3-b5d5-e90223a62969",
+  "id": "4141c8bb-8fff-4b12-b622-6f07631a309f",
   "prevId": "edfd301d-19a2-423f-9799-59fe4fe34b78",
   "version": "7",
   "dialect": "postgresql",
@@ -948,6 +948,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "avg_cost_fils": {
+          "name": "avg_cost_fils",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
         "active": {
           "name": "active",
           "type": "boolean",
@@ -1021,6 +1027,12 @@
         },
         "unit_cost_fils": {
           "name": "unit_cost_fils",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_cost_fils": {
+          "name": "total_cost_fils",
           "type": "integer",
           "primaryKey": false,
           "notNull": false

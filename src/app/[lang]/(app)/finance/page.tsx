@@ -5,7 +5,7 @@ import { formatMoney } from "@/i18n";
 import { pageContext } from "@/lib/page";
 import { todayKuwait } from "@/lib/dates";
 import { addDaysIso } from "@/lib/hr";
-import { cashAt, financeReport, receivables } from "@/lib/finance";
+import { cashAt, financeReport, getFinanceSettings, receivables } from "@/lib/finance";
 import { parsePeriod, periodQuery, previousPeriod } from "@/lib/period";
 import { periodLabels, periodTitle, pickerYears } from "@/lib/finance-ui";
 import { pct } from "@/lib/finance-lines";
@@ -42,10 +42,13 @@ async function Dashboard({ params, searchParams }: PageProps<"/[lang]/finance">)
   const db = await getDb();
   const yearFrom = `${period.year}-01-01`;
   const yearTo = `${period.year}-12-31`;
+  // Cash figures count only from the opening-balance date, matching the cash-flow page.
+  const { openingDate } = await getFinanceSettings(db);
+  const opt = { cashFrom: openingDate };
   const [cur, prev, year, cashNow, owed, years] = await Promise.all([
-    financeReport(db, period.from, period.to),
-    financeReport(db, prevRange.from, prevRange.to),
-    financeReport(db, yearFrom, yearTo),
+    financeReport(db, period.from, period.to, opt),
+    financeReport(db, prevRange.from, prevRange.to, opt),
+    financeReport(db, yearFrom, yearTo, opt),
     cashAt(db, addDaysIso(today, 1)),
     receivables(db),
     pickerYears(db, +today.slice(0, 4)),

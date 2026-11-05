@@ -11,6 +11,7 @@ import {
   index,
   uniqueIndex,
   jsonb,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -278,6 +279,11 @@ export const inventoryItems = pgTable("inventory_items", {
   onHandMilli: integer("on_hand_milli").notNull().default(0),
   reorderLevelMilli: integer("reorder_level_milli").notNull().default(0),
   unitCostFils: integer("unit_cost_fils"),
+  /**
+   * Weighted-average cost per unit, kept unrounded (fractions of a fils matter for cheap units
+   * such as ml). Falls back to unitCostFils when no purchase has been recorded with a price.
+   */
+  avgCostFils: doublePrecision("avg_cost_fils"),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -315,7 +321,9 @@ export const inventoryMovements = pgTable(
      * Cost per unit (fils per whole unit) at the time of the movement: the purchase price for a
      * restock, the item's average cost for everything else. Null on rows recorded before costs.
      */
-    unitCostFils: integer("unit_cost_fils"),
+    unitCostFils: doublePrecision("unit_cost_fils"),
+    /** Restocks only: exactly what was paid for the delivery (used for cash flow). */
+    totalCostFils: integer("total_cost_fils"),
     /** Restocks only: who it was bought from and how it was paid. */
     supplier: text("supplier"),
     paidWith: paymentMethod("paid_with"),

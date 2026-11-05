@@ -38,10 +38,13 @@ export async function saveInventoryItem(_: ActionState, formData: FormData): Pro
 
   const db = await getDb();
   if (UUID_RE.test(id)) {
-    await db.update(schema.inventoryItems).set(values).where(eq(schema.inventoryItems.id, id));
+    const [before] = await db.select({ cost: schema.inventoryItems.unitCostFils }).from(schema.inventoryItems).where(eq(schema.inventoryItems.id, id)).limit(1);
+    // A hand-entered cost replaces the running average; an unchanged one keeps its precision.
+    const avg = before && before.cost !== unitCostFils ? { avgCostFils: unitCostFils } : {};
+    await db.update(schema.inventoryItems).set({ ...values, ...avg }).where(eq(schema.inventoryItems.id, id));
     redirect(`/${lang}/inventory/${id}`);
   }
-  const [item] = await db.insert(schema.inventoryItems).values(values).returning({ id: schema.inventoryItems.id });
+  const [item] = await db.insert(schema.inventoryItems).values({ ...values, avgCostFils: unitCostFils }).returning({ id: schema.inventoryItems.id });
   const opening = qtyToMilli(str(formData, "openingStock"));
   if (opening) {
     await moveStock(db, { itemId: item.id, deltaMilli: opening, reason: "restock", userId: user.id, note: dict.inventory.openingStock });
@@ -68,10 +71,9 @@ export async function receiveStock(_: ActionState, formData: FormData): Promise<
     reason: "restock",
     userId: user.id,
     note: optStr(formData, "note"),
-    // Price per whole unit = total paid ÷ quantity received.
-    purchaseUnitCostFils: total === null ? null : Math.round((total * 1000) / qty),
+    purchaseTotalFils: total,
     supplier: optStr(formData, "supplier"),
-    paidWith: total === null ? null : (paidWith ?? "cash"),
+    paidWith: paidWith ?? "cash",
   });
   refresh();
   return undefined;

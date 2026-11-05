@@ -1,9 +1,9 @@
 import "server-only";
-import { and, eq, gte, inArray, isNotNull, lt, lte, ne, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, lt, lte, ne, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import type { CashEntryKind, PaymentMethod } from "@/db/schema";
 import { kuwaitDayRange } from "@/lib/dates";
-import { addDaysIso } from "@/lib/hr";
+import { addDaysIso, daysInMonth, overlapDays } from "@/lib/hr";
 
 type Db = Awaited<ReturnType<typeof getDb>>;
 type ServiceCategory = "ppf" | "ceramic" | "tint" | "detailing" | "other";
@@ -158,7 +158,9 @@ export type FinanceReport = {
  * Builds month-by-month P&L and cash-flow figures for [from, to] (Kuwait calendar dates,
  * inclusive) from invoices, payments, stock movements, expenses, payroll and cash entries.
  */
-export async function financeReport(db: Db, from: string, to: string): Promise<FinanceReport> {
+export async function financeReport(db: Db, from: string, to: string, opts: { cashFrom?: string } = {}): Promise<FinanceReport> {
+  // Cash is only tracked from the opening-balance date; P&L figures are not limited by it.
+  const cashFrom = opts.cashFrom ?? "0000-01-01";
   const start = kuwaitDayRange(from)[0];
   const end = kuwaitDayRange(to)[1];
   const keys = monthsBetween(from, to);
@@ -187,6 +189,7 @@ export async function financeReport(db: Db, from: string, to: string): Promise<F
         delta: schema.inventoryMovements.deltaMilli,
         reason: schema.inventoryMovements.reason,
         cost: schema.inventoryMovements.unitCostFils,
+        total: schema.inventoryMovements.totalCostFils,
         paidWith: schema.inventoryMovements.paidWith,
         at: schema.inventoryMovements.createdAt,
       })
@@ -225,20 +228,28 @@ export async function financeReport(db: Db, from: string, to: string): Promise<F
     const m = at(kuwaitDate(l.issuedAt));
     if (m) m.revenueByCategory[(l.category ?? "other") as ServiceCategory] += l.amount;
   }
+  const linesByInvoice = new Map<string, number>();
+  for (const l of invoiceLines) linesByInvoice.set(l.invoiceId, (linesByInvoice.get(l.invoiceId) ?? 0) + l.amount);
   for (const inv of invoices) {
     const m = at(kuwaitDate(inv.issuedAt));
     if (!m) continue;
     m.discounts += inv.discount;
     // If an invoice's subtotal differs from its lines (e.g. lines edited later), book the gap as "other".
-    const lines = invoiceLines.filter((l) => l.invoiceId === inv.id).reduce((a, l) => a + l.amount, 0);
+    const lines = linesByInvoice.get(inv.id) ?? 0;
     if (lines !== inv.subtotal) m.revenueByCategory.other += inv.subtotal - lines;
   }
 
   // Stock: materials used by jobs (cost of sales), count corrections, and paid purchases.
   const uncosted = new Set<string>();
   for (const mv of movements) {
-    const m = at(kuwaitDate(mv.at));
+    const day = kuwaitDate(mv.at);
+    const m = at(day);
     if (!m) continue;
+    // Purchases: cash out is exactly what was paid for the delivery.
+    if (mv.reason === "restock" && mv.paidWith && mv.total != null) {
+      if (day >= cashFrom) m.cash.suppliers += mv.total;
+      continue;
+    }
     if (mv.cost == null) {
       if (mv.reason === "job") uncosted.add(mv.itemId);
       continue;
@@ -246,7 +257,6 @@ export async function financeReport(db: Db, from: string, to: string): Promise<F
     const value = stockValue(mv.delta, mv.cost);
     if (mv.reason === "job" || mv.reason === "job_reversal") m.materials -= value;
     else if (mv.reason === "adjustment") m.stockLoss -= value;
-    else if (mv.reason === "restock" && mv.paidWith) m.cash.suppliers += value;
   }
 
   const kindOf = new Map(categories.map((c) => [c.id, c]));
@@ -254,24 +264,32 @@ export async function financeReport(db: Db, from: string, to: string): Promise<F
     const m = at(e.date);
     const cat = kindOf.get(e.categoryId);
     if (!m || !cat) continue;
-    if (cat.kind === "asset") m.cash.equipment += e.amountFils;
-    else {
+    const inCash = e.date >= cashFrom;
+    if (cat.kind === "asset") {
+      if (inCash) m.cash.equipment += e.amountFils;
+    } else {
       m.opexByCategory[cat.code] = (m.opexByCategory[cat.code] ?? 0) + e.amountFils;
-      m.cash.expenses += e.amountFils;
+      if (inCash) m.cash.expenses += e.amountFils;
     }
   }
 
   // Payroll: cost in the payroll month; cash when the run is marked paid.
   for (const r of runs) {
-    const m = months.get(`${r.year}-${String(r.month).padStart(2, "0")}`);
+    const key = `${r.year}-${String(r.month).padStart(2, "0")}`;
+    const m = months.get(key);
     if (m) {
-      m.payrollFixed += r.fixed;
-      m.payrollExtra += r.extra;
-      m.employerPifss += r.employerPifss;
+      // A month's payroll is spread evenly over its days, so a range covering part of a month
+      // (custom periods) carries only that share. Whole months get all of it.
+      const dim = daysInMonth(r.year, r.month);
+      const share = overlapDays(`${key}-01`, `${key}-${String(dim).padStart(2, "0")}`, from, to) / dim;
+      m.payrollFixed += r.fixed * share;
+      m.payrollExtra += r.extra * share;
+      m.employerPifss += r.employerPifss * share;
     }
     if (r.status === "paid" && r.paidAt) {
-      const pm = at(kuwaitDate(r.paidAt));
-      if (pm && kuwaitDate(r.paidAt) >= from && kuwaitDate(r.paidAt) <= to) {
+      const paidDay = kuwaitDate(r.paidAt);
+      const pm = at(paidDay);
+      if (pm && paidDay >= from && paidDay <= to && paidDay >= cashFrom) {
         pm.cash.salaries += r.net;
         pm.cash.pifss += r.employeePifss + r.employerPifss;
       }
@@ -279,8 +297,9 @@ export async function financeReport(db: Db, from: string, to: string): Promise<F
   }
 
   for (const p of payments) {
-    const m = at(kuwaitDate(p.at));
-    if (m) m.cash.fromCustomers[p.method] += p.amount;
+    const day = kuwaitDate(p.at);
+    const m = at(day);
+    if (m && day >= cashFrom) m.cash.fromCustomers[p.method] += p.amount;
   }
 
   const entryField: Record<CashEntryKind, "capitalIn" | "drawings" | "loansIn" | "loansOut" | "otherIncome"> = {
@@ -293,7 +312,7 @@ export async function financeReport(db: Db, from: string, to: string): Promise<F
   for (const e of entries) {
     const m = at(e.date);
     if (!m) continue;
-    m.cash[entryField[e.kind]] += e.amountFils;
+    if (e.date >= cashFrom) m.cash[entryField[e.kind]] += e.amountFils;
     if (e.kind === "other_income") m.otherIncome += e.amountFils;
   }
 
@@ -301,7 +320,9 @@ export async function financeReport(db: Db, from: string, to: string): Promise<F
   for (const m of months.values()) {
     m.materials = Math.round(m.materials);
     m.stockLoss = Math.round(m.stockLoss);
-    m.cash.suppliers = Math.round(m.cash.suppliers);
+    m.payrollFixed = Math.round(m.payrollFixed);
+    m.payrollExtra = Math.round(m.payrollExtra);
+    m.employerPifss = Math.round(m.employerPifss);
     finish(m);
   }
   const list = keys.map((key) => ({ key, figures: months.get(key)! }));
@@ -320,19 +341,21 @@ export async function getFinanceSettings(db: Db) {
 export async function cashAt(db: Db, date: string): Promise<number> {
   const s = await getFinanceSettings(db);
   if (date <= s.openingDate) return s.openingCashFils;
-  const before = await financeReport(db, s.openingDate, addDaysIso(date, -1));
+  const before = await financeReport(db, s.openingDate, addDaysIso(date, -1), { cashFrom: s.openingDate });
   return s.openingCashFils + before.total.cash.net;
 }
 
-/** Unpaid invoice balances today (all time, excluding void invoices). */
+/** Unpaid invoice balances today (all time, excluding void invoices). Overpaid invoices count as zero. */
 export async function receivables(db: Db): Promise<number> {
-  const [[inv], [paid]] = await Promise.all([
-    db.select({ v: sql<number>`coalesce(sum(${schema.invoices.totalFils}), 0)::bigint` }).from(schema.invoices).where(ne(schema.invoices.status, "void")),
-    db
-      .select({ v: sql<number>`coalesce(sum(${schema.payments.amountFils}), 0)::bigint` })
-      .from(schema.payments)
-      .innerJoin(schema.invoices, eq(schema.payments.invoiceId, schema.invoices.id))
-      .where(and(ne(schema.invoices.status, "void"), isNotNull(schema.payments.amountFils))),
-  ]);
-  return Number(inv.v) - Number(paid.v);
+  const paid = db
+    .select({ invoiceId: schema.payments.invoiceId, amount: sql<number>`sum(${schema.payments.amountFils})`.as("amount") })
+    .from(schema.payments)
+    .groupBy(schema.payments.invoiceId)
+    .as("paid");
+  const [row] = await db
+    .select({ v: sql<number>`coalesce(sum(greatest(${schema.invoices.totalFils} - coalesce(${paid.amount}, 0), 0)), 0)::bigint` })
+    .from(schema.invoices)
+    .leftJoin(paid, eq(paid.invoiceId, schema.invoices.id))
+    .where(ne(schema.invoices.status, "void"));
+  return Number(row.v);
 }

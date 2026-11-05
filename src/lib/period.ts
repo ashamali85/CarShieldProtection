@@ -6,6 +6,8 @@ export type Period = { kind: PeriodKind; from: string; to: string; year: number;
 const pad = (n: number) => String(n).padStart(2, "0");
 const iso = (y: number, m: number, d: number) => `${y}-${pad(m)}-${pad(d)}`;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+/** A real calendar date (rejects 2026-02-31) within a sensible range. */
+const validDate = (d: string) => DATE.test(d) && +d.slice(0, 4) >= 2000 && +d.slice(0, 4) <= 2100 && new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) === d;
 
 /** Reads ?p=month|quarter|year|custom&y=&m=&q=&from=&to= into a date range, defaulting to the current month. */
 export function parsePeriod(sp: Record<string, string | string[] | undefined>, today: string, fallback: PeriodKind = "month"): Period {
@@ -14,7 +16,8 @@ export function parsePeriod(sp: Record<string, string | string[] | undefined>, t
     return (Array.isArray(v) ? v[0] : v) ?? "";
   };
   const kind = (["month", "quarter", "year", "custom"] as const).find((k) => k === one("p")) ?? fallback;
-  const y = Number(one("y")) || +today.slice(0, 4);
+  const yRaw = Number(one("y"));
+  const y = Number.isInteger(yRaw) && yRaw >= 2000 && yRaw <= 2100 ? yRaw : +today.slice(0, 4);
   const m = Math.min(12, Math.max(1, Number(one("m")) || +today.slice(5, 7)));
   const q = Math.min(4, Math.max(1, Number(one("q")) || Math.ceil(+today.slice(5, 7) / 3)));
   if (kind === "year") return { kind, from: iso(y, 1, 1), to: iso(y, 12, 31), year: y, month: m, quarter: q };
@@ -25,8 +28,8 @@ export function parsePeriod(sp: Record<string, string | string[] | undefined>, t
   if (kind === "custom") {
     let from = one("from");
     let to = one("to");
-    if (!DATE.test(from)) from = iso(y, m, 1);
-    if (!DATE.test(to)) to = today;
+    if (!validDate(from)) from = iso(y, m, 1);
+    if (!validDate(to)) to = today;
     if (to < from) [from, to] = [to, from];
     return { kind, from, to, year: +from.slice(0, 4), month: +from.slice(5, 7), quarter: q };
   }

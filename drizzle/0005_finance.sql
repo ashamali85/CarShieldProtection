@@ -42,7 +42,9 @@ CREATE TABLE "finance_settings" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "inventory_movements" ADD COLUMN "unit_cost_fils" integer;--> statement-breakpoint
+ALTER TABLE "inventory_items" ADD COLUMN "avg_cost_fils" double precision;--> statement-breakpoint
+ALTER TABLE "inventory_movements" ADD COLUMN "unit_cost_fils" double precision;--> statement-breakpoint
+ALTER TABLE "inventory_movements" ADD COLUMN "total_cost_fils" integer;--> statement-breakpoint
 ALTER TABLE "inventory_movements" ADD COLUMN "supplier" text;--> statement-breakpoint
 ALTER TABLE "inventory_movements" ADD COLUMN "paid_with" "payment_method";--> statement-breakpoint
 ALTER TABLE "cash_entries" ADD CONSTRAINT "cash_entries_created_by_id_users_id_fk" FOREIGN KEY ("created_by_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -50,7 +52,8 @@ ALTER TABLE "expenses" ADD CONSTRAINT "expenses_category_id_expense_categories_i
 ALTER TABLE "expenses" ADD CONSTRAINT "expenses_created_by_id_users_id_fk" FOREIGN KEY ("created_by_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "cash_entries_date_idx" ON "cash_entries" USING btree ("date");--> statement-breakpoint
 CREATE INDEX "expenses_date_idx" ON "expenses" USING btree ("date");--> statement-breakpoint
-CREATE INDEX "expenses_category_idx" ON "expenses" USING btree ("category_id");--> statement-breakpoint
+CREATE INDEX "expenses_category_idx" ON "expenses" USING btree ("category_id");
+--> statement-breakpoint
 INSERT INTO "expense_categories" ("code", "name_en", "name_ar", "kind", "sort_order") VALUES
 ('rent', 'Rent', 'الإيجار', 'operating', 1),
 ('utilities', 'Electricity & water', 'الكهرباء والماء', 'operating', 2),
@@ -71,3 +74,6 @@ ON CONFLICT ("code") DO NOTHING;
 INSERT INTO "finance_settings" ("id", "opening_cash_fils", "opening_date") VALUES (1, 0, '2026-01-01') ON CONFLICT DO NOTHING;
 --> statement-breakpoint
 UPDATE "inventory_movements" m SET "unit_cost_fils" = i."unit_cost_fils" FROM "inventory_items" i WHERE m."item_id" = i."id" AND m."unit_cost_fils" IS NULL AND i."unit_cost_fils" IS NOT NULL;
+
+--> statement-breakpoint
+UPDATE "inventory_items" SET "avg_cost_fils" = "unit_cost_fils" WHERE "unit_cost_fils" IS NOT NULL AND "avg_cost_fils" IS NULL;
