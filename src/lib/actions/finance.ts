@@ -12,7 +12,13 @@ import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 /** A real calendar date between 2000 and 2100 (rejects 2026-02-31). */
-const DATE = { test: (v: string) => DATE_RE.test(v) && v >= "2000-01-01" && v <= "2100-12-31" && new Date(`${v}T00:00:00Z`).toISOString().startsWith(v) };
+const DATE = {
+  test: (v: string) => {
+    if (!DATE_RE.test(v) || v < "2000-01-01" || v > "2100-12-31") return false;
+    const d = new Date(`${v}T00:00:00Z`);
+    return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(v);
+  },
+};
 const METHODS: PaymentMethod[] = ["cash", "knet", "card", "transfer"];
 const KINDS: CashEntryKind[] = ["capital_in", "owner_drawing", "loan_received", "loan_repayment", "other_income", "deposit_paid", "deposit_refund"];
 const method = (fd: FormData) => METHODS.find((m) => m === str(fd, "method")) ?? null;
@@ -133,6 +139,11 @@ export async function saveExpenseCategory(_: ActionState, fd: FormData): Promise
     .where(and(eq(schema.expenseCategories.nameEn, nameEn), UUID_RE.test(id) ? ne(schema.expenseCategories.id, id) : undefined))
     .limit(1);
   if (clash) return { error: S.exists };
+  if (UUID_RE.test(id) && kind === "asset") {
+    // Recurring costs must stay operating expenses.
+    const [used] = await db.select({ id: schema.recurringCosts.id }).from(schema.recurringCosts).where(eq(schema.recurringCosts.categoryId, id)).limit(1);
+    if (used) return { error: S.usedByContract };
+  }
   if (UUID_RE.test(id)) {
     await db.update(schema.expenseCategories).set({ nameEn, nameAr, kind, active: fd.get("active") === "on" }).where(eq(schema.expenseCategories.id, id));
   } else {
@@ -168,7 +179,16 @@ export async function saveContract(_: ActionState, fd: FormData): Promise<Action
   if (!cat || cat.kind !== "operating") return { error: C.invalid };
   const values = { name, categoryId, vendor: optStr(fd, "vendor"), startDate, endDate, dueDay, notes: optStr(fd, "notes") };
   if (isEdit) {
+    const rates = await db
+      .select({ id: schema.recurringCostRates.id, from: schema.recurringCostRates.effectiveFrom })
+      .from(schema.recurringCostRates)
+      .where(eq(schema.recurringCostRates.contractId, id))
+      .orderBy(asc(schema.recurringCostRates.effectiveFrom));
+    // The new start can't pass an amount change, and the first amount always starts with the contract.
+    if (rates.slice(1).some((r) => r.from <= startDate)) return { error: C.startAfterChange };
+    if (endDate && rates.slice(1).some((r) => r.from > endDate)) return { error: C.endBeforeChange };
     await db.update(schema.recurringCosts).set(values).where(eq(schema.recurringCosts.id, id));
+    if (rates[0] && rates[0].from !== startDate) await db.update(schema.recurringCostRates).set({ effectiveFrom: startDate }).where(eq(schema.recurringCostRates.id, rates[0].id));
     // Payments follow the contract's category.
     await db.update(schema.expenses).set({ categoryId }).where(eq(schema.expenses.contractId, id));
     refresh();
@@ -200,8 +220,8 @@ export async function addContractRate(_: ActionState, fd: FormData): Promise<Act
   const monthly = positive(fd, "monthly");
   if (!UUID_RE.test(contractId) || !DATE.test(effectiveFrom) || !monthly) return { error: C.rateInvalid };
   const db = await getDb();
-  const [c] = await db.select({ start: schema.recurringCosts.startDate }).from(schema.recurringCosts).where(eq(schema.recurringCosts.id, contractId)).limit(1);
-  if (!c || effectiveFrom < c.start) return { error: C.rateInvalid };
+  const [c] = await db.select({ start: schema.recurringCosts.startDate, end: schema.recurringCosts.endDate }).from(schema.recurringCosts).where(eq(schema.recurringCosts.id, contractId)).limit(1);
+  if (!c || effectiveFrom <= c.start || (c.end && effectiveFrom > c.end)) return { error: C.rateInvalid };
   const [clash] = await db
     .select({ id: schema.recurringCostRates.id })
     .from(schema.recurringCostRates)

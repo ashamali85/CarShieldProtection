@@ -310,7 +310,7 @@ export async function financeReport(db: Db, from: string, to: string, opts: { ca
   // Recurring contracts (rent): each month carries its charge, paid or not.
   for (const c of contracts) {
     const cat = kindOf.get(c.categoryId);
-    if (!cat) continue;
+    if (!cat || cat.kind !== "operating") continue;
     const segments = rateSegments(
       rates.filter((r) => r.contractId === c.id),
       c.startDate,
@@ -449,11 +449,25 @@ export async function contractStatuses(db: Db, asOf: string): Promise<ContractSt
   });
 }
 
-/** Expenses paid on or before `asOf` for a period that isn't used up yet (e.g. insurance paid a year ahead). */
+/**
+ * Expenses paid on or before `asOf` for a period not yet charged to the P&L (e.g. insurance paid a
+ * year ahead). The P&L charges spread costs through the end of the current month, so whatever falls
+ * after that month end is still prepaid.
+ */
 export async function prepaidExpenses(db: Db, asOf: string): Promise<number> {
+  const monthEnd = `${asOf.slice(0, 7)}-${String(daysInMonth(+asOf.slice(0, 4), +asOf.slice(5, 7))).padStart(2, "0")}`;
   const rows = await db
     .select({ amount: schema.expenses.amountFils, date: schema.expenses.date, from: schema.expenses.periodFrom, to: schema.expenses.periodTo })
     .from(schema.expenses)
-    .where(and(isNull(schema.expenses.contractId), isNotNull(schema.expenses.periodFrom), lte(schema.expenses.date, asOf), sql`${schema.expenses.periodTo} > ${asOf}`));
-  return Math.round(rows.reduce((a, r) => a + prepaidPortion(r.amount, r.date, r.from!, r.to!, asOf), 0));
+    .innerJoin(schema.expenseCategories, eq(schema.expenseCategories.id, schema.expenses.categoryId))
+    .where(
+      and(
+        isNull(schema.expenses.contractId),
+        eq(schema.expenseCategories.kind, "operating"),
+        isNotNull(schema.expenses.periodFrom),
+        lte(schema.expenses.date, asOf),
+        sql`${schema.expenses.periodTo} > ${monthEnd}`,
+      ),
+    );
+  return Math.round(rows.reduce((a, r) => a + prepaidPortion(r.amount, r.date, r.from!, r.to!, monthEnd), 0));
 }

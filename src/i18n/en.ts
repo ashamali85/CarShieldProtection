@@ -750,7 +750,9 @@ const en = {
       ratesHint: "When the rent changes, add the new amount from the date it applies. Earlier months keep the old amount.",
       rateFrom: "From",
       addRate: "Add change",
-      rateInvalid: "Enter a date on or after the contract start and an amount in KWD.",
+      rateInvalid: "Enter a date after the contract start (and before its end, if set) and an amount in KWD.",
+      startAfterChange: "The start date can't be on or after an amount change. Delete that change first.",
+      endBeforeChange: "The end date can't be before an amount change. Delete that change first.",
       rateExists: "There is already an amount from that date.",
       payments: "Payments",
       recordPayment: "Record payment",
@@ -787,6 +789,7 @@ const en = {
       saved: "Saved.",
       invalid: "Check the values and try again.",
       exists: "A category with that name already exists.",
+      usedByContract: "A recurring cost uses this category, so it must stay an operating expense.",
     },
   },
   errors: {

@@ -48,12 +48,11 @@ async function Contract({ params }: PageProps<"/[lang]/finance/contracts/[id]">)
         and(
           eq(schema.expenses.categoryId, contract.categoryId),
           isNull(schema.expenses.contractId),
-          isNull(schema.expenses.periodFrom),
-          gte(schema.expenses.date, addDaysIso(contract.startDate, -31)),
+          gte(schema.expenses.date, addDaysIso(contract.startDate, -92)),
         ),
       )
       .orderBy(desc(schema.expenses.date))
-      .limit(20),
+      .limit(100),
   ]);
   const status = statuses.find((s) => s.id === id)!;
   const money = (f: number) => formatMoney(Math.round(f), lang);
@@ -239,7 +238,7 @@ async function Contract({ params }: PageProps<"/[lang]/finance/contracts/[id]">)
               {rates.map((r, i) => (
                 <li key={r.id} className="flex items-center gap-3 border-b border-line px-4 py-2.5 text-sm sm:px-6">
                   <span className="text-muted">{C.rateFrom}</span>
-                  <span className="num">{formatDate(i === 0 ? contract.startDate : r.effectiveFrom, lang)}</span>
+                  <span className="num">{formatDate(r.effectiveFrom, lang)}</span>
                   <span className="num ms-auto font-medium">{money(r.monthlyFils)}</span>
                   <span className="flex w-14 justify-end">
                     {i > 0 && (
