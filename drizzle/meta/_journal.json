@@ -57,6 +57,13 @@
       "when": 1793909208700,
       "tag": "0007_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794250381693,
+      "tag": "0008_job_workflow",
+      "breakpoints": true
     }
   ]
 }

@@ -12,6 +12,7 @@ import { InvoiceStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
 import { BrandMark } from "@/components/logo";
 import { PrintButton } from "@/components/print-button";
 import { can } from "@/lib/auth";
+import { percentText } from "@/lib/pricing";
 
 export default function InvoicePage(props: PageProps<"/[lang]/invoices/[id]">) {
   return (
@@ -137,7 +138,10 @@ async function InvoiceDetail({ params }: PageProps<"/[lang]/invoices/[id]">) {
             <dd className="num text-end">{formatMoney(invoice.subtotalFils, lang)}</dd>
             {invoice.discountFils > 0 && (
               <>
-                <dt className="text-muted">{t.jobs.discount.replace(/\s*\(.*\)/, "")}</dt>
+                <dt className="text-muted">
+                  {t.jobs.discount}
+                  {invoice.discountPercentBp != null && <span className="num"> ({percentText(invoice.discountPercentBp)}%)</span>}
+                </dt>
                 <dd className="num text-end">−{formatMoney(invoice.discountFils, lang)}</dd>
               </>
             )}

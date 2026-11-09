@@ -7,7 +7,7 @@ export const PERMISSION_AREAS = [
   { area: "jobs", perms: ["jobs.view", "jobs.manage"] },
   { area: "customers", perms: ["customers.view", "customers.manage"] },
   { area: "warranties", perms: ["warranties.view"] },
-  { area: "invoices", perms: ["invoices.view", "invoices.manage"] },
+  { area: "invoices", perms: ["invoices.view", "invoices.manage", "invoices.adjust"] },
   { area: "inventory", perms: ["inventory.view", "inventory.receive", "inventory.manage"] },
   { area: "services", perms: ["services.view", "services.manage"] },
   { area: "catalog", perms: ["catalog.manage"] },

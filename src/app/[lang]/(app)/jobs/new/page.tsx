@@ -10,6 +10,8 @@ import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { VehicleForm } from "@/components/vehicle-form";
 import { getPickerMakes, pickerLabels } from "@/lib/catalog";
+import { assignableStaff } from "@/lib/staff";
+import { DiscountField } from "@/components/discount-field";
 
 export default function NewJobPage(props: PageProps<"/[lang]/jobs/new">) {
   return (
@@ -92,7 +94,7 @@ async function NewJob({ params, searchParams }: PageProps<"/[lang]/jobs/new">) {
   const [vehicles, services, technicians] = await Promise.all([
     db.select().from(schema.vehicles).where(eq(schema.vehicles.customerId, customerId)).orderBy(asc(schema.vehicles.createdAt)),
     db.select().from(schema.services).where(eq(schema.services.active, true)).orderBy(schema.services.category, schema.services.nameEn),
-    db.select({ id: schema.users.id, name: schema.users.name }).from(schema.users).where(eq(schema.users.active, true)).orderBy(schema.users.name),
+    assignableStaff(db),
   ]);
 
   if (vehicles.length === 0) {
@@ -176,7 +178,7 @@ async function NewJob({ params, searchParams }: PageProps<"/[lang]/jobs/new">) {
               ))}
             </select>
           </div>
-          <Field label={t.jobs.discount} name="discount" inputMode="decimal" dir="ltr" placeholder="0.000" optionalLabel={t.common.optional} />
+          <DiscountField t={t} optional />
           <div className="sm:col-span-2">
             <label htmlFor="f-notes" className="label">
               {t.common.notes} <span className="font-normal text-muted">({t.common.optional})</span>

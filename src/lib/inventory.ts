@@ -141,6 +141,38 @@ export async function restoreJobStock(db: Db, jobId: string, userId: string, job
   }
 }
 
+/** How much of one material a job has used so far, and the average cost it was charged at. */
+export async function jobMaterialUse(db: Db, jobId: string, itemId: string): Promise<{ usedMilli: number; unitCostFils: number | null }> {
+  const [row] = await db
+    .select({
+      total: sql<number>`coalesce(sum(${schema.inventoryMovements.deltaMilli}), 0)::int`,
+      value: sql<number | null>`sum(${schema.inventoryMovements.deltaMilli}::bigint * ${schema.inventoryMovements.unitCostFils})::float8`,
+      costed: sql<number>`count(${schema.inventoryMovements.unitCostFils})::int`,
+    })
+    .from(schema.inventoryMovements)
+    .where(
+      and(
+        eq(schema.inventoryMovements.jobId, jobId),
+        eq(schema.inventoryMovements.itemId, itemId),
+        inArray(schema.inventoryMovements.reason, ["job", "job_reversal"]),
+      ),
+    );
+  const used = -(row?.total ?? 0);
+  return { usedMilli: used, unitCostFils: used > 0 && row.costed > 0 && row.value != null ? row.value / row.total : null };
+}
+
+/** Brings any material this job has "used" a negative amount of back to zero. */
+export async function clampJobStock(db: Db, jobId: string, userId: string) {
+  const rows = await db
+    .select({ itemId: schema.inventoryMovements.itemId, total: sql<number>`sum(${schema.inventoryMovements.deltaMilli})::int` })
+    .from(schema.inventoryMovements)
+    .where(and(eq(schema.inventoryMovements.jobId, jobId), inArray(schema.inventoryMovements.reason, ["job", "job_reversal"])))
+    .groupBy(schema.inventoryMovements.itemId);
+  for (const r of rows) {
+    if (r.total > 0) await moveStock(db, { itemId: r.itemId, deltaMilli: -r.total, reason: "job", jobId, userId });
+  }
+}
+
 /** Materials a job needs (planned) or used (once started), per inventory item. */
 export async function jobMaterials(jobId: string, started: boolean) {
   const db = await getDb();

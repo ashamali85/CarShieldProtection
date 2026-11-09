@@ -7,6 +7,7 @@ import { getDb, schema } from "@/db";
 import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import type { PaymentMethod } from "@/db/schema";
+import { jobDiscount, subtotalOf } from "@/lib/pricing";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
 
 export async function createInvoice(formData: FormData) {
@@ -25,14 +26,15 @@ export async function createInvoice(formData: FormData) {
   const items = await db.select().from(schema.jobItems).where(eq(schema.jobItems.jobId, jobId));
   if (items.length === 0) return;
 
-  const subtotal = items.reduce((acc, i) => acc + i.priceFils * i.quantity, 0);
-  const discount = Math.min(job.discountFils, subtotal);
+  const subtotal = subtotalOf(items);
+  const discount = jobDiscount(job, subtotal);
   const [invoice] = await db
     .insert(schema.invoices)
     .values({
       jobId,
       subtotalFils: subtotal,
       discountFils: discount,
+      discountPercentBp: job.discountPercentBp,
       totalFils: subtotal - discount,
       status: subtotal - discount === 0 ? "paid" : "unpaid",
     })

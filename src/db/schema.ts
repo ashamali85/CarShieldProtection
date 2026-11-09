@@ -191,6 +191,12 @@ export const jobs = pgTable(
     completedAt: timestamp("completed_at", { withTimezone: true }),
     deliveredAt: timestamp("delivered_at", { withTimezone: true }),
     discountFils: integer("discount_fils").notNull().default(0),
+    /** Percentage discount in basis points (1,000 = 10%); when set it replaces discountFils. */
+    discountPercentBp: integer("discount_percent_bp"),
+    /** Quality-check items ticked (see QC_CHECKS in src/lib/pricing.ts), who ticked them and when. */
+    qcChecks: text("qc_checks").array().notNull().default(sql`'{}'::text[]`),
+    qcCheckedBy: uuid("qc_checked_by").references(() => users.id, { onDelete: "set null" }),
+    qcCheckedAt: timestamp("qc_checked_at", { withTimezone: true }),
     notes: text("notes"),
     createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -229,6 +235,8 @@ export const invoices = pgTable("invoices", {
     .references(() => jobs.id, { onDelete: "restrict" }),
   subtotalFils: integer("subtotal_fils").notNull(),
   discountFils: integer("discount_fils").notNull().default(0),
+  /** Set when the discount was a percentage, for display. */
+  discountPercentBp: integer("discount_percent_bp"),
   totalFils: integer("total_fils").notNull(),
   status: invoiceStatus("status").notNull().default("unpaid"),
   issuedAt: timestamp("issued_at", { withTimezone: true }).notNull().defaultNow(),
