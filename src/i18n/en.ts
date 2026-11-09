@@ -21,6 +21,7 @@ const en = {
   common: {
     save: "Save",
     saving: "Saving…",
+    close: "Close",
     cancel: "Cancel",
     edit: "Edit",
     search: "Search",

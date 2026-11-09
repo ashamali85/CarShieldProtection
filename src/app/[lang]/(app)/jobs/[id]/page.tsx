@@ -11,7 +11,7 @@ import { jobMaterials } from "@/lib/inventory";
 import { formatQty } from "@/i18n";
 import { UUID_RE } from "@/lib/actions/helpers";
 import { addJobItem, removeJobItem, saveQcChecklist, setJobMaterial, setJobStatus, updateJobDetails } from "@/lib/actions/jobs";
-import { jobDiscount, percentText, QC_CHECKS, subtotalOf } from "@/lib/pricing";
+import { jobDiscount, percentText, QC_CHECKS, qcComplete, subtotalOf } from "@/lib/pricing";
 import { assignableStaff } from "@/lib/staff";
 import { DiscountField } from "@/components/discount-field";
 import { createInvoice } from "@/lib/actions/invoices";
@@ -102,8 +102,16 @@ async function JobDetail({ params, searchParams }: PageProps<"/[lang]/jobs/[id]"
   const editable = canManage && !closed && (!invoice || (invoice.status !== "void" && can(user, "invoices.adjust")));
   const lockedByInvoice = canManage && !closed && !!invoice && !editable;
   const editMaterials = canManage && job.status === "in_progress";
-  const blockedText =
-    blocked === "checklist"
+  // A notice from a refused action, shown only while the problem still stands.
+  const stillBlocked =
+    (blocked === "checklist" && job.status === "quality_check" && !qcComplete(job.qcChecks)) ||
+    ((blocked === "noInvoice" || blocked === "unpaid") && job.status === "completed" && invoice?.status !== "paid") ||
+    (blocked === "overpaid" && !closed);
+  const blockedText = !stillBlocked
+    ? null
+    : blocked === "noInvoice" && invoice
+      ? t.jobs.blocked.unpaid.replace("{amount}", formatMoney(Math.max(invoice.totalFils - paid, 0), lang))
+      : blocked === "checklist"
       ? t.jobs.blocked.checklist
       : blocked === "noInvoice"
         ? t.jobs.blocked.noInvoice
@@ -143,11 +151,16 @@ async function JobDetail({ params, searchParams }: PageProps<"/[lang]/jobs/[id]"
       {blockedText && (
         <div role="alert" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           <span>{blockedText}</span>
-          {invoice && (blocked === "unpaid" || blocked === "overpaid") && can(user, "invoices.view") && (
-            <Link href={`/${lang}/invoices/${invoice.id}`} className="font-medium underline">
-              {t.jobs.openInvoice}
+          <span className="flex items-center gap-4">
+            {invoice && blocked !== "checklist" && can(user, "invoices.view") && (
+              <Link href={`/${lang}/invoices/${invoice.id}`} className="font-medium underline">
+                {t.jobs.openInvoice}
+              </Link>
+            )}
+            <Link href={`/${lang}/jobs/${job.id}`} className="px-1 text-lg leading-none" aria-label={t.common.close}>
+              ×
             </Link>
-          )}
+          </span>
         </div>
       )}
 
@@ -251,6 +264,10 @@ async function JobDetail({ params, searchParams }: PageProps<"/[lang]/jobs/[id]"
                     </label>
                     <select id="f-tech" name="technicianId" className="input" defaultValue={job.technicianId ?? ""}>
                       <option value="">{t.jobs.unassigned}</option>
+                      {/* Someone no longer assignable stays shown, so saving other details doesn't unassign them. */}
+                      {job.technicianId && !staff.some((u) => u.id === job.technicianId) && (
+                        <option value={job.technicianId}>{row.technician ?? t.jobs.unassigned}</option>
+                      )}
                       {staff.map((u) => (
                         <option key={u.id} value={u.id}>
                           {u.name}

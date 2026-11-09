@@ -161,15 +161,30 @@ export async function jobMaterialUse(db: Db, jobId: string, itemId: string): Pro
   return { usedMilli: used, unitCostFils: used > 0 && row.costed > 0 && row.value != null ? row.value / row.total : null };
 }
 
-/** Brings any material this job has "used" a negative amount of back to zero. */
+/** Brings any material this job has "used" a negative amount of back to zero, at the job's own cost. */
 export async function clampJobStock(db: Db, jobId: string, userId: string) {
   const rows = await db
-    .select({ itemId: schema.inventoryMovements.itemId, total: sql<number>`sum(${schema.inventoryMovements.deltaMilli})::int` })
+    .select({
+      itemId: schema.inventoryMovements.itemId,
+      total: sql<number>`sum(${schema.inventoryMovements.deltaMilli})::int`,
+      value: sql<number | null>`sum(${schema.inventoryMovements.deltaMilli}::bigint * ${schema.inventoryMovements.unitCostFils})::float8`,
+      costed: sql<number>`count(${schema.inventoryMovements.unitCostFils})::int`,
+    })
     .from(schema.inventoryMovements)
     .where(and(eq(schema.inventoryMovements.jobId, jobId), inArray(schema.inventoryMovements.reason, ["job", "job_reversal"])))
     .groupBy(schema.inventoryMovements.itemId);
   for (const r of rows) {
-    if (r.total > 0) await moveStock(db, { itemId: r.itemId, deltaMilli: -r.total, reason: "job", jobId, userId });
+    if (r.total > 0) {
+      // Cancels the surplus at the value it was booked at, so the job's material cost nets to zero.
+      await moveStock(db, {
+        itemId: r.itemId,
+        deltaMilli: -r.total,
+        reason: "job",
+        jobId,
+        userId,
+        unitCostOverrideFils: r.costed > 0 && r.value != null ? r.value / r.total : "uncosted",
+      });
+    }
   }
 }
 

@@ -26,9 +26,10 @@ function parseDiscount(formData: FormData): DiscountInput | null {
   return fils === null ? null : { discountFils: fils, discountPercentBp: null };
 }
 
-/** Only active users whose role can see jobs can be assigned to one. */
-async function assignable(db: Db, userId: string | null): Promise<string | null> {
+/** Only active users whose role can see jobs can be assigned to one; the current assignee can always stay. */
+async function assignable(db: Db, userId: string | null, current: string | null = null): Promise<string | null> {
   if (!userId || !UUID_RE.test(userId)) return null;
+  if (userId === current) return current;
   const [u] = await db
     .select({ id: schema.users.id })
     .from(schema.users)
@@ -154,10 +155,11 @@ export async function updateJobDetails(_: ActionState, formData: FormData): Prom
   if (!UUID_RE.test(id)) return { error: dict.common.errorGeneric };
   const db = await getDb();
   const { job, invoice } = await loadJob(db, id);
-  if (!job) return { error: dict.common.errorGeneric };
+  if (!job || job.status === "cancelled" || job.status === "delivered") return { error: dict.common.errorGeneric };
 
-  // The discount is only on the form when it may be changed.
-  const changeDiscount = formData.has("discountType") && pricingEditable(user, job, invoice);
+  // The discount is only on the form when it may be changed; a stale form can't change it after invoicing.
+  const changeDiscount = formData.has("discountType");
+  if (changeDiscount && !pricingEditable(user, job, invoice)) return { error: dict.jobs.lockedInvoiced };
   const discount = changeDiscount ? parseDiscount(formData) : null;
   if (changeDiscount && !discount) return { error: dict.jobs.discountInvalid };
   if (discount && invoice) {
@@ -170,7 +172,7 @@ export async function updateJobDetails(_: ActionState, formData: FormData): Prom
   await db
     .update(schema.jobs)
     .set({
-      technicianId: await assignable(db, optStr(formData, "technicianId")),
+      technicianId: await assignable(db, optStr(formData, "technicianId"), job.technicianId),
       scheduledAt: parseLocalDateTime(str(formData, "scheduledAt")),
       notes: optStr(formData, "notes"),
       ...(discount ?? {}),
@@ -234,9 +236,19 @@ export async function setJobStatus(formData: FormData) {
       // Sent back for more work: the quality check starts again.
       ...(job.status === "quality_check" && to === "in_progress" ? { qcChecks: [], qcCheckedBy: null, qcCheckedAt: null } : {}),
     })
-    .where(and(eq(schema.jobs.id, id), eq(schema.jobs.status, job.status)))
+    .where(
+      and(
+        eq(schema.jobs.id, id),
+        eq(schema.jobs.status, job.status),
+        // Checked again at the moment of writing, in case the invoice changed meanwhile.
+        to === "delivered" ? sql`exists (select 1 from ${schema.invoices} where ${schema.invoices.jobId} = ${id} and ${schema.invoices.status} = 'paid')` : undefined,
+      ),
+    )
     .returning({ id: schema.jobs.id });
-  if (updated.length === 0) return refresh();
+  if (updated.length === 0) {
+    if (to === "delivered") redirect(`/${lang}/jobs/${id}?blocked=unpaid`);
+    return refresh();
+  }
 
   if (firstStart) {
     const items = await db.select().from(schema.jobItems).where(eq(schema.jobItems.jobId, id));
@@ -350,9 +362,14 @@ export async function setJobMaterial(_: ActionState, formData: FormData): Promis
   const db = await getDb();
   const { job } = await loadJob(db, jobId);
   if (!job || job.status !== "in_progress") return { error: t(lang).common.errorGeneric };
-  const [item] = await db.select({ id: schema.inventoryItems.id }).from(schema.inventoryItems).where(eq(schema.inventoryItems.id, itemId)).limit(1);
-  if (!item) return { error: t(lang).jobs.materialsEdit.invalid };
-  const use = await jobMaterialUse(db, jobId, itemId);
+  const [item] = await db
+    .select({ id: schema.inventoryItems.id, active: schema.inventoryItems.active })
+    .from(schema.inventoryItems)
+    .where(eq(schema.inventoryItems.id, itemId))
+    .limit(1);
+  const use = item ? await jobMaterialUse(db, jobId, itemId) : null;
+  // A new material must be active; one already on the job can still be corrected.
+  if (!item || !use || (!item.active && use.usedMilli === 0)) return { error: t(lang).jobs.materialsEdit.invalid };
   const delta = use.usedMilli - qty; // positive: stock goes back
   if (delta !== 0) {
     await moveStock(db, {

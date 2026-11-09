@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, sum } from "drizzle-orm";
+import { and, eq, ne, sql, sum } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
@@ -80,11 +80,12 @@ export async function recordPayment(_: ActionState, formData: FormData): Promise
     reference: optStr(formData, "reference"),
     receivedBy: user.id,
   });
-  const newPaid = paid + amount;
+  // Status from the total as it is now (an adjustment may have changed it since it was read).
+  const paidSoFar = sql`(select coalesce(sum(${schema.payments.amountFils}), 0) from ${schema.payments} where ${schema.payments.invoiceId} = ${invoiceId})`;
   await db
     .update(schema.invoices)
-    .set({ status: newPaid >= invoice.totalFils ? "paid" : "partial" })
-    .where(eq(schema.invoices.id, invoiceId));
+    .set({ status: sql`case when ${paidSoFar} >= ${schema.invoices.totalFils} then 'paid' when ${paidSoFar} > 0 then 'partial' else 'unpaid' end::invoice_status` })
+    .where(and(eq(schema.invoices.id, invoiceId), ne(schema.invoices.status, "void")));
 
   refresh();
   return undefined;

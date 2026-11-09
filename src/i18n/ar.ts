@@ -23,6 +23,7 @@ const ar: Dictionary = {
   common: {
     save: "حفظ",
     saving: "جارٍ الحفظ…",
+    close: "إغلاق",
     cancel: "إلغاء",
     edit: "تعديل",
     search: "بحث",
