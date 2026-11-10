@@ -19,7 +19,7 @@ export async function login(_: ActionState, formData: FormData): Promise<ActionS
   const ok = user && user.active && (await bcrypt.compare(password, user.passwordHash));
   if (!ok) return { error: t(lang).login.invalid };
 
-  await createSession(user.id);
+  await createSession(user.id, user.sessionVersion);
   redirect(`/${lang}`);
 }
 

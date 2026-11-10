@@ -1,10 +1,12 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { getDb, schema } from "@/db";
 import { pageContext } from "@/lib/page";
 import { asc } from "drizzle-orm";
 import { can } from "@/lib/auth";
 import { canGrant } from "@/lib/roles";
-import { createUser, toggleUserActive } from "@/lib/actions/admin";
+import { createUser, deleteUser, resetUserPassword, toggleUserActive } from "@/lib/actions/admin";
+import { RowDelete } from "@/components/finance/row-delete";
 import { setUserRole } from "@/lib/actions/roles";
 import { UserTabs } from "@/components/area-tabs";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
@@ -93,14 +95,45 @@ async function Users({ params }: PageProps<"/[lang]/users">) {
                       </span>
                     </td>
                     <td className="text-end">
-                      {u.id !== me.id && roleById.get(u.roleId) && canGrant(me, roleById.get(u.roleId)!) && (
-                        <form action={toggleUserActive}>
-                          <input type="hidden" name="lang" value={lang} />
-                          <input type="hidden" name="id" value={u.id} />
-                          <SubmitButton className={u.active ? "btn-ghost text-xs text-red-700" : "btn-ghost text-xs"}>
-                            {u.active ? t.users.deactivate : t.users.activate}
-                          </SubmitButton>
-                        </form>
+                      {u.id === me.id ? (
+                        <Link href={`/${lang}/account`} className="btn-ghost text-xs">
+                          {t.users.changePassword}
+                        </Link>
+                      ) : (
+                        roleById.get(u.roleId) &&
+                        canGrant(me, roleById.get(u.roleId)!) && (
+                          <div className="flex flex-wrap items-start justify-end gap-1">
+                            <details className="group">
+                              <summary className="btn-ghost cursor-pointer list-none text-xs [&::-webkit-details-marker]:hidden">{t.users.resetPassword}</summary>
+                              <ActionForm
+                                action={resetUserPassword}
+                                hidden={{ lang, id: u.id }}
+                                successMessage={t.users.passwordReset}
+                                className="mt-2 flex w-64 flex-col gap-2 text-start"
+                              >
+                                <label htmlFor={`pw-${u.id}`} className="label mb-0">
+                                  {t.users.newPassword}
+                                </label>
+                                <input id={`pw-${u.id}`} name="password" type="password" minLength={8} required autoComplete="new-password" dir="ltr" className="input" />
+                                <SubmitButton className="btn-secondary min-h-9 text-xs" pendingLabel={t.common.saving}>
+                                  {t.users.resetPassword}
+                                </SubmitButton>
+                              </ActionForm>
+                            </details>
+                            <form action={toggleUserActive}>
+                              <input type="hidden" name="lang" value={lang} />
+                              <input type="hidden" name="id" value={u.id} />
+                              <SubmitButton className={u.active ? "btn-ghost text-xs text-red-700" : "btn-ghost text-xs"}>
+                                {u.active ? t.users.deactivate : t.users.activate}
+                              </SubmitButton>
+                            </form>
+                            <RowDelete
+                              action={deleteUser}
+                              hidden={{ lang, id: u.id }}
+                              labels={{ delete: t.users.delete, confirm: t.users.deleteConfirm.replace("{name}", u.name), cancel: t.common.cancel, saving: t.common.saving }}
+                            />
+                          </div>
+                        )
                       )}
                     </td>
                   </tr>

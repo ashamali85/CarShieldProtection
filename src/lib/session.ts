@@ -13,10 +13,10 @@ function key() {
   return new TextEncoder().encode(secret);
 }
 
-export type SessionPayload = { userId: string };
+export type SessionPayload = { userId: string; version: number };
 
-export async function createSession(userId: string) {
-  const token = await new SignJWT({ userId })
+export async function createSession(userId: string, version: number) {
+  const token = await new SignJWT({ userId, sv: version })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE_SECONDS}s`)
@@ -35,7 +35,9 @@ export async function readSession(): Promise<SessionPayload | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, key(), { algorithms: ["HS256"] });
-    return typeof payload.userId === "string" ? { userId: payload.userId } : null;
+    if (typeof payload.userId !== "string") return null;
+    // Sessions from before versions existed count as version 0.
+    return { userId: payload.userId, version: typeof payload.sv === "number" ? payload.sv : 0 };
   } catch {
     return null;
   }

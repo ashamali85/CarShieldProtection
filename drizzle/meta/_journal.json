@@ -71,6 +71,13 @@
       "when": 1794328778052,
       "tag": "0009_doc_numbers",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794331798831,
+      "tag": "0010_session_version",
+      "breakpoints": true
     }
   ]
 }

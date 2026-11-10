@@ -1,11 +1,12 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
-import { requirePermission } from "@/lib/auth";
+import { requirePermission, requireUser } from "@/lib/auth";
+import { createSession } from "@/lib/session";
 import type { ActionState } from "@/components/forms";
 import type { ServiceCategory } from "@/db/schema";
 import { canGrant, legacyRole, safeToChange } from "@/lib/roles";
@@ -78,4 +79,76 @@ export async function toggleUserActive(formData: FormData) {
     // Deactivating an admin needs another active admin to remain.
     .where(and(ne(schema.users.id, me.id), safeToChange(id, u.roleId, u.system && u.active)));
   refresh();
+}
+
+/** Loads another user's role for the "can I act on them" checks. */
+async function targetOf(id: string) {
+  const db = await getDb();
+  const [u] = await db
+    .select({ id: schema.users.id, name: schema.users.name, roleId: schema.roles.id, system: schema.roles.system, permissions: schema.roles.permissions })
+    .from(schema.users)
+    .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
+    .where(eq(schema.users.id, id))
+    .limit(1);
+  return u;
+}
+
+/**
+ * Deletes another user's account. Their past work stays (jobs, payments and so on simply no longer
+ * name them). You can't delete yourself, anyone with more access than you, or the last active admin.
+ */
+export async function deleteUser(_: ActionState, formData: FormData): Promise<ActionState> {
+  const lang = langFrom(formData);
+  const me = await requirePermission(lang, "users.manage");
+  const id = str(formData, "id");
+  if (!UUID_RE.test(id) || id === me.id) return { error: t(lang).users.notAllowed };
+  const target = await targetOf(id);
+  if (!target || !canGrant(me, target)) return { error: t(lang).users.notAllowed };
+  const db = await getDb();
+  const done = await db.delete(schema.users).where(safeToChange(id, target.roleId, target.system)).returning({ id: schema.users.id });
+  if (done.length === 0) return { error: t(lang).users.lastAdmin };
+  refresh();
+  return {};
+}
+
+/** Sets a new password for another user and signs them out everywhere. */
+export async function resetUserPassword(_: ActionState, formData: FormData): Promise<ActionState> {
+  const lang = langFrom(formData);
+  const me = await requirePermission(lang, "users.manage");
+  const U = t(lang).users;
+  const id = str(formData, "id");
+  const password = str(formData, "password");
+  if (!UUID_RE.test(id) || id === me.id) return { error: U.notAllowed };
+  if (password.length < 8) return { error: U.passwordShort };
+  const target = await targetOf(id);
+  if (!target || !canGrant(me, target)) return { error: U.notAllowed };
+  const db = await getDb();
+  await db
+    .update(schema.users)
+    .set({ passwordHash: await bcrypt.hash(password, 10), sessionVersion: sql`${schema.users.sessionVersion} + 1` })
+    .where(eq(schema.users.id, id));
+  return {};
+}
+
+/** Any signed-in user changes their own password (needs the current one). Other sessions are signed out. */
+export async function changeOwnPassword(_: ActionState, formData: FormData): Promise<ActionState> {
+  const lang = langFrom(formData);
+  const me = await requireUser(lang);
+  const U = t(lang).users;
+  const current = str(formData, "current");
+  const password = str(formData, "password");
+  const confirm = str(formData, "confirm");
+  if (password.length < 8) return { error: U.passwordShort };
+  if (password !== confirm) return { error: U.passwordMismatch };
+  const db = await getDb();
+  const [row] = await db.select({ hash: schema.users.passwordHash }).from(schema.users).where(eq(schema.users.id, me.id)).limit(1);
+  if (!row || !(await bcrypt.compare(current, row.hash))) return { error: U.currentWrong };
+  const [updated] = await db
+    .update(schema.users)
+    .set({ passwordHash: await bcrypt.hash(password, 10), sessionVersion: sql`${schema.users.sessionVersion} + 1` })
+    .where(eq(schema.users.id, me.id))
+    .returning({ version: schema.users.sessionVersion });
+  // Keep this browser signed in with the new version.
+  await createSession(me.id, updated.version);
+  return {};
 }

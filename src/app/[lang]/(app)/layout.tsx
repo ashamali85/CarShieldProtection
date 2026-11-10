@@ -79,7 +79,9 @@ async function UserMenu({ lang }: { lang: Locale }) {
         {user.name.slice(0, 1).toUpperCase()}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-white" dir="auto">{user.name}</p>
+        <Link href={`/${lang}/account`} className="block truncate text-sm font-medium text-white hover:underline" dir="auto" title={t.users.myAccount}>
+          {user.name}
+        </Link>
         <p className="truncate text-xs text-silver-400">{lang === "ar" ? user.roleNameAr : user.roleNameEn}</p>
       </div>
       <form action={logout}>

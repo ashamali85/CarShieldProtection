@@ -82,6 +82,8 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  /** Bumped on password change; sessions signed with an older version stop working. */
+  sessionVersion: integer("session_version").notNull().default(0),
   /** Legacy fixed role, kept for history; access now comes from roleId. */
   role: userRole("role").notNull().default("staff"),
   roleId: uuid("role_id")

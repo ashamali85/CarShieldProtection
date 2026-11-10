@@ -30,6 +30,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
       name: schema.users.name,
       email: schema.users.email,
       active: schema.users.active,
+      sessionVersion: schema.users.sessionVersion,
       roleId: schema.roles.id,
       roleNameEn: schema.roles.nameEn,
       roleNameAr: schema.roles.nameAr,
@@ -40,7 +41,8 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
     .where(eq(schema.users.id, session.userId))
     .limit(1);
-  if (!user || !user.active) return null;
+  // Inactive users, and sessions from before a password change, are signed out.
+  if (!user || !user.active || user.sessionVersion !== session.version) return null;
   return {
     id: user.id,
     name: user.name,
