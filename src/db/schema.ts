@@ -12,6 +12,7 @@ import {
   uniqueIndex,
   jsonb,
   doublePrecision,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -53,6 +54,17 @@ export const paymentMethod = pgEnum("payment_method", [
 ]);
 
 export const warrantyStatus = pgEnum("warranty_status", ["active", "void"]);
+
+/** Running number per document type and year, for JB-/INV-/WR- codes. */
+export const docCounters = pgTable(
+  "doc_counters",
+  {
+    kind: text("kind").notNull(),
+    year: integer("year").notNull(),
+    last: integer("last").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.kind, t.year] })],
+);
 
 /** A role and the permissions it grants (see src/lib/permissions.ts). The system Admin role always has everything. */
 export const roles = pgTable("roles", {
@@ -176,6 +188,8 @@ export const jobs = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     number: serial("number").notNull().unique(),
+    /** Display number, e.g. JB-2026-0068 (see src/lib/doc-numbers.ts). */
+    code: text("code").notNull().unique(),
     customerId: uuid("customer_id")
       .notNull()
       .references(() => customers.id, { onDelete: "restrict" }),
@@ -229,6 +243,8 @@ export const jobItems = pgTable(
 export const invoices = pgTable("invoices", {
   id: uuid("id").primaryKey().defaultRandom(),
   number: serial("number").notNull().unique(),
+  /** Display number, e.g. INV-2026-0035. */
+  code: text("code").notNull().unique(),
   jobId: uuid("job_id")
     .notNull()
     .unique()
@@ -262,7 +278,10 @@ export const warranties = pgTable(
   "warranties",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    /** e.g. WR-2026-0012 */
     code: text("code").notNull().unique(),
+    /** The code used before WR- numbering (e.g. CSP-2026-00068-1), still searchable. */
+    legacyCode: text("legacy_code"),
     jobId: uuid("job_id")
       .notNull()
       .references(() => jobs.id, { onDelete: "cascade" }),

@@ -14,6 +14,7 @@ import { jobDiscount, parsePercent, QC_CHECKS, qcComplete, subtotalOf, type Disc
 import { formatMoney } from "@/i18n";
 import type { Locale } from "@/i18n";
 import { kwdToFils, langFrom, optStr, qtyToMilli, str, t, UUID_RE } from "./helpers";
+import { nextDocCode, nextDocCodes } from "@/lib/doc-numbers";
 
 /** Reads the discount fields: an amount in KWD, or a percentage when discountType is "percent". */
 function parseDiscount(formData: FormData): DiscountInput | null {
@@ -123,6 +124,7 @@ export async function createJob(_: ActionState, formData: FormData): Promise<Act
   const [job] = await db
     .insert(schema.jobs)
     .values({
+      code: await nextDocCode(db, "job"),
       customerId,
       vehicleId,
       technicianId: await assignable(db, optStr(formData, "technicianId")),
@@ -262,12 +264,16 @@ export async function setJobStatus(formData: FormData) {
     const items = await db.select().from(schema.jobItems).where(eq(schema.jobItems.jobId, id));
     const today = todayKuwait();
     const covered = items.filter((i) => i.warrantyMonths > 0);
-    if (covered.length > 0) {
+    // Skip anything already covered (e.g. a repeated click), so no numbers are used up for nothing.
+    const existing = await db.select({ itemId: schema.warranties.jobItemId }).from(schema.warranties).where(eq(schema.warranties.jobId, id));
+    const fresh = covered.filter((i) => !existing.some((e) => e.itemId === i.id));
+    const codes = await nextDocCodes(db, "warranty", fresh.length);
+    if (fresh.length > 0) {
       await db
         .insert(schema.warranties)
         .values(
-          covered.map((item, idx) => ({
-            code: `CSP-${today.slice(0, 4)}-${String(job.number).padStart(5, "0")}-${idx + 1}`,
+          fresh.map((item, idx) => ({
+            code: codes[idx],
             jobId: id,
             jobItemId: item.id,
             customerId: job.customerId,

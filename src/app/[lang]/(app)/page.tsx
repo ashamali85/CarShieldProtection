@@ -153,7 +153,7 @@ function jobRows(db: Db) {
   return db
     .select({
       id: schema.jobs.id,
-      number: schema.jobs.number,
+      code: schema.jobs.code,
       status: schema.jobs.status,
       scheduledAt: schema.jobs.scheduledAt,
       customer: schema.customers.name,
@@ -193,7 +193,7 @@ function JobList({
               <Link href={`/${lang}/jobs/${r.id}`} className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-brand-50/50 sm:px-6">
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium">
-                    <span className="num text-muted">#{r.number}</span> {r.customer}
+                    <span className="num text-muted"><bdi>{r.code}</bdi></span> {r.customer}
                   </span>
                   <span className="block truncate text-xs text-muted">
                     {r.vehicle} · <span className="num" dir="ltr">{r.plate}</span>

@@ -131,7 +131,7 @@ async function JobDetail({ params, searchParams }: PageProps<"/[lang]/jobs/[id]"
         title={
           <span className="flex flex-wrap items-center gap-3">
             <span>
-              {t.jobs.number} <span className="num">#{job.number}</span>
+              <bdi className="num">{job.code}</bdi>
             </span>
             <JobStatusBadge status={job.status} t={t} />
           </span>
@@ -474,11 +474,11 @@ async function JobDetail({ params, searchParams }: PageProps<"/[lang]/jobs/[id]"
               <div className="flex items-center justify-between gap-2">
                 {can(user, "invoices.view") ? (
                   <Link href={`/${lang}/invoices/${invoice.id}`} className="link">
-                    {t.invoices.number} <span className="num">#{invoice.number}</span>
+                    <bdi className="num">{invoice.code}</bdi>
                   </Link>
                 ) : (
                   <span>
-                    {t.invoices.number} <span className="num">#{invoice.number}</span>
+                    <bdi className="num">{invoice.code}</bdi>
                   </span>
                 )}
                 <InvoiceStatusBadge status={invoice.status} t={t} />

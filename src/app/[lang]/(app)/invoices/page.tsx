@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { formatDate, formatMoney } from "@/i18n";
 import { first, pageContext } from "@/lib/page";
 import { EmptyState, InvoiceStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
+import { codePattern } from "@/lib/doc-numbers";
 
 export default function InvoicesPage(props: PageProps<"/[lang]/invoices">) {
   return (
@@ -17,23 +18,36 @@ export default function InvoicesPage(props: PageProps<"/[lang]/invoices">) {
 async function Invoices({ params, searchParams }: PageProps<"/[lang]/invoices">) {
   const { lang, t } = await pageContext(params, { perm: "invoices.view" });
   const open = first((await searchParams).status) === "open";
+  const q = (first((await searchParams).q) ?? "").trim();
   const db = await getDb();
 
   const rows = await db
     .select({
       id: schema.invoices.id,
-      number: schema.invoices.number,
+      code: schema.invoices.code,
       status: schema.invoices.status,
       total: schema.invoices.totalFils,
       issuedAt: schema.invoices.issuedAt,
       customer: schema.customers.name,
-      jobNumber: schema.jobs.number,
+      jobCode: schema.jobs.code,
       paid: sql<number>`coalesce((select sum(p."amount_fils") from "payments" p where p."invoice_id" = "invoices"."id"), 0)::int`,
     })
     .from(schema.invoices)
     .innerJoin(schema.jobs, eq(schema.invoices.jobId, schema.jobs.id))
     .innerJoin(schema.customers, eq(schema.jobs.customerId, schema.customers.id))
-    .where(open ? inArray(schema.invoices.status, ["unpaid", "partial"]) : undefined)
+    .where(
+      and(
+        open ? inArray(schema.invoices.status, ["unpaid", "partial"]) : undefined,
+        q
+          ? or(
+              ilike(schema.invoices.code, codePattern(q)),
+              ilike(schema.jobs.code, codePattern(q)),
+              ilike(schema.customers.name, `%${q}%`),
+              ilike(schema.customers.phone, `%${q}%`),
+            )
+          : undefined,
+      ),
+    )
     .orderBy(desc(schema.invoices.issuedAt))
     .limit(200);
 
@@ -56,9 +70,19 @@ async function Invoices({ params, searchParams }: PageProps<"/[lang]/invoices">)
         {tab(`/${lang}/invoices`, t.common.all, !open)}
         {tab(`/${lang}/invoices?status=open`, t.dashboard.outstanding, open)}
       </nav>
+      <form className="mb-4 flex flex-wrap gap-2" role="search">
+        <label htmlFor="q" className="sr-only">
+          {t.common.search}
+        </label>
+        <input id="q" name="q" type="search" defaultValue={q} placeholder={t.invoices.searchPlaceholder} className="input max-w-md" />
+        {open && <input type="hidden" name="status" value="open" />}
+        <button type="submit" className="btn-secondary">
+          {t.common.search}
+        </button>
+      </form>
       <div className="card">
         {rows.length === 0 ? (
-          <EmptyState message={t.invoices.empty} />
+          <EmptyState message={q ? t.invoices.noMatch : t.invoices.empty} />
         ) : (
           <div className="table-wrap">
             <table className="table">
@@ -77,10 +101,10 @@ async function Invoices({ params, searchParams }: PageProps<"/[lang]/invoices">)
                   <tr key={r.id}>
                     <td>
                       <Link href={`/${lang}/invoices/${r.id}`} className="link num">
-                        #{r.number}
+                        <bdi>{r.code}</bdi>
                       </Link>
                       <span className="block text-xs text-muted">
-                        {t.jobs.number} <span className="num">#{r.jobNumber}</span>
+                        <bdi className="num">{r.jobCode}</bdi>
                       </span>
                     </td>
                     <td>{r.customer}</td>

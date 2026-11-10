@@ -9,6 +9,7 @@ import type { ActionState } from "@/components/forms";
 import type { PaymentMethod } from "@/db/schema";
 import { jobDiscount, subtotalOf } from "@/lib/pricing";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
+import { nextDocCode } from "@/lib/doc-numbers";
 
 export async function createInvoice(formData: FormData) {
   const lang = langFrom(formData);
@@ -31,6 +32,7 @@ export async function createInvoice(formData: FormData) {
   const [invoice] = await db
     .insert(schema.invoices)
     .values({
+      code: await nextDocCode(db, "invoice"),
       jobId,
       subtotalFils: subtotal,
       discountFils: discount,

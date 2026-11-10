@@ -58,12 +58,12 @@ async function InvoiceDetail({ params }: PageProps<"/[lang]/invoices/[id]">) {
         title={
           <span className="flex flex-wrap items-center gap-3">
             <span>
-              {t.invoices.number} <span className="num">#{invoice.number}</span>
+              <bdi className="num">{invoice.code}</bdi>
             </span>
             <InvoiceStatusBadge status={invoice.status} t={t} />
           </span>
         }
-        back={{ href: `/${lang}/jobs/${job.id}`, label: `${t.jobs.number} #${job.number}` }}
+        back={{ href: `/${lang}/jobs/${job.id}`, label: job.code }}
         actions={<PrintButton label={t.common.print} />}
       />
 
@@ -80,13 +80,13 @@ async function InvoiceDetail({ params }: PageProps<"/[lang]/invoices/[id]">) {
             </div>
             <div className="text-sm sm:text-end">
               <p className="font-semibold">
-                {t.invoices.number} <span className="num">#{invoice.number}</span>
+                <bdi className="num">{invoice.code}</bdi>
               </p>
               <p className="text-muted">
                 {t.invoices.issued}: {formatDate(invoice.issuedAt, lang)}
               </p>
               <p className="text-muted">
-                {t.jobs.number} <span className="num">#{job.number}</span>
+                <bdi className="num">{job.code}</bdi>
               </p>
             </div>
           </header>

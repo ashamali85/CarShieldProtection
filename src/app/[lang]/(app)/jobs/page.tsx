@@ -1,12 +1,13 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { formatDate, formatTime, type Locale } from "@/i18n";
 import type { JobStatus } from "@/db/schema";
 import { first, pageContext } from "@/lib/page";
 import { EmptyState, JobStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
 import { can } from "@/lib/auth";
+import { codePattern } from "@/lib/doc-numbers";
 
 const STATUSES: JobStatus[] = ["scheduled", "in_progress", "quality_check", "completed", "delivered", "cancelled"];
 
@@ -23,13 +24,15 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
   const canAdd = can(user, "jobs.manage");
   const raw = first((await searchParams).status);
   const status = STATUSES.includes(raw as JobStatus) ? (raw as JobStatus) : null;
+  const q = (first((await searchParams).q) ?? "").trim();
+  const like = `%${q}%`;
   const db = await getDb();
 
   const [rows, counts] = await Promise.all([
     db
       .select({
         id: schema.jobs.id,
-        number: schema.jobs.number,
+        code: schema.jobs.code,
         status: schema.jobs.status,
         scheduledAt: schema.jobs.scheduledAt,
         startedAt: schema.jobs.startedAt,
@@ -45,7 +48,19 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
       .innerJoin(schema.customers, eq(schema.jobs.customerId, schema.customers.id))
       .innerJoin(schema.vehicles, eq(schema.jobs.vehicleId, schema.vehicles.id))
       .leftJoin(schema.users, eq(schema.jobs.technicianId, schema.users.id))
-      .where(status ? eq(schema.jobs.status, status) : undefined)
+      .where(
+        and(
+          status ? eq(schema.jobs.status, status) : undefined,
+          q
+            ? or(
+                ilike(schema.jobs.code, codePattern(q)),
+                ilike(schema.customers.name, like),
+                ilike(schema.customers.phone, like),
+                ilike(schema.vehicles.plateNumber, like),
+              )
+            : undefined,
+        ),
+      )
       .orderBy(desc(schema.jobs.createdAt))
       .limit(200),
     db.select({ status: schema.jobs.status, n: sql<number>`count(*)::int` }).from(schema.jobs).groupBy(schema.jobs.status),
@@ -83,12 +98,23 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
         {tab(`/${lang}/jobs`, t.common.all, total, !status)}
         {STATUSES.map((s) => tab(`/${lang}/jobs?status=${s}`, t.jobs.status[s], countOf(s), status === s))}
       </nav>
+      <form className="mb-4 flex flex-wrap gap-2" role="search">
+        <label htmlFor="q" className="sr-only">
+          {t.common.search}
+        </label>
+        <input id="q" name="q" type="search" defaultValue={q} placeholder={t.jobs.searchPlaceholder} className="input max-w-md" />
+        {status && <input type="hidden" name="status" value={status} />}
+        <button type="submit" className="btn-secondary">
+          {t.common.search}
+        </button>
+      </form>
       <div className="card">
         {rows.length === 0 ? (
           <EmptyState
-            message={status ? t.jobs.emptyFilter : t.jobs.empty}
+            message={status || q ? t.jobs.emptyFilter : t.jobs.empty}
             action={
               !status &&
+              !q &&
               canAdd && (
                 <Link href={`/${lang}/jobs/new`} className="btn-primary">
                   {t.jobs.new}
@@ -116,7 +142,7 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
                   <tr key={j.id}>
                     <td>
                       <Link href={`/${lang}/jobs/${j.id}`} className="link num">
-                        #{j.number}
+                        <bdi>{j.code}</bdi>
                       </Link>
                     </td>
                     <td>{j.customer}</td>

@@ -8,6 +8,7 @@ import { addDays, todayKuwait } from "@/lib/dates";
 import { EmptyState, PageHeader, PageSkeleton, WarrantyBadge, warrantyState } from "@/components/ui";
 import { CustomerTabs } from "@/components/area-tabs";
 import { can } from "@/lib/auth";
+import { codePattern } from "@/lib/doc-numbers";
 
 export default function WarrantiesPage(props: PageProps<"/[lang]/warranties">) {
   return (
@@ -39,11 +40,14 @@ async function Warranties({ params, searchParams }: PageProps<"/[lang]/warrantie
     .from(schema.warranties)
     .innerJoin(schema.customers, eq(schema.warranties.customerId, schema.customers.id))
     .innerJoin(schema.vehicles, eq(schema.warranties.vehicleId, schema.vehicles.id))
+    .innerJoin(schema.jobs, eq(schema.warranties.jobId, schema.jobs.id))
     .where(
       and(
         q
           ? or(
-              ilike(schema.warranties.code, like),
+              ilike(schema.warranties.code, codePattern(q)),
+              ilike(schema.warranties.legacyCode, like),
+              ilike(schema.jobs.code, codePattern(q)),
               ilike(schema.vehicles.plateNumber, like),
               ilike(schema.customers.phone, like),
               ilike(schema.customers.name, like),

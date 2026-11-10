@@ -44,7 +44,7 @@ async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
     db
       .select({
         id: schema.jobs.id,
-        number: schema.jobs.number,
+        code: schema.jobs.code,
         status: schema.jobs.status,
         createdAt: schema.jobs.createdAt,
         plate: schema.vehicles.plateNumber,
@@ -165,7 +165,7 @@ async function CustomerDetail({ params }: PageProps<"/[lang]/customers/[id]">) {
                 <li key={j.id} className="border-b border-line last:border-b-0">
                   <Link href={`/${lang}/jobs/${j.id}`} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-canvas sm:px-6">
                     <span className="text-sm">
-                      <span className="num font-medium">#{j.number}</span>{" "}
+                      <span className="num font-medium"><bdi>{j.code}</bdi></span>{" "}
                       <span className="text-muted">
                         {j.make} {j.model} · <span dir="ltr" className="num">{j.plate}</span> · {formatDate(j.createdAt, lang)}
                       </span>

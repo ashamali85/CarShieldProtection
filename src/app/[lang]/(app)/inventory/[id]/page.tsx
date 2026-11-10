@@ -44,7 +44,7 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
       .where(eq(schema.serviceMaterials.itemId, id))
       .orderBy(schema.services.nameEn),
     db
-      .select({ m: schema.inventoryMovements, by: schema.users.name, jobNumber: schema.jobs.number })
+      .select({ m: schema.inventoryMovements, by: schema.users.name, jobCode: schema.jobs.code })
       .from(schema.inventoryMovements)
       .leftJoin(schema.users, eq(schema.inventoryMovements.userId, schema.users.id))
       .leftJoin(schema.jobs, eq(schema.inventoryMovements.jobId, schema.jobs.id))
@@ -130,16 +130,16 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
                     </tr>
                   </thead>
                   <tbody>
-                    {history.map(({ m, by, jobNumber }) => (
+                    {history.map(({ m, by, jobCode }) => (
                       <tr key={m.id}>
                         <td className="whitespace-nowrap text-muted">{formatDateTime(m.createdAt, lang)}</td>
                         <td>
                           {t.inventory.reasons[m.reason]}
-                          {m.jobId && jobNumber != null && (
+                          {m.jobId && jobCode != null && (
                             <>
                               {" "}
                               <Link href={`/${lang}/jobs/${m.jobId}`} className="link num">
-                                #{jobNumber}
+                                <bdi>{jobCode}</bdi>
                               </Link>
                             </>
                           )}
