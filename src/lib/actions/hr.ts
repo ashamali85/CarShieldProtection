@@ -9,7 +9,7 @@ import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import { buildPayslip, employeesInMonth, evaluateLeave, getHrSettings, rebandLeave, touchesLockedPayroll } from "@/lib/hr-data";
 import { calendarDays, computePayslip } from "@/lib/hr";
-import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
+import { kwdToFils, langFrom, optStr, str, t, UUID_RE, validIban } from "./helpers";
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const isDate = (v: string) => ISO_DATE.test(v) && !Number.isNaN(Date.parse(v));
@@ -22,7 +22,7 @@ const optDate = (fd: FormData, k: string) => {
 function centi(input: string): number | null {
   if (input === "") return 0;
   const n = Number(input.replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(",", "."));
-  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : null;
+  return Number.isFinite(n) && n >= 0 && n <= 1_000_000 ? Math.round(n * 100) : null;
 }
 
 function fillN(template: string, n: number | string) {
@@ -55,6 +55,8 @@ export async function saveEmployee(_: ActionState, fd: FormData): Promise<Action
   if (!fullName || !nationality || !jobTitle || !isDate(hireDate) || !basic) return { error: e.invalid };
 
   const opening = Number(str(fd, "leaveOpeningDays") || "0");
+  const iban = optStr(fd, "iban")?.replace(/\s+/g, "").toUpperCase() ?? null;
+  if (iban && !validIban(iban)) return { error: e.ibanInvalid };
   const userId = str(fd, "userId");
   const values = {
     fullName,
@@ -80,9 +82,9 @@ export async function saveEmployee(_: ActionState, fd: FormData): Promise<Action
     transportAllowanceFils: transport!,
     otherAllowanceFils: other!,
     pifssSalaryFils: pifssSalary,
-    leaveOpeningDays: Number.isFinite(opening) && opening > 0 ? Math.round(opening) : 0,
+    leaveOpeningDays: Number.isFinite(opening) && opening > 0 ? Math.min(Math.round(opening), 1000) : 0,
     bankName: optStr(fd, "bankName"),
-    iban: optStr(fd, "iban")?.replace(/\s+/g, "").toUpperCase() ?? null,
+    iban,
     userId: UUID_RE.test(userId) ? userId : null,
     notes: optStr(fd, "notes"),
   };

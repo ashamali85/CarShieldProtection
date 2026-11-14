@@ -88,7 +88,12 @@ async function main() {
       console.log("Migrations applied.");
     } else if (cmd === "seed") {
       const email = (process.env.ADMIN_EMAIL ?? "admin@carshield.local").toLowerCase();
-      const password = process.env.ADMIN_PASSWORD ?? "ChangeMe123!";
+      // A known default password is only allowed for the local development database.
+      const local = (process.env.DATABASE_URL ?? "").startsWith("pglite:");
+      const password = process.env.ADMIN_PASSWORD ?? (local ? "ChangeMe123!" : "");
+      if (!local && password.length < 12) {
+        throw new Error("Set ADMIN_PASSWORD (at least 12 characters) to create the first admin on a real database.");
+      }
       const existing = await conn.db.select().from(schema.users).limit(1);
       if (existing.length === 0) {
         // The Admin role is created by the roles migration.

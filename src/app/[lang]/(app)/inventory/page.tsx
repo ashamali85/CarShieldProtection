@@ -7,6 +7,7 @@ import { first, pageContext } from "@/lib/page";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { StockLevel } from "@/components/inventory-form";
 import { can } from "@/lib/auth";
+import { likeAny } from "@/lib/actions/helpers";
 
 export default function InventoryPage(props: PageProps<"/[lang]/inventory">) {
   return (
@@ -23,7 +24,7 @@ async function Inventory({ params, searchParams }: PageProps<"/[lang]/inventory"
   const lowOnly = first(sp.filter) === "low";
   const isAdmin = can(user, "inventory.manage");
   const db = await getDb();
-  const like = `%${q}%`;
+  const like = likeAny(q);
 
   const rows = await db
     .select({

@@ -8,6 +8,7 @@ import { monthlyWage } from "@/lib/hr";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { EmployeeStatusBadge } from "@/components/hr/ui";
 import { can } from "@/lib/auth";
+import { likeAny } from "@/lib/actions/helpers";
 
 export default function EmployeesPage(props: PageProps<"/[lang]/hr/employees">) {
   return (
@@ -25,7 +26,7 @@ async function Employees({ params, searchParams }: PageProps<"/[lang]/hr/employe
   const former = first(sp.show) === "former";
   const E = t.hr.employees;
   const db = await getDb();
-  const like = `%${q}%`;
+  const like = likeAny(q);
   const rows = await db
     .select()
     .from(schema.employees)

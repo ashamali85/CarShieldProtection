@@ -6,6 +6,7 @@ import { formatDate, formatMoney } from "@/i18n";
 import { first, pageContext } from "@/lib/page";
 import { EmptyState, InvoiceStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
 import { codePattern } from "@/lib/doc-numbers";
+import { likeAny } from "@/lib/actions/helpers";
 
 export default function InvoicesPage(props: PageProps<"/[lang]/invoices">) {
   return (
@@ -18,7 +19,7 @@ export default function InvoicesPage(props: PageProps<"/[lang]/invoices">) {
 async function Invoices({ params, searchParams }: PageProps<"/[lang]/invoices">) {
   const { lang, t } = await pageContext(params, { perm: "invoices.view" });
   const open = first((await searchParams).status) === "open";
-  const q = (first((await searchParams).q) ?? "").trim();
+  const q = (first((await searchParams).q) ?? "").trim().slice(0, 100);
   const db = await getDb();
 
   const rows = await db
@@ -42,8 +43,8 @@ async function Invoices({ params, searchParams }: PageProps<"/[lang]/invoices">)
           ? or(
               ilike(schema.invoices.code, codePattern(q)),
               ilike(schema.jobs.code, codePattern(q)),
-              ilike(schema.customers.name, `%${q}%`),
-              ilike(schema.customers.phone, `%${q}%`),
+              ilike(schema.customers.name, likeAny(q)),
+              ilike(schema.customers.phone, likeAny(q)),
             )
           : undefined,
       ),

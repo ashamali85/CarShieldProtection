@@ -7,6 +7,7 @@ import { first, pageContext } from "@/lib/page";
 import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { CustomerTabs } from "@/components/area-tabs";
 import { can } from "@/lib/auth";
+import { likeAny } from "@/lib/actions/helpers";
 
 export default function CustomersPage(props: PageProps<"/[lang]/customers">) {
   return (
@@ -24,7 +25,7 @@ async function Customers({ params, searchParams }: PageProps<"/[lang]/customers"
 
   let where;
   if (q) {
-    const like = `%${q}%`;
+    const like = likeAny(q);
     const byPlate = db
       .select({ id: schema.vehicles.customerId })
       .from(schema.vehicles)

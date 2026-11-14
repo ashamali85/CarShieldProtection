@@ -75,13 +75,18 @@ export async function recordPayment(_: ActionState, formData: FormData): Promise
   const paid = Number(paidRow?.paid ?? 0);
   if (paid + amount > invoice.totalFils) return { error: dict.invoices.overpay };
 
-  await db.insert(schema.payments).values({
-    invoiceId,
-    amountFils: amount,
-    method,
-    reference: optStr(formData, "reference"),
-    receivedBy: user.id,
-  });
+  // The "not more than the balance" check is repeated inside the insert itself, so two payments
+  // submitted at the same moment can't both slip through and overpay the invoice.
+  const inserted = await db.execute(sql`
+    insert into ${schema.payments} (invoice_id, amount_fils, method, reference, received_by)
+    select ${invoiceId}::uuid, ${amount}, ${method}::payment_method, ${optStr(formData, "reference")}, ${user.id}::uuid
+    where exists (
+      select 1 from ${schema.invoices} i
+      where i.id = ${invoiceId}::uuid and i.status <> 'void'
+        and (select coalesce(sum(p.amount_fils), 0) from ${schema.payments} p where p.invoice_id = i.id) + ${amount} <= i.total_fils
+    )
+    returning id`);
+  if (inserted.rows.length === 0) return { error: dict.invoices.overpay };
   // Status from the total as it is now (an adjustment may have changed it since it was read).
   const paidSoFar = sql`(select coalesce(sum(${schema.payments.amountFils}), 0) from ${schema.payments} where ${schema.payments.invoiceId} = ${invoiceId})`;
   await db

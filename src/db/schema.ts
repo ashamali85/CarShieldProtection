@@ -55,6 +55,28 @@ export const paymentMethod = pgEnum("payment_method", [
 
 export const warrantyStatus = pgEnum("warranty_status", ["active", "void"]);
 
+/** One row per signed-in browser. Signing out deletes it, so a copied cookie stops working too. */
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: text("id").primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [index("sessions_user_idx").on(t.userId), index("sessions_expires_idx").on(t.expiresAt)],
+);
+
+/** Failed sign-in counters per email and per IP address, for locking out password guessing. */
+export const loginAttempts = pgTable("login_attempts", {
+  key: text("key").primaryKey(),
+  failures: integer("failures").notNull().default(0),
+  windowStart: timestamp("window_start", { withTimezone: true }).notNull().defaultNow(),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }),
+});
+
 /** Running number per document type and year, for JB-/INV-/WR- codes. */
 export const docCounters = pgTable(
   "doc_counters",

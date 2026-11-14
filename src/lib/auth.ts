@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb, schema } from "@/db";
 import { readSession } from "./session";
@@ -39,6 +39,8 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     })
     .from(schema.users)
     .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
+    // The session must still exist on the server and not have expired.
+    .innerJoin(schema.sessions, and(eq(schema.sessions.id, session.sid), eq(schema.sessions.userId, schema.users.id), gt(schema.sessions.expiresAt, new Date())))
     .where(eq(schema.users.id, session.userId))
     .limit(1);
   // Inactive users, and sessions from before a password change, are signed out.

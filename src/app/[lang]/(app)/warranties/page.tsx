@@ -9,6 +9,7 @@ import { EmptyState, PageHeader, PageSkeleton, WarrantyBadge, warrantyState } fr
 import { CustomerTabs } from "@/components/area-tabs";
 import { can } from "@/lib/auth";
 import { codePattern } from "@/lib/doc-numbers";
+import { likeAny } from "@/lib/actions/helpers";
 
 export default function WarrantiesPage(props: PageProps<"/[lang]/warranties">) {
   return (
@@ -25,7 +26,7 @@ async function Warranties({ params, searchParams }: PageProps<"/[lang]/warrantie
   const expiringOnly = first(sp.state) === "expiring";
   const today = todayKuwait();
   const db = await getDb();
-  const like = `%${q}%`;
+  const like = likeAny(q);
 
   const rows = await db
     .select({

@@ -6,11 +6,11 @@ import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requirePermission, requireUser } from "@/lib/auth";
-import { createSession } from "@/lib/session";
+import { createSession, endUserSessions } from "@/lib/session";
 import type { ActionState } from "@/components/forms";
 import type { ServiceCategory } from "@/db/schema";
 import { canGrant, legacyRole, safeToChange } from "@/lib/roles";
-import { intOrNull, kwdToFils, langFrom, str, t, UUID_RE } from "./helpers";
+import { intOrNull, kwdToFils, langFrom, password, passwordProblem, str, t, UUID_RE } from "./helpers";
 
 const CATEGORIES: ServiceCategory[] = ["ppf", "ceramic", "tint", "detailing", "other"];
 
@@ -44,9 +44,11 @@ export async function createUser(_: ActionState, formData: FormData): Promise<Ac
   const dict = t(lang);
   const name = str(formData, "name");
   const email = str(formData, "email").toLowerCase();
-  const password = str(formData, "password");
+  const pw = password(formData, "password");
   const roleId = str(formData, "roleId");
-  if (!name || !email || password.length < 8 || !UUID_RE.test(roleId)) return { error: dict.common.required };
+  if (!name || !email || !UUID_RE.test(roleId)) return { error: dict.common.required };
+  const weak = passwordProblem(pw);
+  if (weak) return { error: weak === "long" ? dict.users.passwordLong : dict.users.passwordShort };
 
   const db = await getDb();
   const [role] = await db.select().from(schema.roles).where(eq(schema.roles.id, roleId)).limit(1);
@@ -55,7 +57,7 @@ export async function createUser(_: ActionState, formData: FormData): Promise<Ac
   const [taken] = await db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.email, email)).limit(1);
   if (taken) return { error: dict.users.emailTaken };
 
-  await db.insert(schema.users).values({ name, email, role: legacyRole(role), roleId, passwordHash: await bcrypt.hash(password, 10) });
+  await db.insert(schema.users).values({ name, email, role: legacyRole(role), roleId, passwordHash: await bcrypt.hash(pw, 10) });
   redirect(`/${lang}/users`);
 }
 
@@ -73,11 +75,14 @@ export async function toggleUserActive(formData: FormData) {
     .limit(1);
   // You can't switch off someone with more access than you.
   if (!u || !canGrant(me, u)) return;
-  await db
+  const changed = await db
     .update(schema.users)
     .set({ active: !u.active })
     // Deactivating an admin needs another active admin to remain.
-    .where(and(ne(schema.users.id, me.id), safeToChange(id, u.roleId, u.system && u.active)));
+    .where(and(ne(schema.users.id, me.id), safeToChange(id, u.roleId, u.system && u.active)))
+    .returning({ id: schema.users.id });
+  // A deactivated person is signed out everywhere straight away.
+  if (changed.length > 0 && u.active) await endUserSessions(id);
   refresh();
 }
 
@@ -117,16 +122,18 @@ export async function resetUserPassword(_: ActionState, formData: FormData): Pro
   const me = await requirePermission(lang, "users.manage");
   const U = t(lang).users;
   const id = str(formData, "id");
-  const password = str(formData, "password");
+  const pw = password(formData, "password");
   if (!UUID_RE.test(id) || id === me.id) return { error: U.notAllowed };
-  if (password.length < 8) return { error: U.passwordShort };
+  const weak = passwordProblem(pw);
+  if (weak) return { error: weak === "long" ? U.passwordLong : U.passwordShort };
   const target = await targetOf(id);
   if (!target || !canGrant(me, target)) return { error: U.notAllowed };
   const db = await getDb();
   await db
     .update(schema.users)
-    .set({ passwordHash: await bcrypt.hash(password, 10), sessionVersion: sql`${schema.users.sessionVersion} + 1` })
+    .set({ passwordHash: await bcrypt.hash(pw, 10), sessionVersion: sql`${schema.users.sessionVersion} + 1` })
     .where(eq(schema.users.id, id));
+  await endUserSessions(id);
   return {};
 }
 
@@ -135,20 +142,22 @@ export async function changeOwnPassword(_: ActionState, formData: FormData): Pro
   const lang = langFrom(formData);
   const me = await requireUser(lang);
   const U = t(lang).users;
-  const current = str(formData, "current");
-  const password = str(formData, "password");
-  const confirm = str(formData, "confirm");
-  if (password.length < 8) return { error: U.passwordShort };
-  if (password !== confirm) return { error: U.passwordMismatch };
+  const current = password(formData, "current");
+  const pw = password(formData, "password");
+  const confirm = password(formData, "confirm");
+  const weak = passwordProblem(pw);
+  if (weak) return { error: weak === "long" ? U.passwordLong : U.passwordShort };
+  if (pw !== confirm) return { error: U.passwordMismatch };
   const db = await getDb();
   const [row] = await db.select({ hash: schema.users.passwordHash }).from(schema.users).where(eq(schema.users.id, me.id)).limit(1);
   if (!row || !(await bcrypt.compare(current, row.hash))) return { error: U.currentWrong };
   const [updated] = await db
     .update(schema.users)
-    .set({ passwordHash: await bcrypt.hash(password, 10), sessionVersion: sql`${schema.users.sessionVersion} + 1` })
+    .set({ passwordHash: await bcrypt.hash(pw, 10), sessionVersion: sql`${schema.users.sessionVersion} + 1` })
     .where(eq(schema.users.id, me.id))
     .returning({ version: schema.users.sessionVersion });
-  // Keep this browser signed in with the new version.
+  // Sign out every other browser, and give this one a fresh session.
+  await endUserSessions(me.id);
   await createSession(me.id, updated.version);
   return {};
 }

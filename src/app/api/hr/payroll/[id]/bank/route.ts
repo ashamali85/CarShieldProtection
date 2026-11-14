@@ -3,9 +3,14 @@ import { getDb, schema } from "@/db";
 import { can, getCurrentUser } from "@/lib/auth";
 import { UUID_RE } from "@/lib/actions/helpers";
 
+/**
+ * One CSV cell. Text that a spreadsheet would treat as a formula (starting with = + - @, tab or CR)
+ * is prefixed with an apostrophe so it shows as plain text and never runs.
+ */
 const cell = (v: string | number | null) => {
-  const s = v == null ? "" : String(v);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  let s = v == null ? "" : String(v);
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
 /** Bank transfer list for a payroll run (CSV, admins only). */

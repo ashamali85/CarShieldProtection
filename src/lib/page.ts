@@ -15,6 +15,7 @@ export async function pageContext(
   return { lang, t: getDictionary(lang), user };
 }
 
+/** The first value of a query parameter, trimmed and capped at 200 characters. */
 export function first(v: string | string[] | undefined): string {
-  return (Array.isArray(v) ? v[0] : v)?.trim() ?? "";
+  return ((Array.isArray(v) ? v[0] : v)?.trim() ?? "").slice(0, 200);
 }

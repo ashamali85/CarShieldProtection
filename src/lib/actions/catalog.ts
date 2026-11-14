@@ -85,7 +85,18 @@ async function readLogo(formData: FormData, lang: Parameters<typeof t>[0]): Prom
   if (!LOGO_TYPES.includes(file.type)) return { error: t(lang).catalog.logoType };
   if (file.size > LOGO_MAX_BYTES) return { error: t(lang).catalog.logoTooBig };
   const bytes = Buffer.from(await file.arrayBuffer());
-  return `data:${file.type};base64,${bytes.toString("base64")}`;
+  // Trust the file's content, not the type the browser claims.
+  const type = imageType(bytes);
+  if (!type) return { error: t(lang).catalog.logoType };
+  return `data:${type};base64,${bytes.toString("base64")}`;
+}
+
+/** Recognises PNG, JPEG and WebP by their first bytes. */
+function imageType(b: Buffer): string | null {
+  if (b.length >= 8 && b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+  if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "image/jpeg";
+  if (b.length >= 12 && b.toString("ascii", 0, 4) === "RIFF" && b.toString("ascii", 8, 12) === "WEBP") return "image/webp";
+  return null;
 }
 
 function validYears(yearFrom: number | null, yearTo: number | null) {

@@ -12,6 +12,7 @@ import { VehicleForm } from "@/components/vehicle-form";
 import { getPickerMakes, pickerLabels } from "@/lib/catalog";
 import { assignableStaff } from "@/lib/staff";
 import { DiscountField } from "@/components/discount-field";
+import { likeAny } from "@/lib/actions/helpers";
 
 export default function NewJobPage(props: PageProps<"/[lang]/jobs/new">) {
   return (
@@ -31,7 +32,7 @@ async function NewJob({ params, searchParams }: PageProps<"/[lang]/jobs/new">) {
 
   // Step 1: pick a customer
   if (!UUID_RE.test(customerId)) {
-    const like = `%${q}%`;
+    const like = likeAny(q);
     const byPlate = db.select({ id: schema.vehicles.customerId }).from(schema.vehicles).where(ilike(schema.vehicles.plateNumber, like));
     const customers = await db
       .select({ id: schema.customers.id, name: schema.customers.name, phone: schema.customers.phone })

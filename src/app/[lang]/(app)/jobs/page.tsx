@@ -8,6 +8,7 @@ import { first, pageContext } from "@/lib/page";
 import { EmptyState, JobStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
 import { can } from "@/lib/auth";
 import { codePattern } from "@/lib/doc-numbers";
+import { likeAny } from "@/lib/actions/helpers";
 
 const STATUSES: JobStatus[] = ["scheduled", "in_progress", "quality_check", "completed", "delivered", "cancelled"];
 
@@ -24,8 +25,8 @@ async function Jobs({ params, searchParams }: PageProps<"/[lang]/jobs">) {
   const canAdd = can(user, "jobs.manage");
   const raw = first((await searchParams).status);
   const status = STATUSES.includes(raw as JobStatus) ? (raw as JobStatus) : null;
-  const q = (first((await searchParams).q) ?? "").trim();
-  const like = `%${q}%`;
+  const q = (first((await searchParams).q) ?? "").trim().slice(0, 100);
+  const like = likeAny(q);
   const db = await getDb();
 
   const [rows, counts] = await Promise.all([

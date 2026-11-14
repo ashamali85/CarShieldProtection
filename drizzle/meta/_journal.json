@@ -78,6 +78,13 @@
       "when": 1794331798831,
       "tag": "0010_session_version",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794669123595,
+      "tag": "0011_sessions_and_login_limits",
+      "breakpoints": true
     }
   ]
 }

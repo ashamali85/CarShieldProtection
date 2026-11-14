@@ -56,6 +56,7 @@ const en = {
     email: "Email",
     password: "Password",
     submit: "Sign in",
+    tooMany: "Too many sign-in attempts. For your security, try again in {n} minutes.",
     invalid: "That email and password don't match an active account. Check them and try again.",
   },
   dashboard: {
@@ -294,6 +295,7 @@ const en = {
     resetPassword: "Reset password",
     newPassword: "New password",
     passwordShort: "Use at least 8 characters.",
+    passwordLong: "That password is too long. Use up to 72 characters (about 36 in Arabic).",
     passwordMismatch: "The two new passwords don't match.",
     currentWrong: "Your current password isn't right.",
     passwordReset: "Password changed. They've been signed out and must use the new password.",
@@ -540,6 +542,7 @@ const en = {
       linkedUserHint: "Link to a user account if this employee also uses the system.",
       invalid: "Fill in the name, nationality, job title, hire date and a valid basic salary.",
       invalidMoney: "Enter amounts in KWD, for example 350 or 350.500.",
+      ibanInvalid: "That IBAN isn't valid. A Kuwaiti IBAN is 30 characters, starting with KW, e.g. KW81 CBKU 0000 0000 0000 1234 5601 01.",
       serviceLength: "Service",
       years: "yrs",
       months: "mos",
