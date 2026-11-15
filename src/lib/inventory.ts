@@ -224,3 +224,64 @@ export async function jobMaterials(jobId: string, started: boolean) {
     .groupBy(schema.inventoryItems.id)
     .orderBy(schema.inventoryItems.nameEn);
 }
+
+export type MovementRevision = {
+  /** New quantity change in thousandths (positive for a purchase; either sign for a count correction). 0 removes it. */
+  deltaMilli: number;
+  /** Purchases: what was paid in fils, or null for stock received without a price. */
+  totalCostFils?: number | null;
+  supplier?: string | null;
+  paidWith?: PaymentMethod | null;
+  note?: string | null;
+  createdAt?: Date;
+};
+
+/**
+ * Corrects a recorded purchase or count correction (or removes it when deltaMilli is 0). The item's
+ * stock moves by the difference, and its average cost takes the difference in value, so the stock
+ * still on the shelf carries the corrected price. Costs already charged to past jobs stay as they were.
+ */
+export async function reviseMovement(db: Db, movementId: string, next: MovementRevision): Promise<boolean> {
+  const [mv] = await db.select().from(schema.inventoryMovements).where(eq(schema.inventoryMovements.id, movementId)).limit(1);
+  if (!mv || (mv.reason !== "restock" && mv.reason !== "adjustment")) return false;
+  const [item] = await db.select().from(schema.inventoryItems).where(eq(schema.inventoryItems.id, mv.itemId)).limit(1);
+  if (!item) return false;
+  const current = item.avgCostFils ?? item.unitCostFils ?? null;
+
+  const priced = mv.reason === "restock" && next.totalCostFils != null && next.deltaMilli > 0;
+  // Cost per whole unit of the corrected movement: the price paid, else what it was valued at before.
+  const newUnit = priced ? (next.totalCostFils! * 1000) / next.deltaMilli : (mv.unitCostFils ?? current);
+  const oldValue = (mv.deltaMilli * (mv.unitCostFils ?? current ?? 0)) / 1000;
+  const newValue = (next.deltaMilli * (newUnit ?? 0)) / 1000;
+  const dQty = next.deltaMilli - mv.deltaMilli;
+  const dValue = newValue - oldValue;
+
+  if (next.deltaMilli === 0) {
+    await db.delete(schema.inventoryMovements).where(eq(schema.inventoryMovements.id, movementId));
+  } else {
+    await db
+      .update(schema.inventoryMovements)
+      .set({
+        deltaMilli: next.deltaMilli,
+        unitCostFils: newUnit,
+        totalCostFils: priced ? next.totalCostFils! : null,
+        paidWith: priced ? (next.paidWith ?? "cash") : null,
+        supplier: mv.reason === "restock" ? (next.supplier ?? null) : null,
+        note: next.note ?? null,
+        ...(next.createdAt ? { createdAt: next.createdAt } : {}),
+      })
+      .where(eq(schema.inventoryMovements.id, movementId));
+  }
+
+  const items = schema.inventoryItems;
+  const onHand = item.onHandMilli + dQty;
+  let avg: number | null = current;
+  if (current == null || item.onHandMilli <= 0) avg = priced ? newUnit : current;
+  else if (onHand > 0) avg = Math.max(0, (item.onHandMilli * current + 1000 * dValue) / onHand);
+  // Nothing left on the shelf: the average stays as it was.
+  await db
+    .update(items)
+    .set({ onHandMilli: sql`${items.onHandMilli} + ${dQty}`, avgCostFils: avg, unitCostFils: avg == null ? item.unitCostFils : Math.round(avg) })
+    .where(eq(items.id, mv.itemId));
+  return true;
+}

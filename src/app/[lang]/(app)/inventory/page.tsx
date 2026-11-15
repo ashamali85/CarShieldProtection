@@ -10,6 +10,7 @@ import { can } from "@/lib/auth";
 import { likeAny } from "@/lib/actions/helpers";
 import { deleteInventoryItem } from "@/lib/actions/inventory";
 import { RowDelete } from "@/components/finance/row-delete";
+import { InventoryTabs } from "@/components/area-tabs";
 
 export default function InventoryPage(props: PageProps<"/[lang]/inventory">) {
   return (
@@ -56,7 +57,8 @@ async function Inventory({ params, searchParams }: PageProps<"/[lang]/inventory"
           )
         }
       />
-      <form className="mb-4 flex flex-wrap items-center gap-2" role="search">
+      <InventoryTabs lang={lang} t={t} current="items" />
+      <form className="mb-4 mt-4 flex flex-wrap items-center gap-2" role="search">
         <label htmlFor="q" className="sr-only">
           {t.common.search}
         </label>

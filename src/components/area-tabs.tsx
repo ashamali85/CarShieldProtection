@@ -29,3 +29,12 @@ export function UserTabs({ lang, t, current, users, roles }: { lang: Locale; t: 
   if (tabs.length < 2) return null;
   return <TabsView tabs={tabs} label={t.nav.users} pathname={`/${lang}/${current}`} />;
 }
+
+/** Items · Purchases & counts tabs under Inventory. */
+export function InventoryTabs({ lang, t, current }: { lang: Locale; t: Dictionary; current: "items" | "movements" }) {
+  const tabs = [
+    { href: `/${lang}/inventory`, label: t.inventory.itemsTab, exact: true },
+    { href: `/${lang}/inventory/movements`, label: t.inventory.movementsTab },
+  ];
+  return <TabsView tabs={tabs} label={t.inventory.title} pathname={current === "items" ? `/${lang}/inventory` : `/${lang}/inventory/movements`} />;
+}

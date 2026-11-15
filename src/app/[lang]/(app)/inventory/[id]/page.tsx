@@ -153,6 +153,7 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
                       <th>{t.inventory.type}</th>
                       <th className="text-end">{t.inventory.change}</th>
                       <th>{t.inventory.by}</th>
+                      {isAdmin && <th className="text-end">{t.common.actions}</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -176,6 +177,15 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
                           {formatQty(Math.abs(m.deltaMilli), lang)}
                         </td>
                         <td className="text-muted">{by ?? t.common.none}</td>
+                        {isAdmin && (
+                          <td className="text-end">
+                            {(m.reason === "restock" || m.reason === "adjustment") && (
+                              <Link href={`/${lang}/inventory/movements/${m.id}`} className="btn-ghost min-h-8 px-2 text-xs">
+                                {t.common.edit}
+                              </Link>
+                            )}
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
