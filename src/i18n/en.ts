@@ -307,6 +307,10 @@ const en = {
     yourPasswordHint: "Change your own password here. Other people's passwords can be reset by someone who manages user accounts.",
     ownRow: "Change your own password in My account.",
   },
+  training: {
+    label: "Training",
+    banner: "You're practising on a training copy. Nothing you do here changes the real shop.",
+  },
   roles: {
     title: "Roles",
     subtitle: "What each role can see and do. Changes apply the next time each person opens a page.",

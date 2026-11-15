@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { currentMode } from "@/lib/session-token";
 import Link from "next/link";
 import { lang as langParam } from "next/root-params";
 import { notFound } from "next/navigation";
@@ -61,6 +62,17 @@ function navItems(lang: Locale, user: CurrentUser | null): NavItem[] {
     const items = g.items.filter((i): i is NavItem => !!i);
     return items.map((item, n) => (n === 0 && g.label ? { ...item, group: g.label } : item));
   });
+}
+
+/** Shown on every page while a demo account is signed in, so nobody mistakes practice for the real shop. */
+async function TrainingBanner({ text, label }: { text: string; label: string }) {
+  if ((await currentMode()) !== "training") return null;
+  return (
+    <div role="status" className="sticky top-0 z-30 flex items-center justify-center gap-2 border-b border-amber-300 bg-amber-100 px-4 py-2 text-center text-sm text-amber-950">
+      <span className="badge shrink-0 bg-amber-500 text-white">{label}</span>
+      <span>{text}</span>
+    </div>
+  );
 }
 
 /** Reads the session, so it streams in behind a Suspense boundary. */
@@ -145,6 +157,9 @@ export default async function AppLayout({ children }: LayoutProps<"/[lang]">) {
           <div className="border-t border-white/10 [&_.sidebar-brand]:hidden">{sidebar}</div>
         </details>
 
+        <Suspense fallback={null}>
+          <TrainingBanner text={t.training.banner} label={t.training.label} />
+        </Suspense>
         <header className="no-print flex items-center justify-end px-4 pt-3 sm:px-8">
           <Suspense fallback={null}>
             <LanguageSwitch lang={lang} label={t.nav.language} />

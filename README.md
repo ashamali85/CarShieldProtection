@@ -76,3 +76,19 @@ scripts/db.ts            migrate / seed
 ```
 
 Money is stored as integer fils (1 KWD = 1000 fils). Times are shown in Kuwait time.
+
+## Training copy (demo accounts)
+
+Staff can practise without touching real data. A second database, the Neon branch `training`, is
+set in `TRAINING_DATABASE_URL`. Demo accounts exist **only** in that database.
+
+- At sign-in the app looks the email up in the real database first; if it isn't there, it tries
+  the training copy. The session records which database the person belongs to (inside the signed
+  cookie), and every database call (`getDb()` in `src/db/index.ts`) follows it.
+- A yellow "Training" banner shows on every page while a demo account is signed in.
+- Demo accounts are managed from inside the training copy (sign in as a demo account with user
+  access) or directly in the `training` branch.
+- To start the training copy over from the latest real data, reset the `training` branch from its
+  parent in the Neon console, then re-add the demo accounts (resetting copies the real users too).
+- **Every schema migration must be applied to both databases** (`main` and `training`).
+- Locally: `TRAINING_DATABASE_URL=pglite://./.pglite-training` (optional; leave unset to disable).

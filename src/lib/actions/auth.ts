@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { and, eq, gt, inArray, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getDb, schema } from "@/db";
+import { dbFor, schema, trainingEnabled } from "@/db";
 import type { Db } from "@/db";
 import { createSession, destroySession } from "@/lib/session";
 import type { ActionState } from "@/components/forms";
@@ -57,13 +57,21 @@ export async function login(_: ActionState, formData: FormData): Promise<ActionS
   const pw = password(formData, "password");
   if (!email || !pw) return { error: dict.common.required };
 
-  const db = await getDb();
+  // Sign-in counters always live in the real database.
+  const db = await dbFor("live");
   const ip = await clientIp();
   const keys = [`email:${email}`, `ip:${ip}`];
   const wait = await lockedFor(db, keys);
   if (wait > 0) return { error: dict.login.tooMany.replace("{n}", String(wait)) };
 
-  const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
+  // Real accounts first; an email not found there may be a demo account in the training copy.
+  let mode: "live" | "training" = "live";
+  let [user] = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
+  if (!user && trainingEnabled()) {
+    const training = await dbFor("training");
+    [user] = await training.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
+    if (user) mode = "training";
+  }
   // Always run bcrypt, even for unknown or inactive accounts, so response time doesn't reveal which emails exist.
   const match = await bcrypt.compare(pw, user?.passwordHash ?? DUMMY_HASH);
   if (!user || !user.active || !match) {
@@ -76,7 +84,7 @@ export async function login(_: ActionState, formData: FormData): Promise<ActionS
 
   // A successful sign-in clears that email's counter.
   await db.delete(schema.loginAttempts).where(eq(schema.loginAttempts.key, keys[0]));
-  await createSession(user.id, user.sessionVersion);
+  await createSession(user.id, user.sessionVersion, mode);
   redirect(`/${lang}`);
 }
 

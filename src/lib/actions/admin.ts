@@ -7,6 +7,7 @@ import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requirePermission, requireUser } from "@/lib/auth";
 import { createSession, endUserSessions } from "@/lib/session";
+import { currentMode } from "@/lib/session-token";
 import type { ActionState } from "@/components/forms";
 import type { ServiceCategory } from "@/db/schema";
 import { canGrant, legacyRole, safeToChange } from "@/lib/roles";
@@ -158,6 +159,6 @@ export async function changeOwnPassword(_: ActionState, formData: FormData): Pro
     .returning({ version: schema.users.sessionVersion });
   // Sign out every other browser, and give this one a fresh session.
   await endUserSessions(me.id);
-  await createSession(me.id, updated.version);
+  await createSession(me.id, updated.version, await currentMode());
   return {};
 }
