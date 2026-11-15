@@ -8,6 +8,7 @@ import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import type { BodyType } from "@/db/schema";
 import { intOrNull, langFrom, optStr, str, t, UUID_RE } from "./helpers";
+import { audit, changes } from "@/lib/audit";
 
 function customerFields(formData: FormData) {
   return {
@@ -32,6 +33,7 @@ export async function createCustomer(_: ActionState, formData: FormData): Promis
   const db = await getDb();
   const [row] = await db.insert(schema.customers).values(data).returning({ id: schema.customers.id });
   await db.insert(schema.vehicles).values({ ...vehicle, customerId: row.id });
+  await audit("customer.create", { type: "customer", id: row.id, label: data.name }, { phone: data.phone, car: `${vehicle.make} ${vehicle.model}`, plate: vehicle.plateNumber });
   redirect(`/${lang}/customers/${row.id}`);
 }
 
@@ -44,7 +46,9 @@ export async function updateCustomer(_: ActionState, formData: FormData): Promis
   if (!data.name || !data.phone) return { error: t(lang).common.required };
 
   const db = await getDb();
+  const [before] = await db.select().from(schema.customers).where(eq(schema.customers.id, id)).limit(1);
   await db.update(schema.customers).set(data).where(eq(schema.customers.id, id));
+  await audit("customer.update", { type: "customer", id, label: data.name }, changes(before, data, ["name", "phone", "email", "civilId", "notes"]));
   redirect(`/${lang}/customers/${id}`);
 }
 
@@ -105,6 +109,8 @@ export async function addVehicle(_: ActionState, formData: FormData): Promise<Ac
 
   const db = await getDb();
   await db.insert(schema.vehicles).values({ ...vehicle, customerId });
+  const [owner] = await db.select({ name: schema.customers.name }).from(schema.customers).where(eq(schema.customers.id, customerId)).limit(1);
+  await audit("vehicle.add", { type: "customer", id: customerId, label: owner?.name }, { car: `${vehicle.make} ${vehicle.model}`, plate: vehicle.plateNumber });
 
   const next = str(formData, "next");
   if (next === "job") redirect(`/${lang}/jobs/new?customer=${customerId}`);
@@ -122,9 +128,14 @@ export async function deleteVehicle(formData: FormData) {
   const used = await db.select({ id: schema.jobs.id }).from(schema.jobs).where(eq(schema.jobs.vehicleId, id)).limit(1);
   // Vehicles with job history are kept so records stay intact.
   if (used.length === 0) {
-    await db
+    const gone = await db
       .delete(schema.vehicles)
-      .where(and(eq(schema.vehicles.id, id), eq(schema.vehicles.customerId, customerId)));
+      .where(and(eq(schema.vehicles.id, id), eq(schema.vehicles.customerId, customerId)))
+      .returning({ make: schema.vehicles.make, model: schema.vehicles.model, plate: schema.vehicles.plateNumber });
+    if (gone[0]) {
+      const [owner] = await db.select({ name: schema.customers.name }).from(schema.customers).where(eq(schema.customers.id, customerId)).limit(1);
+      await audit("vehicle.delete", { type: "customer", id: customerId, label: owner?.name }, { car: `${gone[0].make} ${gone[0].model}`, plate: gone[0].plate });
+    }
   }
   refresh();
 }
@@ -137,5 +148,8 @@ export async function saveCustomerPhone(formData: FormData) {
   const phone = str(formData, "phone").slice(0, 30);
   if (!UUID_RE.test(id) || !phone) return;
   const db = await getDb();
+  const [before] = await db.select({ name: schema.customers.name, phone: schema.customers.phone }).from(schema.customers).where(eq(schema.customers.id, id)).limit(1);
+  if (!before || before.phone === phone) return;
   await db.update(schema.customers).set({ phone }).where(eq(schema.customers.id, id));
+  await audit("customer.phone", { type: "customer", id, label: before.name }, { phone: [before.phone, phone] });
 }

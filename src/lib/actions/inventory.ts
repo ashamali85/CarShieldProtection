@@ -9,6 +9,13 @@ import { moveStock } from "@/lib/inventory";
 import type { ActionState } from "@/components/forms";
 import type { InventoryUnit } from "@/db/schema";
 import { kwdToFils, langFrom, optStr, qtyToMilli, str, t, UUID_RE } from "./helpers";
+import { audit, changes } from "@/lib/audit";
+
+async function itemName(id: string) {
+  const db = await getDb();
+  const [i] = await db.select({ name: schema.inventoryItems.nameEn }).from(schema.inventoryItems).where(eq(schema.inventoryItems.id, id)).limit(1);
+  return i?.name ?? null;
+}
 
 const UNITS: InventoryUnit[] = ["piece", "roll", "meter", "sqm", "ml", "liter", "box", "pack"];
 
@@ -38,14 +45,16 @@ export async function saveInventoryItem(_: ActionState, formData: FormData): Pro
 
   const db = await getDb();
   if (UUID_RE.test(id)) {
-    const [before] = await db.select({ cost: schema.inventoryItems.unitCostFils }).from(schema.inventoryItems).where(eq(schema.inventoryItems.id, id)).limit(1);
+    const [before] = await db.select().from(schema.inventoryItems).where(eq(schema.inventoryItems.id, id)).limit(1);
     // A hand-entered cost replaces the running average; an unchanged one keeps its precision.
-    const avg = before && before.cost !== unitCostFils ? { avgCostFils: unitCostFils } : {};
+    const avg = before && before.unitCostFils !== unitCostFils ? { avgCostFils: unitCostFils } : {};
     await db.update(schema.inventoryItems).set({ ...values, ...avg }).where(eq(schema.inventoryItems.id, id));
+    await audit("inventory.update", { type: "inventory", id, label: nameEn }, changes(before, values, ["nameEn", "nameAr", "unit", "sku", "reorderLevelMilli", "unitCostFils", "active"]));
     redirect(`/${lang}/inventory/${id}`);
   }
   const [item] = await db.insert(schema.inventoryItems).values({ ...values, avgCostFils: unitCostFils }).returning({ id: schema.inventoryItems.id });
   const opening = qtyToMilli(str(formData, "openingStock"));
+  await audit("inventory.create", { type: "inventory", id: item.id, label: nameEn }, { quantity: opening ? opening / 1000 : 0, unitCostFils });
   if (opening) {
     await moveStock(db, { itemId: item.id, deltaMilli: opening, reason: "restock", userId: user.id, note: dict.inventory.openingStock });
   }
@@ -75,6 +84,7 @@ export async function receiveStock(_: ActionState, formData: FormData): Promise<
     supplier: optStr(formData, "supplier"),
     paidWith: paidWith ?? "cash",
   });
+  await audit("inventory.receive", { type: "inventory", id: itemId, label: await itemName(itemId) }, { quantity: qty / 1000, totalFils: total, supplier: optStr(formData, "supplier") });
   refresh();
   return undefined;
 }
@@ -96,6 +106,7 @@ export async function adjustStock(_: ActionState, formData: FormData): Promise<A
     userId: user.id,
     note: optStr(formData, "note"),
   });
+  await audit("inventory.adjust", { type: "inventory", id: itemId, label: item.nameEn }, { quantity: [item.onHandMilli / 1000, counted / 1000], notes: optStr(formData, "note") });
   refresh();
   return undefined;
 }
@@ -116,6 +127,8 @@ export async function setServiceMaterial(_: ActionState, formData: FormData): Pr
       target: [schema.serviceMaterials.serviceId, schema.serviceMaterials.itemId],
       set: { quantityMilli: qty },
     });
+  const [svc] = await db.select({ name: schema.services.nameEn }).from(schema.services).where(eq(schema.services.id, serviceId)).limit(1);
+  await audit("service.material", { type: "service", id: serviceId, label: svc?.name }, { item: await itemName(itemId), quantity: qty / 1000 });
   refresh();
   return undefined;
 }
@@ -127,8 +140,13 @@ export async function removeServiceMaterial(formData: FormData) {
   const serviceId = str(formData, "serviceId");
   if (!UUID_RE.test(id) || !UUID_RE.test(serviceId)) return;
   const db = await getDb();
-  await db
+  const gone = await db
     .delete(schema.serviceMaterials)
-    .where(and(eq(schema.serviceMaterials.id, id), eq(schema.serviceMaterials.serviceId, serviceId)));
+    .where(and(eq(schema.serviceMaterials.id, id), eq(schema.serviceMaterials.serviceId, serviceId)))
+    .returning({ itemId: schema.serviceMaterials.itemId });
+  if (gone[0]) {
+    const [svc] = await db.select({ name: schema.services.nameEn }).from(schema.services).where(eq(schema.services.id, serviceId)).limit(1);
+    await audit("service.removeMaterial", { type: "service", id: serviceId, label: svc?.name }, { item: await itemName(gone[0].itemId) });
+  }
   refresh();
 }

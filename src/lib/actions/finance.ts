@@ -9,6 +9,13 @@ import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import { addDaysIso } from "@/lib/hr";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
+import { audit, changes } from "@/lib/audit";
+
+async function contractName(id: string) {
+  const db = await getDb();
+  const [c] = await db.select({ name: schema.recurringCosts.name }).from(schema.recurringCosts).where(eq(schema.recurringCosts.id, id)).limit(1);
+  return c?.name ?? null;
+}
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 /** A real calendar date between 2000 and 2100 (rejects 2026-02-31). */
@@ -46,9 +53,7 @@ export async function saveExpense(_: ActionState, fd: FormData): Promise<ActionS
   const db = await getDb();
   const [cat] = await db.select({ kind: schema.expenseCategories.kind }).from(schema.expenseCategories).where(eq(schema.expenseCategories.id, categoryId)).limit(1);
   if (!cat) return { error: X.invalid };
-  const existing = UUID_RE.test(id)
-    ? (await db.select({ contractId: schema.expenses.contractId }).from(schema.expenses).where(eq(schema.expenses.id, id)).limit(1))[0]
-    : undefined;
+  const existing = UUID_RE.test(id) ? (await db.select().from(schema.expenses).where(eq(schema.expenses.id, id)).limit(1))[0] : undefined;
   // Optional period the payment covers. Not used for assets or contract payments.
   let periodFrom: string | null = null;
   let periodTo: string | null = null;
@@ -65,9 +70,11 @@ export async function saveExpense(_: ActionState, fd: FormData): Promise<ActionS
       if (c) values.categoryId = c.categoryId;
     }
     await db.update(schema.expenses).set(values).where(eq(schema.expenses.id, id));
+    await audit("expense.update", { type: "expense", id, label: description }, changes(existing, values, ["date", "categoryId", "description", "amountFils", "method", "vendor", "reference", "periodFrom", "periodTo"]));
     redirect(back(fd, lang, `/${lang}/finance/expenses`));
   }
-  await db.insert(schema.expenses).values({ ...values, createdById: user.id });
+  const [row] = await db.insert(schema.expenses).values({ ...values, createdById: user.id }).returning({ id: schema.expenses.id });
+  await audit("expense.create", { type: "expense", id: row.id, label: description }, { amountFils: amount, method: m, date, vendor: values.vendor });
   refresh();
   return undefined;
 }
@@ -78,7 +85,8 @@ export async function deleteExpense(_: ActionState, fd: FormData): Promise<Actio
   const id = str(fd, "id");
   if (!UUID_RE.test(id)) return undefined;
   const db = await getDb();
-  await db.delete(schema.expenses).where(eq(schema.expenses.id, id));
+  const gone = await db.delete(schema.expenses).where(eq(schema.expenses.id, id)).returning();
+  if (gone[0]) await audit("expense.delete", { type: "expense", label: gone[0].description }, { amountFils: gone[0].amountFils, date: gone[0].date });
   refresh();
   return undefined;
 }
@@ -93,6 +101,7 @@ export async function saveCashEntry(_: ActionState, fd: FormData): Promise<Actio
   if (!DATE.test(date) || !kind || !amount || !m) return { error: t(lang).finance.money.invalid };
   const db = await getDb();
   await db.insert(schema.cashEntries).values({ date, kind, amountFils: amount, method: m, description: optStr(fd, "description"), createdById: user.id });
+  await audit("cash.create", { type: "cash", label: t("en").finance.money.kinds[kind] }, { kind, amountFils: amount, method: m, date, description: optStr(fd, "description") });
   refresh();
   return undefined;
 }
@@ -103,7 +112,8 @@ export async function deleteCashEntry(_: ActionState, fd: FormData): Promise<Act
   const id = str(fd, "id");
   if (!UUID_RE.test(id)) return undefined;
   const db = await getDb();
-  await db.delete(schema.cashEntries).where(eq(schema.cashEntries.id, id));
+  const gone = await db.delete(schema.cashEntries).where(eq(schema.cashEntries.id, id)).returning();
+  if (gone[0]) await audit("cash.delete", { type: "cash", label: gone[0].description ?? gone[0].kind }, { kind: gone[0].kind, amountFils: gone[0].amountFils, date: gone[0].date });
   refresh();
   return undefined;
 }
@@ -118,7 +128,9 @@ export async function saveFinanceSettings(_: ActionState, fd: FormData): Promise
   if (amount === null || !DATE.test(date)) return { error: t(lang).finance.settings.invalid };
   const db = await getDb();
   const values = { id: 1, openingCashFils: negative ? -amount : amount, openingDate: date };
+  const [before] = await db.select().from(schema.financeSettings).limit(1);
   await db.insert(schema.financeSettings).values(values).onConflictDoUpdate({ target: schema.financeSettings.id, set: { ...values, updatedAt: new Date() } });
+  await audit("finance.settings", null, { openingCashFils: [before?.openingCashFils ?? null, values.openingCashFils], date: [before?.openingDate ?? null, date] });
   refresh();
   return undefined;
 }
@@ -146,9 +158,11 @@ export async function saveExpenseCategory(_: ActionState, fd: FormData): Promise
   }
   if (UUID_RE.test(id)) {
     await db.update(schema.expenseCategories).set({ nameEn, nameAr, kind, active: fd.get("active") === "on" }).where(eq(schema.expenseCategories.id, id));
+    await audit("finance.category", { type: "category", id, label: nameEn }, { kind, active: fd.get("active") === "on" });
   } else {
     const code = `${nameEn.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 30) || "cat"}_${Date.now().toString(36)}`;
     await db.insert(schema.expenseCategories).values({ code, nameEn, nameAr, kind, sortOrder: 50 });
+    await audit("finance.category", { type: "category", label: nameEn }, { kind });
   }
   refresh();
   return undefined;
@@ -187,7 +201,9 @@ export async function saveContract(_: ActionState, fd: FormData): Promise<Action
     // The new start can't pass an amount change, and the first amount always starts with the contract.
     if (rates.slice(1).some((r) => r.from <= startDate)) return { error: C.startAfterChange };
     if (endDate && rates.slice(1).some((r) => r.from > endDate)) return { error: C.endBeforeChange };
+    const [before] = await db.select().from(schema.recurringCosts).where(eq(schema.recurringCosts.id, id)).limit(1);
     await db.update(schema.recurringCosts).set(values).where(eq(schema.recurringCosts.id, id));
+    await audit("contract.update", { type: "contract", id, label: name }, changes(before, values, ["name", "categoryId", "vendor", "startDate", "endDate", "dueDay", "notes"]));
     if (rates[0] && rates[0].from !== startDate) await db.update(schema.recurringCostRates).set({ effectiveFrom: startDate }).where(eq(schema.recurringCostRates.id, rates[0].id));
     // Payments follow the contract's category.
     await db.update(schema.expenses).set({ categoryId }).where(eq(schema.expenses.contractId, id));
@@ -196,6 +212,7 @@ export async function saveContract(_: ActionState, fd: FormData): Promise<Action
   }
   const [row] = await db.insert(schema.recurringCosts).values(values).returning({ id: schema.recurringCosts.id });
   await db.insert(schema.recurringCostRates).values({ contractId: row.id, effectiveFrom: startDate, monthlyFils: monthly });
+  await audit("contract.create", { type: "contract", id: row.id, label: name }, { monthlyFils: monthly, startDate, endDate, vendor: values.vendor });
   redirect(`/${lang}/finance/contracts/${row.id}`);
 }
 
@@ -207,7 +224,8 @@ export async function deleteContract(_: ActionState, fd: FormData): Promise<Acti
   const db = await getDb();
   const [{ n }] = await db.select({ n: count() }).from(schema.expenses).where(eq(schema.expenses.contractId, id));
   if (n > 0) return { error: t(lang).finance.contracts.cannotDelete };
-  await db.delete(schema.recurringCosts).where(eq(schema.recurringCosts.id, id));
+  const gone = await db.delete(schema.recurringCosts).where(eq(schema.recurringCosts.id, id)).returning({ name: schema.recurringCosts.name });
+  if (gone[0]) await audit("contract.delete", { type: "contract", label: gone[0].name });
   redirect(`/${lang}/finance/contracts`);
 }
 
@@ -229,6 +247,7 @@ export async function addContractRate(_: ActionState, fd: FormData): Promise<Act
     .limit(1);
   if (clash) return { error: C.rateExists };
   await db.insert(schema.recurringCostRates).values({ contractId, effectiveFrom, monthlyFils: monthly });
+  await audit("contract.rate", { type: "contract", id: contractId, label: await contractName(contractId) }, { monthlyFils: monthly, startDate: effectiveFrom });
   refresh();
   return undefined;
 }
@@ -247,7 +266,11 @@ export async function deleteContractRate(_: ActionState, fd: FormData): Promise<
     .where(eq(schema.recurringCostRates.contractId, contractId))
     .orderBy(asc(schema.recurringCostRates.effectiveFrom));
   if (rates.length < 2 || rates[0].id === id) return undefined;
-  await db.delete(schema.recurringCostRates).where(and(eq(schema.recurringCostRates.id, id), eq(schema.recurringCostRates.contractId, contractId)));
+  const gone = await db
+    .delete(schema.recurringCostRates)
+    .where(and(eq(schema.recurringCostRates.id, id), eq(schema.recurringCostRates.contractId, contractId)))
+    .returning();
+  if (gone[0]) await audit("contract.deleteRate", { type: "contract", id: contractId, label: await contractName(contractId) }, { monthlyFils: gone[0].monthlyFils, startDate: gone[0].effectiveFrom });
   refresh();
   return undefined;
 }
@@ -275,6 +298,7 @@ export async function recordContractPayment(_: ActionState, fd: FormData): Promi
     contractId,
     createdById: user.id,
   });
+  await audit("contract.payment", { type: "contract", id: contractId, label: c.name }, { amountFils: amount, method: m, date });
   refresh();
   return undefined;
 }
@@ -289,10 +313,12 @@ export async function linkExpenseToContract(_: ActionState, fd: FormData): Promi
   const db = await getDb();
   const [c] = await db.select({ categoryId: schema.recurringCosts.categoryId }).from(schema.recurringCosts).where(eq(schema.recurringCosts.id, contractId)).limit(1);
   if (!c) return undefined;
-  await db
+  const linked = await db
     .update(schema.expenses)
     .set({ contractId, categoryId: c.categoryId, periodFrom: null, periodTo: null })
-    .where(and(eq(schema.expenses.id, id), isNull(schema.expenses.contractId)));
+    .where(and(eq(schema.expenses.id, id), isNull(schema.expenses.contractId)))
+    .returning({ description: schema.expenses.description, amountFils: schema.expenses.amountFils });
+  if (linked[0]) await audit("contract.link", { type: "contract", id: contractId, label: await contractName(contractId) }, { description: linked[0].description, amountFils: linked[0].amountFils });
   refresh();
   return undefined;
 }

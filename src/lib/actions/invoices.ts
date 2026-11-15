@@ -10,6 +10,7 @@ import type { PaymentMethod } from "@/db/schema";
 import { jobDiscount, subtotalOf } from "@/lib/pricing";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE } from "./helpers";
 import { nextDocCode } from "@/lib/doc-numbers";
+import { audit } from "@/lib/audit";
 
 export async function createInvoice(formData: FormData) {
   const lang = langFrom(formData);
@@ -44,13 +45,14 @@ export async function createInvoice(formData: FormData) {
       status: subtotal - discount === 0 ? "paid" : "unpaid",
     })
     .onConflictDoNothing()
-    .returning({ id: schema.invoices.id });
+    .returning({ id: schema.invoices.id, code: schema.invoices.code, totalFils: schema.invoices.totalFils });
 
   if (!invoice) {
     // Another request created it at the same moment.
     const [row] = await db.select({ id: schema.invoices.id }).from(schema.invoices).where(eq(schema.invoices.jobId, jobId)).limit(1);
     redirect(`/${lang}/invoices/${row.id}`);
   }
+  await audit("invoice.create", { type: "invoice", id: invoice.id, label: invoice.code }, { job: job.code, totalFils: invoice.totalFils });
   redirect(`/${lang}/invoices/${invoice.id}`);
 }
 
@@ -96,6 +98,8 @@ export async function recordPayment(_: ActionState, formData: FormData): Promise
     .update(schema.invoices)
     .set({ status: sql`case when ${paidSoFar} >= ${schema.invoices.totalFils} then 'paid' when ${paidSoFar} > 0 then 'partial' else 'unpaid' end::invoice_status` })
     .where(and(eq(schema.invoices.id, invoiceId), ne(schema.invoices.status, "void")));
+
+  await audit("invoice.payment", { type: "invoice", id: invoiceId, label: invoice.code }, { amountFils: amount, method, reference: optStr(formData, "reference") });
 
   // Back to the invoice with the WhatsApp box highlighted, ready to send the customer their invoice.
   redirect(`/${lang}/invoices/${invoiceId}?paid=1`);

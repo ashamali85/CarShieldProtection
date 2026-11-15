@@ -8,6 +8,14 @@ import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import type { BodyType } from "@/db/schema";
 import { intOrNull, langFrom, str, t, UUID_RE } from "./helpers";
+import { audit } from "@/lib/audit";
+
+const years = (from: number | null, to: number | null) => (from ? `${from}–${to ?? ""}` : null);
+async function makeName(id: string) {
+  const db = await getDb();
+  const [m] = await db.select({ name: schema.carMakes.name }).from(schema.carMakes).where(eq(schema.carMakes.id, id)).limit(1);
+  return m?.name ?? null;
+}
 
 const BODY_TYPES: BodyType[] = ["sedan", "hatchback", "coupe", "convertible", "suv", "pickup", "van", "minivan", "wagon"];
 
@@ -20,6 +28,7 @@ export async function addMake(_: ActionState, formData: FormData): Promise<Actio
   const db = await getDb();
   const [row] = await db.insert(schema.carMakes).values({ name, nameAr }).onConflictDoNothing().returning({ id: schema.carMakes.id });
   if (!row) return { error: t(lang).catalog.brandExists };
+  await audit("catalog.addMake", { type: "make", id: row.id, label: name });
   redirect(`/${lang}/catalog/${row.id}`);
 }
 
@@ -42,6 +51,7 @@ export async function addModel(_: ActionState, formData: FormData): Promise<Acti
       target: [schema.carModels.makeId, schema.carModels.name, schema.carModels.bodyType],
       set: { yearFrom: yearFrom!, yearTo, active: true },
     });
+  await audit("catalog.addModel", { type: "make", id: makeId, label: `${await makeName(makeId)} ${name}` }, { bodyType: bodies.join(", "), years: years(yearFrom, yearTo) });
   refresh();
   return undefined;
 }
@@ -54,8 +64,9 @@ export async function toggleModel(formData: FormData) {
   const makeId = str(formData, "makeId");
   if (!UUID_RE.test(id) || !UUID_RE.test(makeId)) return;
   const db = await getDb();
-  const [m] = await db.select({ active: schema.carModels.active }).from(schema.carModels).where(eq(schema.carModels.id, id)).limit(1);
+  const [m] = await db.select({ active: schema.carModels.active, name: schema.carModels.name }).from(schema.carModels).where(eq(schema.carModels.id, id)).limit(1);
   if (!m) return;
+  await audit("catalog.toggleModel", { type: "make", id: makeId, label: `${await makeName(makeId)} ${m.name}` }, { active: [m.active, !m.active] });
   await db
     .update(schema.carModels)
     .set({ active: !m.active })
@@ -69,8 +80,9 @@ export async function toggleMake(formData: FormData) {
   const id = str(formData, "id");
   if (!UUID_RE.test(id)) return;
   const db = await getDb();
-  const [m] = await db.select({ active: schema.carMakes.active }).from(schema.carMakes).where(eq(schema.carMakes.id, id)).limit(1);
+  const [m] = await db.select({ active: schema.carMakes.active, name: schema.carMakes.name }).from(schema.carMakes).where(eq(schema.carMakes.id, id)).limit(1);
   if (!m) return;
+  await audit("catalog.toggleMake", { type: "make", id, label: m.name }, { active: [m.active, !m.active] });
   await db.update(schema.carMakes).set({ active: !m.active }).where(eq(schema.carMakes.id, id));
   refresh();
 }
@@ -126,7 +138,9 @@ export async function updateMake(_: ActionState, formData: FormData): Promise<Ac
   const set: Partial<typeof schema.carMakes.$inferInsert> = { name, nameAr };
   if (logo) set.logoUrl = logo;
   else if (formData.get("removeLogo") === "1") set.logoUrl = null;
+  const before = await makeName(id);
   await db.update(schema.carMakes).set(set).where(eq(schema.carMakes.id, id));
+  await audit("catalog.updateMake", { type: "make", id, label: name }, { name: before !== name ? [before, name] : undefined, logo: logo ? "new" : set.logoUrl === null ? "removed" : undefined });
   refresh();
   return undefined;
 }
@@ -138,7 +152,8 @@ export async function deleteMake(_: ActionState, formData: FormData): Promise<Ac
   const id = str(formData, "id");
   if (!UUID_RE.test(id)) return { error: t(lang).common.required };
   const db = await getDb();
-  await db.delete(schema.carMakes).where(eq(schema.carMakes.id, id));
+  const gone = await db.delete(schema.carMakes).where(eq(schema.carMakes.id, id)).returning({ name: schema.carMakes.name });
+  if (gone[0]) await audit("catalog.deleteMake", { type: "make", label: gone[0].name });
   redirect(`/${lang}/catalog`);
 }
 
@@ -173,6 +188,7 @@ export async function updateModel(_: ActionState, formData: FormData): Promise<A
     .update(schema.carModels)
     .set({ name, bodyType, yearFrom: yearFrom!, yearTo })
     .where(and(eq(schema.carModels.id, id), eq(schema.carModels.makeId, makeId)));
+  await audit("catalog.updateModel", { type: "make", id: makeId, label: `${await makeName(makeId)} ${name}` }, { bodyType, years: years(yearFrom, yearTo) });
   refresh();
   return undefined;
 }
@@ -184,7 +200,11 @@ export async function deleteModel(_: ActionState, formData: FormData): Promise<A
   const makeId = str(formData, "makeId");
   if (!UUID_RE.test(id) || !UUID_RE.test(makeId)) return { error: t(lang).common.required };
   const db = await getDb();
-  await db.delete(schema.carModels).where(and(eq(schema.carModels.id, id), eq(schema.carModels.makeId, makeId)));
+  const gone = await db
+    .delete(schema.carModels)
+    .where(and(eq(schema.carModels.id, id), eq(schema.carModels.makeId, makeId)))
+    .returning({ name: schema.carModels.name, bodyType: schema.carModels.bodyType });
+  if (gone[0]) await audit("catalog.deleteModel", { type: "make", id: makeId, label: `${await makeName(makeId)} ${gone[0].name}` }, { bodyType: gone[0].bodyType });
   refresh();
   return undefined;
 }

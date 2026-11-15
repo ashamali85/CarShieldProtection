@@ -10,6 +10,14 @@ import type { ActionState } from "@/components/forms";
 import { buildPayslip, employeesInMonth, evaluateLeave, getHrSettings, rebandLeave, touchesLockedPayroll } from "@/lib/hr-data";
 import { calendarDays, computePayslip } from "@/lib/hr";
 import { kwdToFils, langFrom, optStr, str, t, UUID_RE, validIban } from "./helpers";
+import { audit, changes } from "@/lib/audit";
+
+async function employeeName(id: string) {
+  const db = await getDb();
+  const [e] = await db.select({ name: schema.employees.fullName }).from(schema.employees).where(eq(schema.employees.id, id)).limit(1);
+  return e?.name ?? null;
+}
+const monthLabel = (year: number, month: number) => `${year}-${String(month).padStart(2, "0")}`;
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const isDate = (v: string) => ISO_DATE.test(v) && !Number.isNaN(Date.parse(v));
@@ -91,10 +99,18 @@ export async function saveEmployee(_: ActionState, fd: FormData): Promise<Action
 
   const db = await getDb();
   if (UUID_RE.test(id)) {
+    const [before] = await db.select().from(schema.employees).where(eq(schema.employees.id, id)).limit(1);
     await db.update(schema.employees).set(values).where(eq(schema.employees.id, id));
+    // Personal documents (civil ID, passport, IBAN) are noted as changed without copying them into the log.
+    const diff = changes(before, values, ["fullName", "fullNameAr", "nationality", "jobTitle", "department", "hireDate", "contractType", "contractEnd", "basicSalaryFils", "housingAllowanceFils", "transportAllowanceFils", "otherAllowanceFils", "pifssSalaryFils", "leaveOpeningDays", "phone", "email"]);
+    for (const k of ["civilId", "passportNo", "iban", "bankName", "dateOfBirth", "civilIdExpiry", "passportExpiry", "residencyExpiry"] as const) {
+      if (before && (before[k] ?? null) !== (values[k] ?? null)) diff[k] = "changed";
+    }
+    await audit("employee.update", { type: "employee", id, label: fullName }, diff);
     redirect(`/${lang}/hr/employees/${id}`);
   }
   const [row] = await db.insert(schema.employees).values(values).returning({ id: schema.employees.id });
+  await audit("employee.create", { type: "employee", id: row.id, label: fullName }, { jobTitle, hireDate, basicSalaryFils: basic! });
   redirect(`/${lang}/hr/employees/${row.id}`);
 }
 
@@ -108,6 +124,7 @@ export async function endService(_: ActionState, fd: FormData): Promise<ActionSt
   const [emp] = UUID_RE.test(id) ? await db.select().from(schema.employees).where(eq(schema.employees.id, id)).limit(1) : [];
   if (!emp || !isDate(endDate) || endDate < emp.hireDate || !SEPARATION.includes(reason)) return { error: t(lang).hr.separation.invalid };
   await db.update(schema.employees).set({ status: "terminated", endDate, separationReason: reason }).where(eq(schema.employees.id, id));
+  await audit("employee.endService", { type: "employee", id, label: emp.fullName }, { endDate, reason });
   refresh();
   return undefined;
 }
@@ -119,6 +136,7 @@ export async function reinstateEmployee(fd: FormData) {
   if (!UUID_RE.test(id)) return;
   const db = await getDb();
   await db.update(schema.employees).set({ status: "active", endDate: null, separationReason: null }).where(eq(schema.employees.id, id));
+  await audit("employee.reinstate", { type: "employee", id, label: await employeeName(id) });
   refresh();
 }
 
@@ -162,6 +180,7 @@ export async function recordLeave(_: ActionState, fd: FormData): Promise<ActionS
     decidedAt: status === "approved" ? new Date() : null,
   });
   if (status === "approved") await rebandLeave(db, employeeId, type);
+  await audit("leave.record", { type: "employee", id: employeeId, label: emp.fullName }, { kind: type.nameEn, period: `${start} – ${end}`, days, status });
   const back = str(fd, "back");
   redirect(back.startsWith(`/${lang}/hr/`) ? back : `/${lang}/hr/leave`);
 }
@@ -199,6 +218,7 @@ export async function decideLeave(_: ActionState, fd: FormData): Promise<ActionS
       .set({ status: decision as "rejected" | "cancelled", unpaidCentiDays: 0, decidedById: user.id, decidedAt: new Date() })
       .where(eq(schema.leaveRequests.id, id));
   }
+  await audit("leave.decide", { type: "employee", id: req.employeeId, label: await employeeName(req.employeeId) }, { period: `${req.startDate} – ${req.endDate}`, days: req.days, status: [req.status, decision] });
   // Pay bands of this employee's other leave of the same type may shift (e.g. after a cancellation).
   const [type] = await db.select().from(schema.leaveTypes).where(eq(schema.leaveTypes.id, req.leaveTypeId)).limit(1);
   if (type) await rebandLeave(db, req.employeeId, type);
@@ -233,6 +253,7 @@ export async function startPayroll(_: ActionState, fd: FormData): Promise<Action
   const rows = [];
   for (const e of emps) rows.push({ runId: run.id, ...(await buildPayslip(db, e, year, month, s)) });
   await db.insert(schema.payslips).values(rows);
+  await audit("payroll.start", { type: "payroll", id: run.id, label: monthLabel(year, month) }, { employees: rows.length });
   redirect(`/${lang}/hr/payroll/${run.id}`);
 }
 
@@ -275,6 +296,7 @@ export async function recalcPayroll(_: ActionState, fd: FormData): Promise<Actio
   }
   // Employees no longer in the month (e.g. hire date moved) drop out of the draft.
   for (const stale of byEmp.values()) await db.delete(schema.payslips).where(eq(schema.payslips.id, stale.id));
+  await audit("payroll.recalc", { type: "payroll", id, label: monthLabel(run.year, run.month) }, { employees: emps.length });
   refresh();
   return undefined;
 }
@@ -333,6 +355,12 @@ export async function adjustPayslip(_: ActionState, fd: FormData): Promise<Actio
       ...amounts,
     })
     .where(eq(schema.payslips.id, id));
+  const run = await draftRun(db, slip.runId);
+  await audit(
+    "payroll.adjust",
+    { type: "payroll", id: slip.runId, label: `${run ? monthLabel(run.year, run.month) : ""} · ${emp.fullName}` },
+    changes(slip, { bonusFils: bonus!, otherDeductionFils: otherDed!, absenceDays, overtimeNormalCentiHours: otN!, overtimeRestCentiHours: otR!, overtimeHolidayCentiHours: otH! }, ["bonusFils", "otherDeductionFils", "absenceDays", "overtimeNormalCentiHours", "overtimeRestCentiHours", "overtimeHolidayCentiHours"]),
+  );
   refresh();
   return undefined;
 }
@@ -356,6 +384,7 @@ export async function setPayrollStatus(_: ActionState, fd: FormData): Promise<Ac
       paidAt: to === "paid" ? new Date() : null,
     })
     .where(eq(schema.payrollRuns.id, id));
+  await audit("payroll.status", { type: "payroll", id, label: monthLabel(run.year, run.month) }, { status: [run.status, to] });
   refresh();
   return undefined;
 }
@@ -365,8 +394,10 @@ export async function deletePayroll(_: ActionState, fd: FormData): Promise<Actio
   await requirePermission(lang, "hr.manage");
   const id = str(fd, "id");
   const db = await getDb();
-  if (!UUID_RE.test(id) || !(await draftRun(db, id))) return { error: t(lang).hr.payroll.lockedHint };
+  const run = UUID_RE.test(id) ? await draftRun(db, id) : null;
+  if (!run) return { error: t(lang).hr.payroll.lockedHint };
   await db.delete(schema.payrollRuns).where(eq(schema.payrollRuns.id, id));
+  await audit("payroll.delete", { type: "payroll", label: monthLabel(run.year, run.month) });
   redirect(`/${lang}/hr/payroll`);
 }
 
@@ -415,6 +446,12 @@ export async function saveHrSettings(_: ActionState, fd: FormData): Promise<Acti
     return { error: S.invalid };
   }
   const db = await getDb();
+  // Each setting that changed, as "pifss.employee.basic: 10.5 → 11".
+  const flatten = (o: object, pre = ""): Record<string, number> =>
+    Object.entries(o).reduce((acc, [k, v]) => ({ ...acc, ...(typeof v === "object" && v ? flatten(v, `${pre}${k}.`) : { [`${pre}${k}`]: v }) }), {});
+  const was = flatten(await getHrSettings(db));
+  const now = flatten(settings);
+  await audit("hr.settings", null, Object.fromEntries(Object.keys(now).filter((k) => was[k] !== now[k]).map((k) => [k, [was[k] ?? null, now[k]]])));
   await db
     .insert(schema.hrSettings)
     .values({ id: 1, settings })
@@ -458,6 +495,7 @@ export async function saveLeaveType(_: ActionState, fd: FormData): Promise<Actio
     if (payPct !== null && cur.payTiers.length === 1) payTiers = [{ days: allowanceDays, pct: payPct }];
     else if (cur.payTiers.length === 1) payTiers = [{ days: allowanceDays, pct: cur.payTiers[0].pct }];
     await db.update(schema.leaveTypes).set({ ...common, payTiers }).where(eq(schema.leaveTypes.id, id));
+    await audit("hr.leaveType", { type: "leaveType", id, label: nameEn }, changes(cur, common, ["nameEn", "nameAr", "allowanceDays", "minServiceMonths", "period", "femaleOnly", "active"]));
   } else {
     const code = nameEn
       .toLowerCase()
@@ -470,6 +508,7 @@ export async function saveLeaveType(_: ActionState, fd: FormData): Promise<Actio
       .onConflictDoNothing()
       .returning({ id: schema.leaveTypes.id });
     if (!row) return { error: S.typeExists };
+    await audit("hr.leaveType", { type: "leaveType", id: row.id, label: nameEn }, { allowanceDays, period });
   }
   refresh();
   return undefined;

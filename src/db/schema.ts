@@ -77,6 +77,31 @@ export const loginAttempts = pgTable("login_attempts", {
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
 });
 
+/**
+ * Who did what and when. Entries are only ever added, never changed or deleted. The person's name and
+ * email are copied in so the history still reads correctly after an account is renamed or deleted.
+ */
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+    userId: uuid("user_id"),
+    userName: text("user_name"),
+    userEmail: text("user_email"),
+    /** e.g. "job.create"; the first part is the area. */
+    action: text("action").notNull(),
+    entityType: text("entity_type"),
+    entityId: text("entity_id"),
+    /** What it was about, as people know it: a job code, a customer's name, an email address. */
+    entityLabel: text("entity_label"),
+    /** Extra facts (amounts, old → new values). Never passwords. */
+    details: jsonb("details").$type<Record<string, unknown>>(),
+    ip: text("ip"),
+  },
+  (t) => [index("audit_log_at_idx").on(t.at.desc()), index("audit_log_user_idx").on(t.userId, t.at.desc()), index("audit_log_action_idx").on(t.action, t.at.desc())],
+);
+
 /** Running number per document type and year, for JB-/INV-/WR- codes. */
 export const docCounters = pgTable(
   "doc_counters",

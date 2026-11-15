@@ -55,6 +55,7 @@ function navItems(lang: Locale, user: CurrentUser | null): NavItem[] {
           label: t.users,
           icon: "users",
         },
+        has("audit.view") && { href: `${base}/audit`, label: t.audit, icon: "audit" },
       ],
     },
   ];

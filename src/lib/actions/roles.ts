@@ -7,6 +7,7 @@ import { getDb, schema } from "@/db";
 import { requirePermission } from "@/lib/auth";
 import { canGrant, legacyRole, safeToChange } from "@/lib/roles";
 import { normalizePermissions } from "@/lib/permissions";
+import { audit, changes } from "@/lib/audit";
 import type { ActionState } from "@/components/forms";
 import { langFrom, str, t, UUID_RE } from "./helpers";
 
@@ -40,11 +41,13 @@ export async function saveRole(_: ActionState, fd: FormData): Promise<ActionStat
     // Your own role is off limits too, so no one can lock themselves (and their team) out by accident.
     if (role.system || role.id === me.roleId || !canGrant(me, role)) return { error: t(lang).users.notAllowed };
     await db.update(schema.roles).set({ nameEn, nameAr, permissions }).where(eq(schema.roles.id, id));
+    await audit("role.update", { type: "role", id, label: nameEn }, changes(role, { nameEn, nameAr, permissions }, ["nameEn", "nameAr", "permissions"]));
     refresh();
     return undefined;
   }
   const key = `${nameEn.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 30) || "role"}_${Date.now().toString(36)}`;
   const [row] = await db.insert(schema.roles).values({ key, nameEn, nameAr, permissions }).returning({ id: schema.roles.id });
+  await audit("role.create", { type: "role", id: row.id, label: nameEn }, { permissions });
   redirect(`/${lang}/roles/${row.id}`);
 }
 
@@ -59,6 +62,7 @@ export async function deleteRole(_: ActionState, fd: FormData): Promise<ActionSt
   const [{ n }] = await db.select({ n: count() }).from(schema.users).where(eq(schema.users.roleId, id));
   if (n > 0) return { error: t(lang).roles.inUse };
   await db.delete(schema.roles).where(eq(schema.roles.id, id));
+  await audit("role.delete", { type: "role", id, label: role.nameEn });
   redirect(`/${lang}/roles`);
 }
 
@@ -71,7 +75,7 @@ export async function setUserRole(_: ActionState, fd: FormData): Promise<ActionS
   if (!UUID_RE.test(id) || !UUID_RE.test(roleId) || id === me.id) return { error: t(lang).users.notAllowed };
   const db = await getDb();
   const [target] = await db
-    .select({ roleId: schema.roles.id, system: schema.roles.system, permissions: schema.roles.permissions })
+    .select({ email: schema.users.email, roleId: schema.roles.id, roleName: schema.roles.nameEn, system: schema.roles.system, permissions: schema.roles.permissions })
     .from(schema.users)
     .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
     .where(eq(schema.users.id, id))
@@ -84,6 +88,7 @@ export async function setUserRole(_: ActionState, fd: FormData): Promise<ActionS
     .where(safeToChange(id, target.roleId, target.system && !role.system))
     .returning({ id: schema.users.id });
   if (done.length === 0) return { error: t(lang).users.notAllowed };
+  await audit("user.setRole", { type: "user", id, label: target.email }, { role: [target.roleName, role.nameEn] });
   refresh();
   return undefined;
 }

@@ -11,6 +11,7 @@ import { currentMode } from "@/lib/session-token";
 import type { ActionState } from "@/components/forms";
 import type { ServiceCategory } from "@/db/schema";
 import { canGrant, legacyRole, safeToChange } from "@/lib/roles";
+import { audit, changes } from "@/lib/audit";
 import { intOrNull, kwdToFils, langFrom, password, passwordProblem, str, t, UUID_RE } from "./helpers";
 
 const CATEGORIES: ServiceCategory[] = ["ppf", "ceramic", "tint", "detailing", "other"];
@@ -32,9 +33,12 @@ export async function saveService(_: ActionState, formData: FormData): Promise<A
 
   const db = await getDb();
   if (UUID_RE.test(id)) {
+    const [before] = await db.select().from(schema.services).where(eq(schema.services.id, id)).limit(1);
     await db.update(schema.services).set(values).where(eq(schema.services.id, id));
+    await audit("service.update", { type: "service", id, label: nameEn }, changes(before, values, ["nameEn", "nameAr", "category", "priceFils", "warrantyMonths", "active"]));
   } else {
-    await db.insert(schema.services).values(values);
+    const [row] = await db.insert(schema.services).values(values).returning({ id: schema.services.id });
+    await audit("service.create", { type: "service", id: row.id, label: nameEn }, { priceFils, warrantyMonths });
   }
   redirect(`/${lang}/services`);
 }
@@ -58,7 +62,11 @@ export async function createUser(_: ActionState, formData: FormData): Promise<Ac
   const [taken] = await db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.email, email)).limit(1);
   if (taken) return { error: dict.users.emailTaken };
 
-  await db.insert(schema.users).values({ name, email, role: legacyRole(role), roleId, passwordHash: await bcrypt.hash(pw, 10) });
+  const [created] = await db
+    .insert(schema.users)
+    .values({ name, email, role: legacyRole(role), roleId, passwordHash: await bcrypt.hash(pw, 10) })
+    .returning({ id: schema.users.id });
+  await audit("user.create", { type: "user", id: created.id, label: email }, { name, role: role.nameEn });
   redirect(`/${lang}/users`);
 }
 
@@ -69,7 +77,7 @@ export async function toggleUserActive(formData: FormData) {
   if (!UUID_RE.test(id) || id === me.id) return;
   const db = await getDb();
   const [u] = await db
-    .select({ active: schema.users.active, roleId: schema.roles.id, system: schema.roles.system, permissions: schema.roles.permissions })
+    .select({ email: schema.users.email, active: schema.users.active, roleId: schema.roles.id, system: schema.roles.system, permissions: schema.roles.permissions })
     .from(schema.users)
     .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
     .where(eq(schema.users.id, id))
@@ -84,6 +92,7 @@ export async function toggleUserActive(formData: FormData) {
     .returning({ id: schema.users.id });
   // A deactivated person is signed out everywhere straight away.
   if (changed.length > 0 && u.active) await endUserSessions(id);
+  if (changed.length > 0) await audit(u.active ? "user.deactivate" : "user.activate", { type: "user", id, label: u.email });
   refresh();
 }
 
@@ -91,7 +100,7 @@ export async function toggleUserActive(formData: FormData) {
 async function targetOf(id: string) {
   const db = await getDb();
   const [u] = await db
-    .select({ id: schema.users.id, name: schema.users.name, roleId: schema.roles.id, system: schema.roles.system, permissions: schema.roles.permissions })
+    .select({ id: schema.users.id, name: schema.users.name, email: schema.users.email, roleId: schema.roles.id, system: schema.roles.system, permissions: schema.roles.permissions })
     .from(schema.users)
     .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
     .where(eq(schema.users.id, id))
@@ -113,6 +122,7 @@ export async function deleteUser(_: ActionState, formData: FormData): Promise<Ac
   const db = await getDb();
   const done = await db.delete(schema.users).where(safeToChange(id, target.roleId, target.system)).returning({ id: schema.users.id });
   if (done.length === 0) return { error: t(lang).users.lastAdmin };
+  await audit("user.delete", { type: "user", id, label: target.email }, { name: target.name });
   refresh();
   return {};
 }
@@ -135,6 +145,7 @@ export async function resetUserPassword(_: ActionState, formData: FormData): Pro
     .set({ passwordHash: await bcrypt.hash(pw, 10), sessionVersion: sql`${schema.users.sessionVersion} + 1` })
     .where(eq(schema.users.id, id));
   await endUserSessions(id);
+  await audit("user.resetPassword", { type: "user", id, label: target.email });
   return {};
 }
 
@@ -160,5 +171,6 @@ export async function changeOwnPassword(_: ActionState, formData: FormData): Pro
   // Sign out every other browser, and give this one a fresh session.
   await endUserSessions(me.id);
   await createSession(me.id, updated.version, await currentMode());
+  await audit("user.changeOwnPassword", { type: "user", id: me.id, label: me.email });
   return {};
 }

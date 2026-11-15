@@ -12,7 +12,8 @@ import type { Db } from "@/db";
  */
 
 /** Tables never copied: sign-ins belong to each database on its own. */
-const SKIP = new Set(["sessions", "login_attempts"]);
+// The real audit log stays out of the training copy, which keeps its own.
+const SKIP = new Set(["sessions", "login_attempts", "audit_log"]);
 /** A bcrypt hash of a random string: copied real accounts can never sign in to the training copy. */
 const DISABLED_HASH = "$2b$10$uUQsGj8PSFFmsXxrHSrXO.gob2KFq/vJn67agm5pq/xup7ccHWOXa";
 const CHUNK = 200;

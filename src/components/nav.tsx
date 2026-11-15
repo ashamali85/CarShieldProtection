@@ -8,6 +8,7 @@ export type NavItem = { href: string; label: string; icon: keyof typeof ICONS; g
 
 const ICONS = {
   dashboard: "M3 12.5 12 4l9 8.5M5.5 10.5V20h13v-9.5",
+  audit: "M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5M3.5 4v4.5H8M12 7.5V12l3 2",
   jobs: "M9 5h6M9 3.5h6v3H9zM6 5H5v16h14V5h-1M8.5 11h7M8.5 15h5",
   customers: "M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19M10 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM20 19v-1.5a3.5 3.5 0 0 0-2.5-3.3M15 4.6a3 3 0 0 1 0 5.8",
   invoices: "M6 3h12v18l-3-2-3 2-3-2-3 2V3ZM9 8h6M9 12h6M9 16h3",

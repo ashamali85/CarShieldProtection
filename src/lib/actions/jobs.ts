@@ -15,6 +15,13 @@ import { formatMoney } from "@/i18n";
 import type { Locale } from "@/i18n";
 import { kwdToFils, langFrom, optStr, qtyToMilli, str, t, UUID_RE } from "./helpers";
 import { nextDocCode, nextDocCodes } from "@/lib/doc-numbers";
+import { audit, changes } from "@/lib/audit";
+
+async function userName(db: Db, id: string | null): Promise<string | null> {
+  if (!id) return null;
+  const [u] = await db.select({ name: schema.users.name }).from(schema.users).where(eq(schema.users.id, id)).limit(1);
+  return u?.name ?? null;
+}
 
 /** Reads the discount fields: an amount in KWD, or a percentage when discountType is "percent". */
 function parseDiscount(formData: FormData): DiscountInput | null {
@@ -133,7 +140,7 @@ export async function createJob(_: ActionState, formData: FormData): Promise<Act
       notes: optStr(formData, "notes"),
       createdBy: user.id,
     })
-    .returning({ id: schema.jobs.id });
+    .returning({ id: schema.jobs.id, code: schema.jobs.code, technicianId: schema.jobs.technicianId });
 
   await db.insert(schema.jobItems).values(
     chosen.map((s) => ({
@@ -146,6 +153,7 @@ export async function createJob(_: ActionState, formData: FormData): Promise<Act
     })),
   );
 
+  await audit("job.create", { type: "job", id: job.id, label: job.code }, { services: chosen.map((s) => s.nameEn), technician: await userName(db, job.technicianId) });
   redirect(`/${lang}/jobs/${job.id}`);
 }
 
@@ -171,16 +179,17 @@ export async function updateJobDetails(_: ActionState, formData: FormData): Prom
     if (err) return { error: err };
   }
 
-  await db
-    .update(schema.jobs)
-    .set({
-      technicianId: await assignable(db, optStr(formData, "technicianId"), job.technicianId),
-      scheduledAt: parseLocalDateTime(str(formData, "scheduledAt")),
-      notes: optStr(formData, "notes"),
-      ...(discount ?? {}),
-    })
-    .where(eq(schema.jobs.id, id));
+  const next = {
+    technicianId: await assignable(db, optStr(formData, "technicianId"), job.technicianId),
+    scheduledAt: parseLocalDateTime(str(formData, "scheduledAt")),
+    notes: optStr(formData, "notes"),
+    ...(discount ?? {}),
+  };
+  await db.update(schema.jobs).set(next).where(eq(schema.jobs.id, id));
   if (discount && invoice) await syncInvoice(db, id);
+  const diff = changes(job, next, ["scheduledAt", "notes", "discountFils", "discountPercentBp"]);
+  if (job.technicianId !== next.technicianId) diff.technician = [await userName(db, job.technicianId), await userName(db, next.technicianId)];
+  if (Object.keys(diff).length > 0) await audit("job.update", { type: "job", id, label: job.code }, diff);
   refresh();
   return {};
 }
@@ -251,6 +260,7 @@ export async function setJobStatus(formData: FormData) {
     if (to === "delivered") redirect(`/${lang}/jobs/${id}?blocked=unpaid`);
     return refresh();
   }
+  await audit("job.status", { type: "job", id, label: job.code }, { status: [job.status, to] });
 
   if (firstStart) {
     const items = await db.select().from(schema.jobItems).where(eq(schema.jobItems.jobId, id));
@@ -308,6 +318,7 @@ export async function addJobItem(_: ActionState, formData: FormData): Promise<Ac
   // Work already started: take the new service's materials now.
   if (job!.startedAt) await consumeJobItems(db, jobId, [item], user.id);
   if (invoice) await syncInvoice(db, jobId);
+  await audit("job.addService", { type: "job", id: jobId, label: job!.code }, { service: s.nameEn, priceFils: s.priceFils });
   refresh();
   return {};
 }
@@ -335,6 +346,8 @@ export async function removeJobItem(formData: FormData) {
   }
   await db.delete(schema.jobItems).where(and(eq(schema.jobItems.id, itemId), eq(schema.jobItems.jobId, jobId)));
   if (invoice) await syncInvoice(db, jobId);
+  const removed = items.find((i) => i.id === itemId)!;
+  await audit("job.removeService", { type: "job", id: jobId, label: job!.code }, { service: removed.nameEn, priceFils: removed.priceFils });
   refresh();
 }
 
@@ -346,10 +359,12 @@ export async function saveQcChecklist(_: ActionState, formData: FormData): Promi
   if (!UUID_RE.test(id)) return { error: t(lang).common.errorGeneric };
   const checks = QC_CHECKS.filter((c) => formData.getAll("check").includes(c));
   const db = await getDb();
-  await db
+  const done = await db
     .update(schema.jobs)
     .set({ qcChecks: [...checks], qcCheckedBy: user.id, qcCheckedAt: new Date() })
-    .where(and(eq(schema.jobs.id, id), eq(schema.jobs.status, "quality_check")));
+    .where(and(eq(schema.jobs.id, id), eq(schema.jobs.status, "quality_check")))
+    .returning({ code: schema.jobs.code });
+  if (done[0]) await audit("job.qc", { type: "job", id, label: done[0].code }, { checks: `${checks.length}/${QC_CHECKS.length}` });
   refresh();
   return {};
 }
@@ -369,7 +384,7 @@ export async function setJobMaterial(_: ActionState, formData: FormData): Promis
   const { job } = await loadJob(db, jobId);
   if (!job || job.status !== "in_progress") return { error: t(lang).common.errorGeneric };
   const [item] = await db
-    .select({ id: schema.inventoryItems.id, active: schema.inventoryItems.active })
+    .select({ id: schema.inventoryItems.id, active: schema.inventoryItems.active, name: schema.inventoryItems.nameEn })
     .from(schema.inventoryItems)
     .where(eq(schema.inventoryItems.id, itemId))
     .limit(1);
@@ -387,6 +402,7 @@ export async function setJobMaterial(_: ActionState, formData: FormData): Promis
       // Returned stock goes back at what this job was charged for it.
       ...(delta > 0 ? { unitCostOverrideFils: use.unitCostFils ?? "uncosted" } : {}),
     });
+    await audit("job.material", { type: "job", id: jobId, label: job.code }, { item: item.name, quantity: [use.usedMilli / 1000, qty / 1000] });
   }
   refresh();
   return {};

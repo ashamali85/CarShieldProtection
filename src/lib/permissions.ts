@@ -14,6 +14,7 @@ export const PERMISSION_AREAS = [
   { area: "finance", perms: ["finance.view", "finance.manage"] },
   { area: "hr", perms: ["hr.view", "hr.manage"] },
   { area: "users", perms: ["users.manage", "roles.manage"] },
+  { area: "audit", perms: ["audit.view"] },
 ] as const;
 
 export type PermissionArea = (typeof PERMISSION_AREAS)[number]["area"];

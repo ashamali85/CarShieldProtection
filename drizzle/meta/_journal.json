@@ -92,6 +92,13 @@
       "when": 1794764489825,
       "tag": "0012_invoice_share_token",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794767904539,
+      "tag": "0013_audit_log",
+      "breakpoints": true
     }
   ]
 }

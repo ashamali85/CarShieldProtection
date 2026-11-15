@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { dbFor, schema, trainingEnabled } from "@/db";
 import type { Db } from "@/db";
 import { createSession, destroySession } from "@/lib/session";
+import { audit } from "@/lib/audit";
+import { getCurrentUser } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
 import { langFrom, password, str, t } from "./helpers";
 
@@ -64,7 +66,10 @@ export async function login(_: ActionState, formData: FormData): Promise<ActionS
   // Counted per address whatever the capitals, so changing case doesn't buy extra attempts.
   const keys = [`email:${email.toLowerCase()}`, `ip:${ip}`];
   const wait = await lockedFor(db, keys);
-  if (wait > 0) return { error: dict.login.tooMany.replace("{n}", String(wait)) };
+  if (wait > 0) {
+    await audit("auth.loginFailed", { type: "user", label: email }, { reason: "locked" }, { db, actor: null });
+    return { error: dict.login.tooMany.replace("{n}", String(wait)) };
+  }
 
   // Real accounts first; an email not found there may be a demo account in the training copy.
   let mode: "live" | "training" = "live";
@@ -81,17 +86,22 @@ export async function login(_: ActionState, formData: FormData): Promise<ActionS
     await recordFailure(db, keys[1], LIMITS.ip);
     // If that was the attempt that triggered the lock, say so straight away.
     const nowLocked = await lockedFor(db, keys);
+    // Failed attempts are always recorded in the real shop's log.
+    await audit("auth.loginFailed", { type: "user", id: user?.id, label: email }, { reason: !user ? "unknown" : !user.active ? "inactive" : "password" }, { db, actor: null });
     return { error: nowLocked > 0 ? dict.login.tooMany.replace("{n}", String(nowLocked)) : dict.login.invalid };
   }
 
   // A successful sign-in clears that email's counter.
   await db.delete(schema.loginAttempts).where(eq(schema.loginAttempts.key, keys[0]));
   await createSession(user.id, user.sessionVersion, mode);
+  await audit("auth.login", { type: "user", id: user.id, label: user.email }, undefined, { db: await dbFor(mode), actor: user });
   redirect(`/${lang}`);
 }
 
 export async function logout(formData: FormData) {
   const lang = langFrom(formData);
+  const me = await getCurrentUser();
+  if (me) await audit("auth.logout", { type: "user", id: me.id, label: me.email });
   await destroySession();
   redirect(`/${lang}/login`);
 }
