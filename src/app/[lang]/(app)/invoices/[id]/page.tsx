@@ -58,15 +58,8 @@ async function InvoiceDetail({ params, searchParams }: PageProps<"/[lang]/invoic
   const h = await headers();
   const origin = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}`;
   const message = (l: Locale) => {
-    const W = getDictionary(l).invoices.whatsapp;
-    const money = (f: number) => formatMoney(f, l);
-    return fillTemplate(W.template, {
+    return fillTemplate(getDictionary(l).invoices.whatsapp.template, {
       name: customer.name,
-      invoice: invoice.code,
-      car: [vehicle.make, vehicle.model].filter(Boolean).join(" "),
-      total: money(invoice.totalFils),
-      paid: money(paid),
-      balanceLine: balance > 0 ? W.balanceDue.replace("{balance}", money(balance)) : W.paidInFull,
       link: `${origin}/${l}/i/${invoice.shareToken}`,
     });
   };

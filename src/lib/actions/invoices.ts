@@ -34,7 +34,8 @@ export async function createInvoice(formData: FormData) {
     .values({
       code: await nextDocCode(db, "invoice"),
       // Secret for the customer's read-only invoice link.
-      shareToken: randomBytes(24).toString("base64url"),
+      // 16 characters (96 random bits) keeps the WhatsApp link short and still unguessable.
+      shareToken: randomBytes(12).toString("base64url"),
       jobId,
       subtotalFils: subtotal,
       discountFils: discount,

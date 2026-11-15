@@ -24,7 +24,7 @@ export default function SharedInvoicePage(props: PageProps<"/[lang]/i/[token]">)
   );
 }
 
-const TOKEN_RE = /^[A-Za-z0-9_-]{24,100}$/;
+const TOKEN_RE = /^[A-Za-z0-9_-]{16,100}$/;
 
 async function findInvoice(db: Db, token: string) {
   const [row] = await db

@@ -250,9 +250,7 @@ const ar: Dictionary = {
       language: "لغة الرسالة",
       message: "الرسالة",
       open: "فتح واتساب",
-      template: "مرحبًا {name}،\n\nشكرًا لاختيارك بي بروتكشن. إليك فاتورتك {invoice} لسيارتك {car}:\n\nالإجمالي: {total}\nالمدفوع: {paid}\n{balanceLine}\n\nعرض الفاتورة: {link}",
-      paidInFull: "مدفوعة بالكامل ✅",
-      balanceDue: "المبلغ المتبقي: {balance}",
+      template: "مرحبًا {name}،\n\nشكرًا لاختيارك بي بروتكشن.\n\nعرض الفاتورة:\n{link}",
     },
     shared: {
       title: "فاتورتك",

@@ -248,9 +248,7 @@ const en = {
       language: "Message language",
       message: "Message",
       open: "Open WhatsApp",
-      template: "Hello {name},\n\nThank you for choosing Bee Protection. Here is your invoice {invoice} for {car}:\n\nTotal: {total}\nPaid: {paid}\n{balanceLine}\n\nView your invoice: {link}",
-      paidInFull: "Paid in full ✅",
-      balanceDue: "Balance due: {balance}",
+      template: "Hello {name},\n\nThank you for choosing Bee Protection.\n\nView your invoice:\n{link}",
     },
     shared: {
       title: "Your invoice",
