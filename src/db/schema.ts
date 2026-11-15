@@ -269,6 +269,8 @@ export const invoices = pgTable("invoices", {
   number: serial("number").notNull().unique(),
   /** Display number, e.g. INV-2026-0035. */
   code: text("code").notNull().unique(),
+  /** Long random secret for the customer's read-only invoice link (/[lang]/i/<token>). */
+  shareToken: text("share_token").unique(),
   jobId: uuid("job_id")
     .notNull()
     .unique()

@@ -1,8 +1,8 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { and, eq, ne, sql, sum } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
 import { requirePermission } from "@/lib/auth";
 import type { ActionState } from "@/components/forms";
@@ -33,6 +33,8 @@ export async function createInvoice(formData: FormData) {
     .insert(schema.invoices)
     .values({
       code: await nextDocCode(db, "invoice"),
+      // Secret for the customer's read-only invoice link.
+      shareToken: randomBytes(24).toString("base64url"),
       jobId,
       subtotalFils: subtotal,
       discountFils: discount,
@@ -94,6 +96,6 @@ export async function recordPayment(_: ActionState, formData: FormData): Promise
     .set({ status: sql`case when ${paidSoFar} >= ${schema.invoices.totalFils} then 'paid' when ${paidSoFar} > 0 then 'partial' else 'unpaid' end::invoice_status` })
     .where(and(eq(schema.invoices.id, invoiceId), ne(schema.invoices.status, "void")));
 
-  refresh();
-  return undefined;
+  // Back to the invoice with the WhatsApp box highlighted, ready to send the customer their invoice.
+  redirect(`/${lang}/invoices/${invoiceId}?paid=1`);
 }

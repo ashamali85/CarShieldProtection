@@ -3,16 +3,18 @@ import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { getDb, schema } from "@/db";
-import { formatDate, formatDateTime, formatMoney } from "@/i18n";
-import { pageContext } from "@/lib/page";
+import { formatDateTime, formatMoney, getDictionary, type Locale } from "@/i18n";
+import { first, pageContext } from "@/lib/page";
 import { UUID_RE } from "@/lib/actions/helpers";
 import { recordPayment } from "@/lib/actions/invoices";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { InvoiceStatusBadge, PageHeader, PageSkeleton } from "@/components/ui";
-import { BrandMark } from "@/components/logo";
 import { PrintButton } from "@/components/print-button";
 import { can } from "@/lib/auth";
-import { percentText } from "@/lib/pricing";
+import { InvoiceDocument } from "@/components/invoice-document";
+import { headers } from "next/headers";
+import { fillTemplate } from "@/lib/whatsapp";
+import { WhatsAppSend } from "@/components/whatsapp-send";
 
 export default function InvoicePage(props: PageProps<"/[lang]/invoices/[id]">) {
   return (
@@ -22,7 +24,7 @@ export default function InvoicePage(props: PageProps<"/[lang]/invoices/[id]">) {
   );
 }
 
-async function InvoiceDetail({ params }: PageProps<"/[lang]/invoices/[id]">) {
+async function InvoiceDetail({ params, searchParams }: PageProps<"/[lang]/invoices/[id]">) {
   const { lang, t, user } = await pageContext(params, { perm: "invoices.view" });
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
@@ -50,7 +52,24 @@ async function InvoiceDetail({ params }: PageProps<"/[lang]/invoices/[id]">) {
   ]);
   const paid = payments.reduce((a, p) => a + p.payment.amountFils, 0);
   const balance = invoice.totalFils - paid;
-  const name = (i: { nameEn: string; nameAr: string }) => (lang === "ar" ? i.nameAr : i.nameEn);
+  const justPaid = first((await searchParams).paid) === "1";
+
+  // The WhatsApp message in both languages, with the customer's private invoice link.
+  const h = await headers();
+  const origin = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}`;
+  const message = (l: Locale) => {
+    const W = getDictionary(l).invoices.whatsapp;
+    const money = (f: number) => formatMoney(f, l);
+    return fillTemplate(W.template, {
+      name: customer.name,
+      invoice: invoice.code,
+      car: [vehicle.make, vehicle.model].filter(Boolean).join(" "),
+      total: money(invoice.totalFils),
+      paid: money(paid),
+      balanceLine: balance > 0 ? W.balanceDue.replace("{balance}", money(balance)) : W.paidInFull,
+      link: `${origin}/${l}/i/${invoice.shareToken}`,
+    });
+  };
 
   return (
     <>
@@ -68,95 +87,21 @@ async function InvoiceDetail({ params }: PageProps<"/[lang]/invoices/[id]">) {
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Printable invoice */}
-        <article className="card card-pad lg:col-span-2">
-          <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <BrandMark className="size-10" />
-              <div>
-                <p className="font-semibold">{t.app.name}</p>
-                <p className="text-xs text-muted">{t.app.tagline}</p>
-              </div>
-            </div>
-            <div className="text-sm sm:text-end">
-              <p className="font-semibold">
-                <bdi className="num">{invoice.code}</bdi>
-              </p>
-              <p className="text-muted">
-                {t.invoices.issued}: {formatDate(invoice.issuedAt, lang)}
-              </p>
-              <p className="text-muted">
-                <bdi className="num">{job.code}</bdi>
-              </p>
-            </div>
-          </header>
-
-          <div className="mb-6 grid gap-4 text-sm sm:grid-cols-2">
-            <div>
-              <p className="text-xs text-muted">{t.invoices.billTo}</p>
-              <p className="font-medium">{customer.name}</p>
-              <p className="num text-muted" dir="ltr">
-                <span className="block text-start">{customer.phone}</span>
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted">{t.jobs.vehicle}</p>
-              <p className="auto-dir font-medium" dir="auto">
-                {vehicle.make} {vehicle.model} {vehicle.year && <span className="num">({vehicle.year})</span>}
-              </p>
-              <p className="num text-muted" dir="ltr">
-                <span className="block text-start">{vehicle.plateNumber}</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="table-wrap">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th className="ps-0">{t.invoices.item}</th>
-                  <th className="text-end">{t.invoices.qty}</th>
-                  <th className="text-end">{t.invoices.unitPrice}</th>
-                  <th className="pe-0 text-end">{t.invoices.lineTotal}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((i) => (
-                  <tr key={i.id}>
-                    <td className="ps-0">{name(i)}</td>
-                    <td className="num text-end">{i.quantity}</td>
-                    <td className="num text-end whitespace-nowrap">{formatMoney(i.priceFils, lang)}</td>
-                    <td className="num pe-0 text-end whitespace-nowrap">{formatMoney(i.priceFils * i.quantity, lang)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <dl className="ms-auto mt-4 grid max-w-xs grid-cols-2 gap-y-1.5 text-sm">
-            <dt className="text-muted">{t.jobs.subtotal}</dt>
-            <dd className="num text-end">{formatMoney(invoice.subtotalFils, lang)}</dd>
-            {invoice.discountFils > 0 && (
-              <>
-                <dt className="text-muted">
-                  {t.jobs.discount}
-                  {invoice.discountPercentBp != null && <span className="num"> ({percentText(invoice.discountPercentBp)}%)</span>}
-                </dt>
-                <dd className="num text-end">−{formatMoney(invoice.discountFils, lang)}</dd>
-              </>
-            )}
-            <dt className="border-t border-line pt-1.5 font-semibold">{t.common.total}</dt>
-            <dd className="num border-t border-line pt-1.5 text-end font-semibold">{formatMoney(invoice.totalFils, lang)}</dd>
-            <dt className="text-muted">{t.invoices.paid}</dt>
-            <dd className="num text-end">{formatMoney(paid, lang)}</dd>
-            <dt className="font-semibold">{t.invoices.balance}</dt>
-            <dd className="num text-end font-semibold">{formatMoney(balance, lang)}</dd>
-          </dl>
-
-          <p className="mt-10 text-center text-sm text-muted">{t.invoices.thanks}</p>
-        </article>
+        <InvoiceDocument lang={lang} t={t} invoice={invoice} job={job} customer={customer} vehicle={vehicle} items={items} paid={paid} className="lg:col-span-2" />
 
         <aside className="no-print grid content-start gap-6">
+          {paid > 0 && invoice.shareToken && invoice.status !== "void" && (
+            <WhatsAppSend
+              lang={lang}
+              customerId={customer.id}
+              phone={customer.phone}
+              messages={{ en: message("en"), ar: message("ar") }}
+              defaultLanguage={lang}
+              canSavePhone={can(user, "customers.manage")}
+              highlight={justPaid}
+              labels={t.invoices.whatsapp}
+            />
+          )}
           {balance > 0 && invoice.status !== "void" && can(user, "invoices.manage") && (
             <section className="card card-pad">
               <h2 className="section-title mb-4">{t.invoices.recordPayment}</h2>

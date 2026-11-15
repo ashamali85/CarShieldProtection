@@ -26,7 +26,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const isLogin = second === "login";
+  // The login page and customers' shared invoice links (/xx/i/<token>) don't need a session.
+  const isLogin = second === "login" || second === "i";
   const hasSession = request.cookies.has(SESSION_COOKIE);
 
   let response: NextResponse;

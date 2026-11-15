@@ -128,3 +128,14 @@ export async function deleteVehicle(formData: FormData) {
   }
   refresh();
 }
+
+/** Updates only a customer's phone number (used when correcting it before sending on WhatsApp). */
+export async function saveCustomerPhone(formData: FormData) {
+  const lang = langFrom(formData);
+  await requirePermission(lang, "customers.manage");
+  const id = str(formData, "id");
+  const phone = str(formData, "phone").slice(0, 30);
+  if (!UUID_RE.test(id) || !phone) return;
+  const db = await getDb();
+  await db.update(schema.customers).set({ phone }).where(eq(schema.customers.id, id));
+}

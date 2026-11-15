@@ -85,6 +85,13 @@
       "when": 1794669123595,
       "tag": "0011_sessions_and_login_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794764489825,
+      "tag": "0012_invoice_share_token",
+      "breakpoints": true
     }
   ]
 }
