@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { getDb, schema } from "@/db";
@@ -46,6 +46,7 @@ export async function saveInventoryItem(_: ActionState, formData: FormData): Pro
   const db = await getDb();
   if (UUID_RE.test(id)) {
     const [before] = await db.select().from(schema.inventoryItems).where(eq(schema.inventoryItems.id, id)).limit(1);
+    if (!before || before.deletedAt) return { error: dict.inventory.deletedLocked };
     // A hand-entered cost replaces the running average; an unchanged one keeps its precision.
     const avg = before && before.unitCostFils !== unitCostFils ? { avgCostFils: unitCostFils } : {};
     await db.update(schema.inventoryItems).set({ ...values, ...avg }).where(eq(schema.inventoryItems.id, id));
@@ -74,6 +75,8 @@ export async function receiveStock(_: ActionState, formData: FormData): Promise<
   const method = str(formData, "paidWith");
   const paidWith = (["cash", "knet", "card", "transfer"] as const).find((m) => m === method) ?? null;
   const db = await getDb();
+  const [live] = await db.select({ deletedAt: schema.inventoryItems.deletedAt }).from(schema.inventoryItems).where(eq(schema.inventoryItems.id, itemId)).limit(1);
+  if (!live || live.deletedAt) return { error: t(lang).inventory.deletedLocked };
   await moveStock(db, {
     itemId,
     deltaMilli: qty,
@@ -99,6 +102,7 @@ export async function adjustStock(_: ActionState, formData: FormData): Promise<A
   const db = await getDb();
   const [item] = await db.select().from(schema.inventoryItems).where(eq(schema.inventoryItems.id, itemId)).limit(1);
   if (!item) return { error: t(lang).common.errorGeneric };
+  if (item.deletedAt) return { error: t(lang).inventory.deletedLocked };
   await moveStock(db, {
     itemId,
     deltaMilli: counted - item.onHandMilli,
@@ -120,6 +124,8 @@ export async function setServiceMaterial(_: ActionState, formData: FormData): Pr
   if (!UUID_RE.test(serviceId) || !UUID_RE.test(itemId)) return { error: t(lang).inventory.chooseItem };
   if (!qty || qty <= 0) return { error: t(lang).inventory.invalidQty };
   const db = await getDb();
+  const [live] = await db.select({ deletedAt: schema.inventoryItems.deletedAt }).from(schema.inventoryItems).where(eq(schema.inventoryItems.id, itemId)).limit(1);
+  if (!live || live.deletedAt) return { error: t(lang).inventory.chooseItem };
   await db
     .insert(schema.serviceMaterials)
     .values({ serviceId, itemId, quantityMilli: qty })
@@ -149,4 +155,51 @@ export async function removeServiceMaterial(formData: FormData) {
     await audit("service.removeMaterial", { type: "service", id: serviceId, label: svc?.name }, { item: await itemName(gone[0].itemId) });
   }
   refresh();
+}
+
+/**
+ * Deletes an inventory item. One that was never received or used goes completely. One with stock
+ * history is only taken out of use, because finance reports are built from that history: it leaves
+ * the list and every service, and any stock left is written off as a count correction.
+ */
+export async function deleteInventoryItem(_: ActionState, formData: FormData): Promise<ActionState> {
+  const lang = langFrom(formData);
+  const user = await requirePermission(lang, "inventory.manage");
+  const id = str(formData, "id");
+  if (!UUID_RE.test(id)) return { error: t(lang).common.errorGeneric };
+  const db = await getDb();
+  const [item] = await db.select().from(schema.inventoryItems).where(and(eq(schema.inventoryItems.id, id), isNull(schema.inventoryItems.deletedAt))).limit(1);
+  if (!item) redirect(`/${lang}/inventory`);
+  const [{ n }] = await db.select({ n: count() }).from(schema.inventoryMovements).where(eq(schema.inventoryMovements.itemId, id));
+
+  if (n === 0) {
+    await db.delete(schema.inventoryItems).where(eq(schema.inventoryItems.id, id));
+    await audit("inventory.delete", { type: "inventory", label: item.nameEn }, { sku: item.sku });
+  } else {
+    const leftover = item.onHandMilli;
+    if (leftover !== 0) {
+      await moveStock(db, { itemId: id, deltaMilli: -leftover, reason: "adjustment", userId: user.id, note: t("en").inventory.deletedNote });
+    }
+    await db.delete(schema.serviceMaterials).where(eq(schema.serviceMaterials.itemId, id));
+    await db.update(schema.inventoryItems).set({ active: false, deletedAt: new Date() }).where(eq(schema.inventoryItems.id, id));
+    await audit("inventory.delete", { type: "inventory", id, label: item.nameEn }, { sku: item.sku, quantity: leftover ? [leftover / 1000, 0] : undefined });
+  }
+  redirect(`/${lang}/inventory`);
+}
+
+/** Brings a deleted item back into the list (with no stock; services need linking again). */
+export async function restoreInventoryItem(_: ActionState, formData: FormData): Promise<ActionState> {
+  const lang = langFrom(formData);
+  await requirePermission(lang, "inventory.manage");
+  const id = str(formData, "id");
+  if (!UUID_RE.test(id)) return { error: t(lang).common.errorGeneric };
+  const db = await getDb();
+  const done = await db
+    .update(schema.inventoryItems)
+    .set({ active: true, deletedAt: null })
+    .where(eq(schema.inventoryItems.id, id))
+    .returning({ name: schema.inventoryItems.nameEn });
+  if (done[0]) await audit("inventory.restore", { type: "inventory", id, label: done[0].name });
+  refresh();
+  return undefined;
 }

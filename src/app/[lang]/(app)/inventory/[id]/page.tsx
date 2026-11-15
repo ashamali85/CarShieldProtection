@@ -3,10 +3,11 @@ import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { getDb, schema } from "@/db";
-import { formatDateTime, formatMoney, formatQty } from "@/i18n";
+import { formatDate, formatDateTime, formatMoney, formatQty } from "@/i18n";
 import { pageContext } from "@/lib/page";
 import { UUID_RE } from "@/lib/actions/helpers";
-import { adjustStock, receiveStock } from "@/lib/actions/inventory";
+import { adjustStock, deleteInventoryItem, receiveStock, restoreInventoryItem } from "@/lib/actions/inventory";
+import { RowDelete } from "@/components/finance/row-delete";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { DefinitionList, PageHeader, PageSkeleton } from "@/components/ui";
 import { StockLevel } from "@/components/inventory-form";
@@ -24,7 +25,7 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
   const { lang, t, user } = await pageContext(params, { perm: "inventory.view" });
   const { id } = await params;
   if (!UUID_RE.test(id)) notFound();
-  const isAdmin = can(user, "inventory.manage");
+  const canManage = can(user, "inventory.manage");
   const canEditServices = can(user, "services.manage");
   const db = await getDb();
 
@@ -55,6 +56,15 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
 
   const name = lang === "ar" ? item.nameAr : item.nameEn;
   const unit = t.inventory.units[item.unit];
+  const deleted = !!item.deletedAt;
+  const isAdmin = canManage && !deleted;
+  const I = t.inventory;
+  const deleteLabels = {
+    delete: I.delete,
+    confirm: (item.onHandMilli !== 0 ? I.deleteWriteOff : I.deleteConfirm).replace("{name}", name).replace("{qty}", `${formatQty(item.onHandMilli, lang)} ${unit}`),
+    cancel: t.common.cancel,
+    saving: t.common.saving,
+  };
 
   return (
     <>
@@ -64,12 +74,28 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
         back={{ href: `/${lang}/inventory`, label: t.inventory.title }}
         actions={
           isAdmin && (
-            <Link href={`/${lang}/inventory/${id}/edit`} className="btn-secondary">
-              {t.common.edit}
-            </Link>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Link href={`/${lang}/inventory/${id}/edit`} className="btn-secondary">
+                {t.common.edit}
+              </Link>
+              <RowDelete action={deleteInventoryItem} hidden={{ lang, id }} labels={deleteLabels} />
+            </div>
           )
         }
       />
+
+      {deleted && (
+        <div role="status" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <p>{I.deletedBanner.replace("{date}", formatDate(item.deletedAt, lang))}</p>
+          {canManage && (
+            <ActionForm action={restoreInventoryItem} hidden={{ lang, id }}>
+              <SubmitButton className="btn-secondary" pendingLabel={t.common.saving}>
+                {I.restore}
+              </SubmitButton>
+            </ActionForm>
+          )}
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="grid min-w-0 content-start gap-6 [&>*]:min-w-0 lg:col-span-2">
@@ -160,7 +186,7 @@ async function ItemDetail({ params }: PageProps<"/[lang]/inventory/[id]">) {
         </div>
 
         <aside className="grid min-w-0 content-start gap-6 [&>*]:min-w-0">
-          {can(user, "inventory.receive") && (
+          {can(user, "inventory.receive") && !deleted && (
             <section className="card card-pad">
               <h2 className="section-title">{t.inventory.receive}</h2>
               <p className="mb-4 text-sm text-muted">{t.inventory.receiveHint}</p>

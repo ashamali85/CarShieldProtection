@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { and, eq, ilike, lte, or, sql } from "drizzle-orm";
+import { and, eq, ilike, isNull, lte, or, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { formatMoney, formatQty } from "@/i18n";
 import { first, pageContext } from "@/lib/page";
@@ -8,6 +8,8 @@ import { EmptyState, PageHeader, PageSkeleton } from "@/components/ui";
 import { StockLevel } from "@/components/inventory-form";
 import { can } from "@/lib/auth";
 import { likeAny } from "@/lib/actions/helpers";
+import { deleteInventoryItem } from "@/lib/actions/inventory";
+import { RowDelete } from "@/components/finance/row-delete";
 
 export default function InventoryPage(props: PageProps<"/[lang]/inventory">) {
   return (
@@ -34,6 +36,8 @@ async function Inventory({ params, searchParams }: PageProps<"/[lang]/inventory"
     .from(schema.inventoryItems)
     .where(
       and(
+        // Deleted items keep their history but leave the list.
+        isNull(schema.inventoryItems.deletedAt),
         q ? or(ilike(schema.inventoryItems.nameEn, like), ilike(schema.inventoryItems.nameAr, like), ilike(schema.inventoryItems.sku, like)) : undefined,
         lowOnly ? and(eq(schema.inventoryItems.active, true), lte(schema.inventoryItems.onHandMilli, schema.inventoryItems.reorderLevelMilli)) : undefined,
       ),
@@ -88,6 +92,7 @@ async function Inventory({ params, searchParams }: PageProps<"/[lang]/inventory"
                   <th>{t.inventory.reorderLevel}</th>
                   <th className="text-end">{t.inventory.unitCost.replace(/\s*\(.*\)/, "")}</th>
                   <th>{t.inventory.usedIn}</th>
+                  {isAdmin && <th className="text-end">{t.common.actions}</th>}
                 </tr>
               </thead>
               <tbody>
@@ -110,6 +115,27 @@ async function Inventory({ params, searchParams }: PageProps<"/[lang]/inventory"
                     </td>
                     <td className="num text-end">{i.unitCostFils != null ? formatMoney(i.unitCostFils, lang) : "—"}</td>
                     <td className="num">{services}</td>
+                    {isAdmin && (
+                      <td className="text-end">
+                        <div className="flex flex-wrap items-center justify-end gap-1">
+                          <Link href={`/${lang}/inventory/${i.id}/edit`} className="btn-ghost min-h-8 px-2 text-xs">
+                            {t.common.edit}
+                          </Link>
+                          <RowDelete
+                            action={deleteInventoryItem}
+                            hidden={{ lang, id: i.id }}
+                            labels={{
+                              delete: t.inventory.delete,
+                              confirm: (i.onHandMilli !== 0 ? t.inventory.deleteWriteOff : t.inventory.deleteConfirm)
+                                .replace("{name}", lang === "ar" ? i.nameAr : i.nameEn)
+                                .replace("{qty}", `${formatQty(i.onHandMilli, lang)} ${t.inventory.units[i.unit]}`),
+                              cancel: t.common.cancel,
+                              saving: t.common.saving,
+                            }}
+                          />
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

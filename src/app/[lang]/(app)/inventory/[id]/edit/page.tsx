@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { eq } from "drizzle-orm";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getDb, schema } from "@/db";
 import { pageContext } from "@/lib/page";
 import { UUID_RE } from "@/lib/actions/helpers";
@@ -22,6 +22,7 @@ async function EditItem({ params }: PageProps<"/[lang]/inventory/[id]/edit">) {
   const db = await getDb();
   const [item] = await db.select().from(schema.inventoryItems).where(eq(schema.inventoryItems.id, id)).limit(1);
   if (!item) notFound();
+  if (item.deletedAt) redirect(`/${lang}/inventory/${id}`);
   const name = lang === "ar" ? item.nameAr : item.nameEn;
   return (
     <>

@@ -99,6 +99,13 @@
       "when": 1794767904539,
       "tag": "0013_audit_log",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794769315603,
+      "tag": "0014_inventory_deleted",
+      "breakpoints": true
     }
   ]
 }

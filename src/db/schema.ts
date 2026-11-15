@@ -379,6 +379,8 @@ export const inventoryItems = pgTable("inventory_items", {
    */
   avgCostFils: doublePrecision("avg_cost_fils"),
   active: boolean("active").notNull().default(true),
+  /** Set when an item with stock history is deleted: it leaves the list but its history stays for the reports. */
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
