@@ -54,7 +54,7 @@ export default async function LoginPage({ params }: PageProps<"/[lang]/login">) 
             </div>
             <div className="card card-pad">
               <ActionForm action={login} hidden={{ lang }} className="space-y-4">
-                <Field label={t.login.email} name="email" type="email" autoComplete="username" required dir="ltr" />
+                <Field label={t.login.email} name="email" type="email" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} required dir="ltr" />
                 <Field label={t.login.password} name="password" type="password" autoComplete="current-password" required dir="ltr" />
                 <SubmitButton className="btn-primary w-full" pendingLabel={t.common.loading}>
                   {t.login.submit}

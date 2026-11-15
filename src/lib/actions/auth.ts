@@ -53,14 +53,16 @@ async function recordFailure(db: Db, key: string, limit: number) {
 export async function login(_: ActionState, formData: FormData): Promise<ActionState> {
   const lang = langFrom(formData);
   const dict = t(lang);
-  const email = str(formData, "email").toLowerCase().slice(0, 254);
+  // The email must match exactly, capitals included (accounts are stored in lowercase).
+  const email = str(formData, "email").slice(0, 254);
   const pw = password(formData, "password");
   if (!email || !pw) return { error: dict.common.required };
 
   // Sign-in counters always live in the real database.
   const db = await dbFor("live");
   const ip = await clientIp();
-  const keys = [`email:${email}`, `ip:${ip}`];
+  // Counted per address whatever the capitals, so changing case doesn't buy extra attempts.
+  const keys = [`email:${email.toLowerCase()}`, `ip:${ip}`];
   const wait = await lockedFor(db, keys);
   if (wait > 0) return { error: dict.login.tooMany.replace("{n}", String(wait)) };
 
