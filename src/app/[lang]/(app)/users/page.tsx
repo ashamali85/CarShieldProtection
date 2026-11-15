@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getDb, schema } from "@/db";
+import { dbFor, getDb, schema, trainingEnabled } from "@/db";
 import { pageContext } from "@/lib/page";
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { can } from "@/lib/auth";
 import { canGrant } from "@/lib/roles";
 import { createUser, deleteUser, resetUserPassword, toggleUserActive } from "@/lib/actions/admin";
@@ -11,6 +11,9 @@ import { setUserRole } from "@/lib/actions/roles";
 import { UserTabs } from "@/components/area-tabs";
 import { ActionForm, Field, SubmitButton } from "@/components/forms";
 import { PageHeader, PageSkeleton } from "@/components/ui";
+import { currentMode } from "@/lib/session-token";
+import { refreshTraining } from "@/lib/actions/training";
+import type { Dictionary, Locale } from "@/i18n";
 
 export default function UsersPage(props: PageProps<"/[lang]/users">) {
   return (
@@ -176,6 +179,56 @@ async function Users({ params }: PageProps<"/[lang]/users">) {
           </ActionForm>
         </section>
       </div>
+      {me.isAdmin && (await currentMode()) === "live" && trainingEnabled() && <TrainingCard lang={lang} t={t} />}
     </>
+  );
+}
+
+/** Admins of the real shop: who the demo accounts are, and a button to refresh the practice copy. */
+async function TrainingCard({ lang, t }: { lang: Locale; t: Dictionary }) {
+  const T = t.training;
+  const training = await dbFor("training");
+  const demo = await training
+    .select({ name: schema.users.name, email: schema.users.email, roleEn: schema.roles.nameEn, roleAr: schema.roles.nameAr })
+    .from(schema.users)
+    .innerJoin(schema.roles, eq(schema.roles.id, schema.users.roleId))
+    .where(eq(schema.users.active, true))
+    .orderBy(schema.users.email);
+  return (
+    <section className="card card-pad mt-6 border-amber-200">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="badge bg-amber-500 text-white">{T.label}</span>
+        <h2 className="section-title">{T.title}</h2>
+      </div>
+      <p className="hint mt-1 mb-4">{T.hint}</p>
+      <div className="grid gap-6 md:grid-cols-2">
+        <div>
+          <h3 className="mb-2 text-sm font-semibold">{T.accounts}</h3>
+          <ul className="space-y-1.5 text-sm">
+            {demo.map((u) => (
+              <li key={u.email} className="flex flex-wrap items-baseline gap-x-2">
+                <span dir="ltr" className="font-medium">
+                  {u.email}
+                </span>
+                <span className="text-muted">· {lang === "ar" ? u.roleAr : u.roleEn}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <details className="rounded-lg border border-line p-4">
+          <summary className="btn-secondary cursor-pointer list-none [&::-webkit-details-marker]:hidden">{T.refresh}</summary>
+          <ActionForm action={refreshTraining} hidden={{ lang }} resetOnSuccess={false} successMessage={T.refreshed} className="mt-3 space-y-3">
+            <p className="text-sm text-muted">{T.refreshHint}</p>
+            <label className="flex cursor-pointer items-start gap-2 text-sm">
+              <input type="checkbox" name="anonymize" defaultChecked className="mt-0.5 size-4 shrink-0 accent-brand-600" />
+              {T.anonymize}
+            </label>
+            <SubmitButton className="btn-primary" pendingLabel={T.refreshing}>
+              {T.confirm}
+            </SubmitButton>
+          </ActionForm>
+        </details>
+      </div>
+    </section>
   );
 }
